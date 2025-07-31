@@ -25,6 +25,7 @@ import {
   SearchIcon,
   Logo,
 } from "@/components/icons";
+import { Avatar } from "@heroui/avatar";
 
 export const Navbar = () => {
   const searchInput = (
@@ -49,14 +50,22 @@ export const Navbar = () => {
   );
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="2xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
+        {/* <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Logo />
             <p className="font-bold text-inherit">ACME</p>
           </NextLink>
-        </NavbarBrand>
+        </NavbarBrand> */}
+        <div className="flex flex-row items-top justify-between lg:justify-start w-full gap-2">
+          <Avatar
+            src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+            alt="User Avatar"
+            size="md"
+          />
+          <h1 className="text-2xl font-bold">Hello, Raphael</h1>
+      </div>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
@@ -80,7 +89,7 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
+          {/* <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
             <TwitterIcon className="text-default-500" />
           </Link>
           <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
@@ -88,28 +97,13 @@ export const Navbar = () => {
           </Link>
           <Link isExternal aria-label="Github" href={siteConfig.links.github}>
             <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
+          </Link> */}
+          <ThemeSwitch className="hidden lg:flex"/>
         </NavbarItem>
         <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            Sponsor
-          </Button>
-        </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
+      <NavbarContent className="lg:hidden basis-1 pl-4" justify="end">
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
