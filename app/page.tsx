@@ -7,7 +7,10 @@ import { useCategoryStore } from "../stores/categoryStore";
 function CategoriesList() {
   const { selected, toggleCategory, categories } = useCategoryStore();
   return (
-    <div className="flex flex-wrap lg:flex-nowrap gap-2 mb-4 justify-start lg:justify-start overflow-x-auto lg:overflow-x-auto">
+    <div
+      className="flex flex-wrap lg:flex-nowrap gap-2 mb-4 pb-3 justify-start lg:justify-start overflow-x-auto lg:overflow-x-auto custom-scrollbar"
+      style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
+    >
       {categories.map((category) => (
         <Chip
           key={category.id}
