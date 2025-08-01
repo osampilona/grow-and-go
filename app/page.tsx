@@ -8,42 +8,42 @@ function CategoriesList() {
   const { selected, toggleCategory, categories } = useCategoryStore();
   return (
     <div
-      className="flex flex-wrap lg:flex-nowrap gap-2 mb-4 pb-3 justify-start lg:justify-start overflow-x-auto lg:overflow-x-auto custom-scrollbar"
+      className="flex gap-3 justify-start lg:justify-center overflow-x-auto custom-scrollbar"
       style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
     >
-      {categories.map((category) => (
-        <Chip
-          key={category.id}
-          onClick={() => toggleCategory(category.id)}
-          classNames={{
-            base:
-              `cursor-pointer transition-all duration-150 flex items-center gap-1 ` +
-              (selected.includes(category.id)
-                ? "bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white"
-                : "bg-transparent text-black dark:text-white border border-black/30 dark:border-white/30"),
-            content: "font-semibold flex items-center gap-1",
-          }}
-        >
-          {category.img && (
-            <img
-              src={category.img}
-              alt=""
-              className={
-                `w-5 h-5 mr-1 inline-block align-middle ` +
-                (selected.includes(category.id)
-                  ? "text-white dark:text-black" // selected: white text (light), black text (dark)
-                  : "text-black dark:text-white") // unselected: black text (light), white text (dark)
-                + " " +
-                (selected.includes(category.id)
-                  ? "filter invert dark:invert-0" // selected: icon white (light), black (dark)
-                  : "filter-none dark:invert") // unselected: icon black (light), white (dark)
-              }
-              style={{ minWidth: 20, minHeight: 20 }}
-            />
-          )}
-          {category.name}
-        </Chip>
-      ))}
+      {categories.map((category) => {
+        const isSelected = selected.includes(category.id);
+        return (
+          <button
+            key={category.id}
+            onClick={() => toggleCategory(category.id)}
+            className={
+              `flex flex-col items-center px-2 py-1 focus:outline-none bg-transparent transition-all duration-150 ` +
+              (isSelected
+                ? "border-b-2 border-black dark:border-white"
+                : "border-b-2 border-transparent")
+            }
+            style={{ minWidth: 66 }}
+          >
+            {category.img && (
+              <img
+                src={category.img}
+                alt=""
+                className="w-7 h-7 mb-1 object-contain dark:invert"
+                style={{ minWidth: 28, minHeight: 28 }}
+              />
+            )}
+            <span className={
+              `text-xs font-semibold ` +
+              (isSelected
+                ? "text-black dark:text-white"
+                : "text-gray-700 dark:text-gray-200")
+            }>
+              {category.name}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
