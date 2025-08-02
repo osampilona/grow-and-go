@@ -6,7 +6,7 @@ const CategoriesList = memo(function CategoriesList() {
   
   return (
     <div
-      className="flex gap-3 justify-start lg:justify-center overflow-x-auto custom-scrollbar"
+      className="grid grid-cols-3 gap-3 md:flex md:gap-3 md:justify-center md:overflow-x-auto custom-scrollbar"
       style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
     >
       {categories.map((category) => {
