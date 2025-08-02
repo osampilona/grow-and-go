@@ -1,5 +1,5 @@
 import { Avatar } from "@heroui/react";
-import Carousel from "./CarouselSimple";
+import Carousel from "./Carousel";
 
 export type CardItem = {
   title: string;

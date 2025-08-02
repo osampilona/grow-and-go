@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 
 interface CarouselProps {
   images: string[];
@@ -12,11 +12,6 @@ export default function Carousel({ images, alt, className = "" }: CarouselProps)
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const goToSlide = useCallback((index: number) => {
-    setCurrentIndex(index);
-  }, []);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % images.length);
@@ -25,6 +20,10 @@ export default function Carousel({ images, alt, className = "" }: CarouselProps)
   const prevSlide = useCallback(() => {
     setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
   }, [images.length]);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentIndex(index);
+  }, []);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
@@ -51,85 +50,35 @@ export default function Carousel({ images, alt, className = "" }: CarouselProps)
     touchEndX.current = 0;
   }, [nextSlide, prevSlide]);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    touchStartX.current = e.clientX;
-  }, []);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (touchStartX.current) {
-      touchEndX.current = e.clientX;
-    }
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    
-    const distance = touchStartX.current - touchEndX.current;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      nextSlide();
-    } else if (isRightSwipe) {
-      prevSlide();
-    }
-
-    touchStartX.current = 0;
-    touchEndX.current = 0;
-  }, [nextSlide, prevSlide]);
-
   if (images.length === 0) return null;
-
-  // Debug log
-  console.log('Carousel images:', images);
-  console.log('Current index:', currentIndex);
 
   return (
     <div 
-      ref={containerRef}
       className={`relative overflow-hidden ${className}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
     >
-      {/* Image container with transform for smooth transitions */}
-      <div 
-        className="flex transition-transform duration-300 ease-out"
-        style={{ 
-          transform: `translateX(-${currentIndex * 100}%)`,
-          width: `${images.length * 100}%`,
-          height: "100%",
-        }}
-      >
-        {images.map((src, index) => (
-          <div
-            key={index}
-            className="w-full h-full flex-shrink-0 relative overflow-hidden"
-            style={{ width: `${100 / images.length}%` }}
-          >
-            {/* Blurred background for all images - fills entire container */}
-            <img
-              src={src}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
-              loading="eager"
-              aria-hidden="true"
-            />
-            
-            {/* Main image - centered in container */}
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <img
-                src={src}
-                alt={`${alt} ${index + 1}`}
-                className="max-w-full max-h-full object-contain"
-                loading="eager"
-              />
-            </div>
-          </div>
-        ))}
+      {/* Single image display with smooth transition */}
+      <div className="w-full h-full relative">
+        {/* Blurred background */}
+        <img
+          key={`bg-${currentIndex}`}
+          src={images[currentIndex]}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 transition-opacity duration-300"
+          aria-hidden="true"
+        />
+        
+        {/* Main image */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <img
+            key={`main-${currentIndex}`}
+            src={images[currentIndex]}
+            alt={`${alt} ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain transition-opacity duration-300"
+          />
+        </div>
       </div>
 
       {/* Navigation arrows - only show if more than 1 image */}
