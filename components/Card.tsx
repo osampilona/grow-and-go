@@ -1,23 +1,27 @@
 import { Avatar } from "@heroui/react";
+import Carousel from "./CarouselSimple";
 
 export type CardItem = {
   title: string;
-  seller: string;
+  seller: {
+    name: string;
+    avatar: string;
+  };
   price: string;
   rating: number;
-  img: string;
+  images: string[];
 };
 
 export default function Card({ item }: { item: CardItem }) {
   return (
     <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-white dark:bg-neutral-900">
       <div className="relative">
-        <img
-          src={item.img}
-          alt={item.title}
-          className="w-full h-80 object-cover rounded-2xl"
+        <Carousel 
+          images={item.images} 
+          alt={item.title} 
+          className="w-full h-80 rounded-2xl"
         />
-        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur-md shadow-md border border-white/40 dark:border-black/40 transition hover:bg-white/80 dark:hover:bg-black/60">
+        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur-md shadow-md border border-white/40 dark:border-black/40 transition hover:bg-white/80 dark:hover:bg-black/60 z-30">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-700 dark:text-white">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
           </svg>
@@ -27,8 +31,8 @@ export default function Card({ item }: { item: CardItem }) {
         <h3 className="text-base font-semibold text-black dark:text-white truncate">{item.title}</h3>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <Avatar size="sm" src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-            <p className="text-gray-500 dark:text-gray-300 font-semibold">{item.seller}</p>
+            <Avatar size="sm" src={item.seller.avatar} />
+            <p className="text-gray-500 dark:text-gray-300 font-semibold">{item.seller.name}</p>
           </div>
           <span className="flex items-center gap-0.5 text-sm text-black dark:text-white">
             {item.rating}

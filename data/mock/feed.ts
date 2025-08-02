@@ -8,7 +8,7 @@ export type FeedItem = {
   };
   price: string;
   rating: number;
-  img: string;
+  images: string[];
 };
 
 const mockFeed: FeedItem[] = [
@@ -21,7 +21,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK753',
     rating: 4.9,
-    img: 'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '2',
@@ -32,7 +36,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK500',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '3',
@@ -43,7 +51,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK120',
     rating: 4.8,
-    img: 'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '4',
@@ -54,7 +66,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK80',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '5',
@@ -65,7 +80,12 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK200',
     rating: 4.5,
-    img: 'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '6',
@@ -76,7 +96,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK150',
     rating: 4.9,
-    img: 'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '7',
@@ -87,7 +110,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1200',
     rating: 4.4,
-    img: 'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '8',
@@ -98,7 +125,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1800',
     rating: 4.8,
-    img: 'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '9',
@@ -109,7 +139,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK600',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '10',
@@ -120,7 +154,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK350',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '11',
@@ -131,7 +168,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK400',
     rating: 4.5,
-    img: 'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '12',
@@ -142,7 +183,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK900',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '13',
@@ -153,7 +197,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK700',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '14',
@@ -164,7 +212,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1100',
     rating: 4.8,
-    img: 'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '15',
@@ -175,7 +226,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK180',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '16',
@@ -186,7 +241,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK250',
     rating: 4.9,
-    img: 'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '17',
@@ -197,7 +255,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK90',
     rating: 4.5,
-    img: 'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '18',
@@ -208,7 +270,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK60',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '19',
@@ -219,7 +284,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK70',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '20',
@@ -230,7 +299,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK50',
     rating: 4.8,
-    img: 'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '21',
@@ -241,7 +313,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK130',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '22',
@@ -252,7 +328,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK40',
     rating: 4.7,
-    img: 'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '23',
@@ -263,7 +342,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK55',
     rating: 4.8,
-    img: 'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '24',
@@ -274,7 +357,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK35',
     rating: 4.6,
-    img: 'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+    ],
   },
   {
     id: '25',
@@ -285,7 +371,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK65',
     rating: 4.9,
-    img: 'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+    images: [
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+    ],
   },
 ];
 

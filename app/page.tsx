@@ -22,10 +22,10 @@ export default function Home() {
         {items.map((item) => (
           <Card key={item.id} item={{
             title: item.title,
-            seller: item.seller.name,
+            seller: item.seller,
             price: item.price,
             rating: item.rating,
-            img: item.img,
+            images: item.images,
           }} />
         ))}
       </div>
