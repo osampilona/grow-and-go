@@ -110,20 +110,20 @@ const Carousel = memo(function Carousel({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/70 dark:bg-black/70 backdrop-blur-sm shadow-md border border-white/40 dark:border-black/40 transition hover:bg-white/90 dark:hover:bg-black/90 z-20"
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/70 backdrop-blur-sm shadow-md border border-divider transition hover:bg-background/90 z-20"
             aria-label="Previous image"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-700 dark:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-foreground">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </button>
           
           <button
             onClick={nextSlide}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/70 dark:bg-black/70 backdrop-blur-sm shadow-md border border-white/40 dark:border-black/40 transition hover:bg-white/90 dark:hover:bg-black/90 z-20"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/70 backdrop-blur-sm shadow-md border border-divider transition hover:bg-background/90 z-20"
             aria-label="Next image"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-700 dark:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-foreground">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </button>
@@ -139,8 +139,8 @@ const Carousel = memo(function Carousel({
               onClick={() => goToSlide(index)}
               className={`w-2 h-2 rounded-full transition-all duration-200 ${
                 index === currentIndex
-                  ? 'bg-white dark:bg-white shadow-md scale-110'
-                  : 'bg-white/50 dark:bg-white/50 hover:bg-white/70 dark:hover:bg-white/70'
+                  ? 'bg-background shadow-md scale-110'
+                  : 'bg-background/50 hover:bg-background/70'
               }`}
               aria-label={`Go to image ${index + 1}`}
             />
