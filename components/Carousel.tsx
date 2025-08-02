@@ -6,9 +6,15 @@ interface CarouselProps {
   images: string[];
   alt: string;
   className?: string;
+  blurredBackground?: boolean;
 }
 
-export default function Carousel({ images, alt, className = "" }: CarouselProps) {
+export default function Carousel({ 
+  images, 
+  alt, 
+  className = "",
+  blurredBackground = false
+}: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
@@ -61,24 +67,38 @@ export default function Carousel({ images, alt, className = "" }: CarouselProps)
     >
       {/* Single image display with smooth transition */}
       <div className="w-full h-full relative">
-        {/* Blurred background */}
-        <img
-          key={`bg-${currentIndex}`}
-          src={images[currentIndex]}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 transition-opacity duration-300"
-          aria-hidden="true"
-        />
+        {blurredBackground && (
+          <>
+            {/* Blurred background */}
+            <img
+              key={`bg-${currentIndex}`}
+              src={images[currentIndex]}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 transition-opacity duration-300"
+              aria-hidden="true"
+            />
+            
+            {/* Main image - centered in container */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <img
+                key={`main-${currentIndex}`}
+                src={images[currentIndex]}
+                alt={`${alt} ${currentIndex + 1}`}
+                className="max-w-full max-h-full object-contain transition-opacity duration-300"
+              />
+            </div>
+          </>
+        )}
         
-        {/* Main image */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
+        {!blurredBackground && (
+          /* Cover image - fills container completely */
           <img
-            key={`main-${currentIndex}`}
+            key={`cover-${currentIndex}`}
             src={images[currentIndex]}
             alt={`${alt} ${currentIndex + 1}`}
-            className="max-w-full max-h-full object-contain transition-opacity duration-300"
+            className="w-full h-full object-cover transition-opacity duration-300"
           />
-        </div>
+        )}
       </div>
 
       {/* Navigation arrows - only show if more than 1 image */}
