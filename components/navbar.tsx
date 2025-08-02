@@ -11,17 +11,33 @@ import { useDisclosure } from "@heroui/use-disclosure";
 import NextLink from "next/link";
 import { TbCategory } from "react-icons/tb";
 import { CiMenuBurger } from "react-icons/ci";
-import { Button } from "@heroui/button"; // Add this import
+import { Button } from "@heroui/button";
+import { memo, useCallback } from "react";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
-export const Navbar = () => {
+
+export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onOpenChange: onMenuOpenChange } = useDisclosure();
 
-  // Add onClose handler for Drawer buttons
-  const onClose = () => onOpenChange();
-  const onMenuClose = () => onMenuOpenChange();
+  // Memoized close handlers to prevent unnecessary re-renders
+  const onClose = useCallback(() => {
+    onOpenChange();
+  }, [onOpenChange]);
+
+  const onMenuClose = useCallback(() => {
+    onMenuOpenChange();
+  }, [onMenuOpenChange]);
+
+  // Memoized button handlers
+  const handleCategoryOpen = useCallback(() => {
+    onOpen();
+  }, [onOpen]);
+
+  const handleMenuOpen = useCallback(() => {
+    onMenuOpen();
+  }, [onMenuOpen]);
 
   return (
     <>
@@ -46,7 +62,7 @@ export const Navbar = () => {
         <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center">
           <NavbarItem>
             <button 
-              onClick={onOpen}
+              onClick={handleCategoryOpen}
               className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-default-100 transition-colors"
             >
               <TbCategory size={20} />
@@ -58,7 +74,7 @@ export const Navbar = () => {
         <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
           <NavbarItem>
             <button 
-              onClick={onMenuOpen}
+              onClick={handleMenuOpen}
               className="flex items-center p-2 rounded-lg hover:bg-default-100 transition-colors"
             >
               <CiMenuBurger size={24} />
@@ -124,4 +140,4 @@ export const Navbar = () => {
       </Drawer>
     </>
   );
-};
+});
