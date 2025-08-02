@@ -18,7 +18,7 @@ const CategoriesList = memo(function CategoriesList() {
             className={
               `flex flex-col items-center px-2 py-1 focus:outline-none bg-transparent transition-all duration-150 ` +
               (isSelected
-                ? "border-b-2 border-black dark:border-white"
+                ? "border-b-2 border-foreground"
                 : "border-b-2 border-transparent")
             }
             style={{ minWidth: 66 }}
@@ -34,8 +34,8 @@ const CategoriesList = memo(function CategoriesList() {
             <span className={
               `text-xs font-semibold ` +
               (isSelected
-                ? "text-black dark:text-white"
-                : "text-gray-700 dark:text-gray-200")
+                ? "text-foreground"
+                : "text-foreground/70")
             }>
               {category.name}
             </span>
