@@ -20,12 +20,18 @@ declare module "@react-types/shared" {
   }
 }
 
-export function Providers({ children, themeProps }: ProvidersProps) {
+const Providers = React.memo(function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
+  const navigate = React.useCallback((path: string) => {
+    router.push(path);
+  }, [router]);
+
   return (
-    <HeroUIProvider navigate={router.push}>
+    <HeroUIProvider navigate={navigate}>
       <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
     </HeroUIProvider>
   );
-}
+});
+
+export { Providers };

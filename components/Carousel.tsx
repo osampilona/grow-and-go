@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, memo } from "react";
 
 interface CarouselProps {
   images: string[];
@@ -9,7 +9,7 @@ interface CarouselProps {
   blurredBackground?: boolean;
 }
 
-export default function Carousel({ 
+const Carousel = memo(function Carousel({ 
   images, 
   alt, 
   className = "",
@@ -18,14 +18,15 @@ export default function Carousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const imagesLength = images.length;
 
   const nextSlide = useCallback(() => {
-    setCurrentIndex(prev => (prev + 1) % images.length);
-  }, [images.length]);
+    setCurrentIndex(prev => (prev + 1) % imagesLength);
+  }, [imagesLength]);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
-  }, [images.length]);
+    setCurrentIndex(prev => (prev - 1 + imagesLength) % imagesLength);
+  }, [imagesLength]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -56,7 +57,10 @@ export default function Carousel({
     touchEndX.current = 0;
   }, [nextSlide, prevSlide]);
 
-  if (images.length === 0) return null;
+  if (imagesLength === 0) return null;
+
+  const currentImage = images[currentIndex];
+  const hasMultipleImages = imagesLength > 1;
 
   return (
     <div 
@@ -72,7 +76,7 @@ export default function Carousel({
             {/* Blurred background */}
             <img
               key={`bg-${currentIndex}`}
-              src={images[currentIndex]}
+              src={currentImage}
               alt=""
               className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 transition-opacity duration-300"
               aria-hidden="true"
@@ -82,7 +86,7 @@ export default function Carousel({
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <img
                 key={`main-${currentIndex}`}
-                src={images[currentIndex]}
+                src={currentImage}
                 alt={`${alt} ${currentIndex + 1}`}
                 className="max-w-full max-h-full object-contain transition-opacity duration-300"
               />
@@ -94,7 +98,7 @@ export default function Carousel({
           /* Cover image - fills container completely */
           <img
             key={`cover-${currentIndex}`}
-            src={images[currentIndex]}
+            src={currentImage}
             alt={`${alt} ${currentIndex + 1}`}
             className="w-full h-full object-cover transition-opacity duration-300"
           />
@@ -102,7 +106,7 @@ export default function Carousel({
       </div>
 
       {/* Navigation arrows - only show if more than 1 image */}
-      {images.length > 1 && (
+      {hasMultipleImages && (
         <>
           <button
             onClick={prevSlide}
@@ -127,7 +131,7 @@ export default function Carousel({
       )}
 
       {/* Dots indicator - only show if more than 1 image */}
-      {images.length > 1 && (
+      {hasMultipleImages && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
           {images.map((_, index) => (
             <button
@@ -145,4 +149,6 @@ export default function Carousel({
       )}
     </div>
   );
-}
+});
+
+export default Carousel;

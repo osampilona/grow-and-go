@@ -1,4 +1,5 @@
 import { Avatar } from "@heroui/react";
+import { memo } from "react";
 import Carousel from "./Carousel";
 
 export type CardItem = {
@@ -12,7 +13,7 @@ export type CardItem = {
   images: string[];
 };
 
-export default function Card({ item }: { item: CardItem }) {
+const Card = memo(function Card({ item }: { item: CardItem }) {
   return (
     <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-white dark:bg-neutral-900">
       <div className="relative">
@@ -47,4 +48,6 @@ export default function Card({ item }: { item: CardItem }) {
       </div>
     </div>
   );
-}
+});
+
+export default Card;

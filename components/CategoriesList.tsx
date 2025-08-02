@@ -1,7 +1,9 @@
+import { memo } from "react";
 import { useCategoryStore } from "../stores/categoryStore";
 
-export default function CategoriesList() {
+const CategoriesList = memo(function CategoriesList() {
   const { selected, toggleCategory, categories } = useCategoryStore();
+  
   return (
     <div
       className="flex gap-3 justify-start lg:justify-center overflow-x-auto custom-scrollbar"
@@ -42,4 +44,6 @@ export default function CategoriesList() {
       })}
     </div>
   );
-}
+});
+
+export default CategoriesList;
