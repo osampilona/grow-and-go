@@ -4,7 +4,6 @@
 import Card from "../components/Card";
 import { useEffect, useState, useMemo } from "react";
 import { fetchFeed, FeedItem } from "../data/mock/feed";
-import CategoriesList from "../components/CategoriesList";
 
 export default function Home() {
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -28,7 +27,6 @@ export default function Home() {
 
   return (
     <div>
-      <CategoriesList />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
         {cardItems.map((item) => (
           <Card key={item.id} item={item} />
