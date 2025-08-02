@@ -1,8 +1,7 @@
 
 "use client";
 
-import { Avatar } from "@heroui/react";
-import Card, { CardItem } from "../components/Card";
+import Card from "../components/Card";
 import { useEffect, useState } from "react";
 import { fetchFeed, FeedItem } from "../data/mock/feed";
 import CategoriesList from "../components/CategoriesList";
