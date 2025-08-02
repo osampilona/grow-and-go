@@ -10,15 +10,18 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@
 import { useDisclosure } from "@heroui/use-disclosure";
 import NextLink from "next/link";
 import { TbCategory } from "react-icons/tb";
+import { CiMenuBurger } from "react-icons/ci";
 import { Button } from "@heroui/button"; // Add this import
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
 export const Navbar = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onOpenChange: onMenuOpenChange } = useDisclosure();
 
   // Add onClose handler for Drawer buttons
   const onClose = () => onOpenChange();
+  const onMenuClose = () => onMenuOpenChange();
 
   return (
     <>
@@ -54,7 +57,12 @@ export const Navbar = () => {
 
         <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
           <NavbarItem>
-            <ThemeSwitch />
+            <button 
+              onClick={onMenuOpen}
+              className="flex items-center p-2 rounded-lg hover:bg-default-100 transition-colors"
+            >
+              <CiMenuBurger size={24} />
+            </button>
           </NavbarItem>
         </NavbarContent>
       </HeroUINavbar>
@@ -83,6 +91,35 @@ export const Navbar = () => {
                   Apply
                 </Button>
               </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Right Drawer for Menu */}
+      <Drawer 
+        isOpen={isMenuOpen} 
+        onOpenChange={onMenuOpenChange}
+        placement="right"
+        size="sm"
+        isDismissable={true}
+        backdrop="opaque"
+      >
+        <DrawerContent>
+          <DrawerHeader className="flex flex-col gap-1">
+            <h2 className="text-lg font-semibold">Menu</h2>
+          </DrawerHeader>
+          <DrawerBody className="pb-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Theme</span>
+                <ThemeSwitch />
+              </div>
+            </div>
+          </DrawerBody>
+          <DrawerFooter>
+            <Button color="primary" onPress={onMenuClose}>
+              Close
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>
