@@ -41,7 +41,7 @@ export const Navbar = memo(function Navbar() {
 
   return (
     <>
-      <HeroUINavbar maxWidth="2xl" position="sticky" className="bg-fffafa dark:bg-[#282828] backdrop-blur-md pt-2">
+      <HeroUINavbar maxWidth="2xl" position="sticky" className="bg-white/70 dark:bg-[#373737]/70 backdrop-blur-md border-b border-gray-200/20 dark:border-gray-700/20 pt-2">
         <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink className="flex justify-start items-center" href="/">
@@ -92,7 +92,7 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent>
+        <DrawerContent className="bg-white dark:bg-[#333]">
           <DrawerHeader className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">Categories & Filters</h2>
           </DrawerHeader>
@@ -119,7 +119,7 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent>
+        <DrawerContent className="bg-white dark:bg-[#333]">
           <DrawerHeader className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">Menu</h2>
           </DrawerHeader>
