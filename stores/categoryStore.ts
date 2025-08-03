@@ -23,19 +23,26 @@ export const categories: Category[] = [
 
 interface CategoryState {
   selected: string[]; // array of category ids
+  tempSelected: string[]; // temporary array of category ids
   categories: Category[];
   isLoading: boolean;
   hasHydrated: boolean;
   
   // Actions
+  initializeTemp: () => void;
+  applyTemp: () => void;
+  cancelTemp: () => void;
+  toggleTempCategory: (catId: string) => void;
   toggleCategory: (catId: string) => void;
   selectCategory: (catId: string) => void;
   selectMultipleCategories: (catIds: string[]) => void;
   clearSelections: () => void;
   resetToDefault: () => void;
   isSelected: (catId: string) => boolean;
+  isTempSelected: (catId: string) => boolean;
   getSelectedCategories: () => Category[];
   getSelectedCount: () => number;
+  getTempSelectedCount: () => number;
   getIconForCategory: (catId: string) => string | undefined; // New method to get appropriate icon
   setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -44,9 +51,33 @@ export const useCategoryStore = create<CategoryState>()(
   persist(
     (set, get) => ({
       selected: ["everything"],
+      tempSelected: ["everything"],
       categories,
       isLoading: false,
       hasHydrated: false,
+
+      initializeTemp: () => set(state => ({ tempSelected: state.selected })),
+      applyTemp: () => set(state => ({ selected: state.tempSelected })),
+      cancelTemp: () => set(state => ({ tempSelected: state.selected })),
+
+      toggleTempCategory: (catId: string) => set((state) => {
+        // If selecting 'everything', unselect all others and select only 'everything'
+        if (catId === "everything") {
+          return { tempSelected: ["everything"] };
+        }
+        // If 'everything' is currently selected and user selects another, unselect 'everything' and select only the new one
+        if (state.tempSelected.includes("everything")) {
+          return { tempSelected: [catId] };
+        }
+        // If the category is already selected, unselect it
+        if (state.tempSelected.includes(catId)) {
+          const newSelected = state.tempSelected.filter((c) => c !== catId);
+          // If nothing left selected, default back to 'everything'
+          return { tempSelected: newSelected.length ? newSelected : ["everything"] };
+        }
+        // Otherwise, select the new category (multi-select allowed except for 'everything')
+        return { tempSelected: [...state.tempSelected, catId] };
+      }),
       
       toggleCategory: (catId: string) => set((state) => {
         // If selecting 'everything', unselect all others and select only 'everything'
@@ -80,7 +111,8 @@ export const useCategoryStore = create<CategoryState>()(
       })),
       
       resetToDefault: () => set(() => ({
-        selected: ["everything"]
+        selected: ["everything"],
+        tempSelected: ["everything"]
       })),
       
       isSelected: (catId: string) => {
@@ -91,6 +123,15 @@ export const useCategoryStore = create<CategoryState>()(
         }
         return state.selected.includes(catId);
       },
+
+      isTempSelected: (catId: string) => {
+        const state = get();
+        // During SSR or before hydration, show default state
+        if (!state.hasHydrated) {
+          return catId === "everything";
+        }
+        return state.tempSelected.includes(catId);
+      },
       
       getSelectedCategories: () => {
         const { selected, categories } = get();
@@ -98,11 +139,19 @@ export const useCategoryStore = create<CategoryState>()(
       },
       
       getSelectedCount: () => {
-        return get().selected.length;
+        const state = get();
+        if (state.selected.includes("everything")) return 0;
+        return state.selected.length;
+      },
+
+      getTempSelectedCount: () => {
+        const state = get();
+        if (state.tempSelected.includes("everything")) return 0;
+        return state.tempSelected.length;
       },
       
       getIconForCategory: (catId: string) => {
-        const { categories, selected, hasHydrated } = get();
+        const { categories, tempSelected, hasHydrated } = get();
         const category = categories.find(cat => cat.id === catId);
         if (!category) return undefined;
         
@@ -112,7 +161,7 @@ export const useCategoryStore = create<CategoryState>()(
         }
         
         // Show colored icon if selected, black/white if not
-        return selected.includes(catId) ? category.imgColored : category.img;
+        return tempSelected.includes(catId) ? category.imgColored : category.img;
       },
       
       setHasHydrated: (hasHydrated: boolean) => set(() => ({ hasHydrated })),

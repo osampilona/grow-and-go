@@ -29,8 +29,12 @@ export const Navbar = memo(function Navbar() {
 
   // Get selected categories count from store
   const selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
+  const tempSelectedCategoriesCount = useCategoryStore((state) => state.getTempSelectedCount());
   const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
   const resetToDefault = useCategoryStore((state) => state.resetToDefault);
+  const initializeTemp = useCategoryStore((state) => state.initializeTemp);
+  const applyTemp = useCategoryStore((state) => state.applyTemp);
+  const cancelTemp = useCategoryStore((state) => state.cancelTemp);
 
   // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
@@ -71,9 +75,10 @@ export const Navbar = memo(function Navbar() {
   // Memoized close handlers to prevent unnecessary re-renders
   const onClose = useCallback(() => {
     // Reset temp state when drawer closes without applying
+    cancelTemp();
     cancelFilters();
     onOpenChange();
-  }, [onOpenChange, cancelFilters]);
+  }, [onOpenChange, cancelTemp, cancelFilters]);
 
   const onMenuClose = useCallback(() => {
     onMenuOpenChange();
@@ -82,9 +87,10 @@ export const Navbar = memo(function Navbar() {
   // Memoized button handlers
   const handleCategoryOpen = useCallback(() => {
     // Initialize temp state with current state when drawer opens
+    initializeTemp();
     initializeTempFilters();
     onOpen();
-  }, [onOpen, initializeTempFilters]);
+  }, [onOpen, initializeTemp, initializeTempFilters]);
 
   const handleMenuOpen = useCallback(() => {
     onMenuOpen();
@@ -107,6 +113,12 @@ export const Navbar = memo(function Navbar() {
   }, [onFiltersModalOpenChange, setFiltersSelected, cancelFilters]);
 
   // Handler for applying filters (save temp state to main state)
+  const handleApplyAll = useCallback(() => {
+    applyTemp();
+    applyFilters();
+  }, [applyTemp, applyFilters]);
+
+  // Handler for applying filters (save temp state to main state)
   const handleApplyFilters = useCallback(() => {
     applyFilters();
   }, [applyFilters]);
@@ -115,6 +127,11 @@ export const Navbar = memo(function Navbar() {
   const handleCancelFilters = useCallback(() => {
     cancelFilters();
   }, [cancelFilters]);
+
+  const handleCancelAll = useCallback(() => {
+    cancelTemp();
+    cancelFilters();
+  }, [cancelTemp, cancelFilters]);
 
   // Handler for clearing individual filters (works on temp state in modal)
   const handleClearBrand = useCallback((brand: string) => {
@@ -133,29 +150,27 @@ export const Navbar = memo(function Navbar() {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
 
-  // Handler for resetting categories only
+  // Handler for resetting categories only (only affects temp state)
   const handleResetCategories = useCallback(() => {
-    resetToDefault();
-    // Also update temp state to reflect the reset
-    initializeTempFilters();
-  }, [resetToDefault, initializeTempFilters]);
+    // Only reset temp state - main state stays unchanged until Apply is pressed
+    useCategoryStore.setState({ tempSelected: ["everything"] });
+  }, []);
 
-  // Handler for resetting filters only
+  // Handler for resetting filters only (only affects temp state)
   const handleResetFilters = useCallback(() => {
-    resetFilters();
-    // Also update temp state to reflect the reset
-    initializeTempFilters();
-  }, [resetFilters, initializeTempFilters]);
-
-  // Handler for resetting everything
-  const handleResetAll = useCallback(() => {
-    resetToDefault();
-    resetFilters();
+    // Only reset temp filters - main filters stay unchanged until Apply is pressed
     clearAllTempFilters();
-  }, [resetToDefault, resetFilters, clearAllTempFilters]);
+  }, [clearAllTempFilters]);
+
+  // Handler for resetting everything (only affects temp state)
+  const handleResetAll = useCallback(() => {
+    // Only reset temp states - main states stay unchanged until Apply is pressed
+    useCategoryStore.setState({ tempSelected: ["everything"] });
+    clearAllTempFilters();
+  }, [clearAllTempFilters]);
 
   // Calculate category count (exclude "everything" from count)
-  const categoryCount = isEverythingSelected ? 0 : selectedCategoriesCount;
+  const categoryCount = tempSelectedCategoriesCount;
   
   // Get filter count from store
   const filterCount = getFilterCount;
@@ -262,6 +277,7 @@ export const Navbar = memo(function Navbar() {
         onOpenChange={(open) => {
           if (!open) {
             // Reset temp state when drawer closes
+            cancelTemp();
             cancelFilters();
           }
           onOpenChange();
@@ -401,7 +417,7 @@ export const Navbar = memo(function Navbar() {
                   color="danger" 
                   variant="light" 
                   onPress={() => {
-                    handleCancelFilters();
+                    handleCancelAll();
                     onClose();
                   }}
                 >
@@ -410,7 +426,7 @@ export const Navbar = memo(function Navbar() {
                 <Button 
                   color="primary" 
                   onPress={() => {
-                    handleApplyFilters();
+                    handleApplyAll();
                     onClose();
                   }}
                 >

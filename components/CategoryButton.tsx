@@ -12,24 +12,24 @@ const CategoryButton = memo(function CategoryButton({
 }: CategoryButtonProps) {
   // Get state and actions directly from global store
   const hasHydrated = useCategoryStore((state) => state.hasHydrated);
-  const isSelected = useCategoryStore((state) => state.isSelected(category.id));
-  const toggleCategory = useCategoryStore((state) => state.toggleCategory);
+  const isTempSelected = useCategoryStore((state) => state.isTempSelected(category.id));
+  const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
   const getIconForCategory = useCategoryStore((state) => state.getIconForCategory);
-  const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
+  const isEverythingTempSelected = useCategoryStore((state) => state.isTempSelected("everything"));
 
   const handleClick = useCallback(() => {
-    toggleCategory(category.id);
-  }, [toggleCategory, category.id]);
+    toggleTempCategory(category.id);
+  }, [toggleTempCategory, category.id]);
 
   // During SSR or before hydration, show default state
-  const isSelectedState = hasHydrated ? isSelected : category.id === "everything";
+  const isSelectedState = hasHydrated ? isTempSelected : category.id === "everything";
   
   // Get icon from store if available, otherwise use the category prop directly
   const storeIconSrc = getIconForCategory(category.id);
   const iconSrc = storeIconSrc || (isSelectedState ? category.imgColored : category.img);
   
   // Don't gray out categories when "Everything" is selected
-  const shouldGrayOut = !isEverythingSelected && !isSelectedState;
+  const shouldGrayOut = !isEverythingTempSelected && !isSelectedState;
 
   return (
     <button
