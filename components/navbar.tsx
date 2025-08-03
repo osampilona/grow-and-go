@@ -20,6 +20,7 @@ import CategoriesList from "./CategoriesList";
 import FiltersList from "./FiltersList";
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
+import { CloseIcon } from "./icons";
 
 export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -270,21 +271,32 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent className="bg-white dark:bg-slate-800">
+        <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
           <DrawerHeader className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Categories & Filters</h2>
-              {(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters) && (
+              <div className="flex items-center gap-2">
+                {(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters) && (
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="warning"
+                    onPress={handleResetAll}
+                    className="text-xs"
+                  >
+                    Reset All
+                  </Button>
+                )}
                 <Button
-                  size="sm"
-                  variant="flat"
-                  color="warning"
-                  onPress={handleResetAll}
-                  className="text-xs"
+                  isIconOnly
+                  className="text-foreground-500"
+                  radius="full"
+                  variant="light"
+                  onPress={onClose}
                 >
-                  Reset All
+                  <CloseIcon />
                 </Button>
-              )}
+              </div>
             </div>
 
             {hasTempActiveFilters && (
@@ -417,9 +429,18 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent className="bg-white dark:bg-slate-800">
-          <DrawerHeader className="flex flex-col gap-1">
+        <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
+          <DrawerHeader className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Menu</h2>
+            <Button
+              isIconOnly
+              className="text-foreground-500"
+              radius="full"
+              variant="light"
+              onPress={onMenuClose}
+            >
+              <CloseIcon />
+            </Button>
           </DrawerHeader>
           <DrawerBody className="pb-6">
             <div className="flex flex-col gap-4">
@@ -446,12 +467,13 @@ export const Navbar = memo(function Navbar() {
         size="2xl"
         scrollBehavior="inside"
       >
-        <ModalContent className="bg-white dark:bg-slate-800">
+        <ModalContent className="bg-white dark:bg-slate-800 hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Filters</h2>
+                  <div className="flex items-center gap-2">
                   {(filterCount > 0 || hasTempActiveFilters) && (
                     <Button
                       size="sm"
@@ -463,6 +485,16 @@ export const Navbar = memo(function Navbar() {
                       Reset Filters
                     </Button>
                   )}
+                                  <Button
+                    isIconOnly
+                    className="text-foreground-500"
+                    radius="full"
+                    variant="light"
+                    onPress={handleFiltersModalClose}
+                  >
+                    <CloseIcon />
+                  </Button>
+                    </div>
                 </div>
                 {hasTempActiveFilters && (
                   <div className="flex flex-wrap gap-1">

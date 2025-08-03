@@ -18,3 +18,8 @@
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #f5f5f5;
 }
+
+/* Hide close button in modal */
+.hide-close-button button[aria-label="Close"] {
+  display: none;
+}
