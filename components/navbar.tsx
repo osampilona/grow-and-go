@@ -13,7 +13,7 @@ import NextLink from "next/link";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Badge } from "@heroui/badge";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState, useMemo } from "react";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
@@ -150,24 +150,34 @@ export const Navbar = memo(function Navbar() {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
 
+  // Optimized reset handlers with stable references
+  const resetHandlers = useMemo(() => ({
+    resetCategories: () => {
+      useCategoryStore.setState({ tempSelected: ["everything"] });
+    },
+    resetFilters: () => {
+      clearAllTempFilters();
+    },
+    resetAll: () => {
+      useCategoryStore.setState({ tempSelected: ["everything"] });
+      clearAllTempFilters();
+    },
+  }), [clearAllTempFilters]);
+
   // Handler for resetting categories only (only affects temp state)
   const handleResetCategories = useCallback(() => {
-    // Only reset temp state - main state stays unchanged until Apply is pressed
-    useCategoryStore.setState({ tempSelected: ["everything"] });
-  }, []);
+    resetHandlers.resetCategories();
+  }, [resetHandlers]);
 
   // Handler for resetting filters only (only affects temp state)
   const handleResetFilters = useCallback(() => {
-    // Only reset temp filters - main filters stay unchanged until Apply is pressed
-    clearAllTempFilters();
-  }, [clearAllTempFilters]);
+    resetHandlers.resetFilters();
+  }, [resetHandlers]);
 
   // Handler for resetting everything (only affects temp state)
   const handleResetAll = useCallback(() => {
-    // Only reset temp states - main states stay unchanged until Apply is pressed
-    useCategoryStore.setState({ tempSelected: ["everything"] });
-    clearAllTempFilters();
-  }, [clearAllTempFilters]);
+    resetHandlers.resetAll();
+  }, [resetHandlers]);
 
   // Calculate category count (exclude "everything" from count)
   const categoryCount = tempSelectedCategoriesCount;
