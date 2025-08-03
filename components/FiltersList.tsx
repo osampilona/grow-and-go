@@ -16,6 +16,7 @@ const FiltersList = memo(function FiltersList() {
   const setTempSortBy = useFilterStore((state) => state.setTempSortBy);
   const setTempInStock = useFilterStore((state) => state.setTempInStock);
   const setTempOnSale = useFilterStore((state) => state.setTempOnSale);
+  const setTempItemCondition = useFilterStore((state) => state.setTempItemCondition);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   const brands = [
@@ -107,6 +108,24 @@ const FiltersList = memo(function FiltersList() {
             On Sale Only
           </Switch>
         </div>
+      </div>
+
+      {/* Item Condition */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
+        <Select
+          placeholder="Select item condition..."
+          className="w-full"
+          selectedKeys={[tempFilters.itemCondition]}
+          onSelectionChange={(keys) => setTempItemCondition(Array.from(keys)[0] as string)}
+        >
+          <SelectItem key="all">All Conditions</SelectItem>
+          <SelectItem key="brand-new">Brand New</SelectItem>
+          <SelectItem key="like-new">Like New</SelectItem>
+          <SelectItem key="very-good">Very Good</SelectItem>
+          <SelectItem key="good">Good</SelectItem>
+          <SelectItem key="fair">Fair</SelectItem>
+        </Select>
       </div>
 
       {/* Brand Selection */}

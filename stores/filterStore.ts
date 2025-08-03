@@ -8,6 +8,7 @@ export interface FilterState {
   sortBy: string;
   inStock: boolean;
   onSale: boolean;
+  itemCondition: string; // New field for item condition
 }
 
 interface FilterStore {
@@ -37,11 +38,13 @@ interface FilterStore {
   setTempSortBy: (sortBy: string) => void;
   setTempInStock: (inStock: boolean) => void;
   setTempOnSale: (onSale: boolean) => void;
+  setTempItemCondition: (condition: string) => void;
   
   // Individual temp filter clearing actions
   clearTempBrand: (brand: string) => void;
   clearTempOnSale: () => void;
   clearTempInStock: () => void;
+  clearTempItemCondition: () => void;
   clearAllTempFilters: () => void;
   
   // Apply/Cancel actions
@@ -65,7 +68,8 @@ const defaultFilterState: FilterState = {
   selectedBrands: [],
   sortBy: "newest",
   inStock: true,
-  onSale: false
+  onSale: false,
+  itemCondition: "all" // Default to show all conditions
 };
 
 export const useFilterStore = create<FilterStore>()(
@@ -111,6 +115,9 @@ export const useFilterStore = create<FilterStore>()(
       setTempOnSale: (onSale) => set((state) => ({
         tempFilters: { ...state.tempFilters, onSale }
       })),
+      setTempItemCondition: (itemCondition) => set((state) => ({
+        tempFilters: { ...state.tempFilters, itemCondition }
+      })),
       
       // Individual temp filter clearing actions
       clearTempBrand: (brand) => set((state) => ({
@@ -124,6 +131,9 @@ export const useFilterStore = create<FilterStore>()(
       })),
       clearTempInStock: () => set((state) => ({
         tempFilters: { ...state.tempFilters, inStock: true }
+      })),
+      clearTempItemCondition: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, itemCondition: "all" }
       })),
       clearAllTempFilters: () => set({ tempFilters: defaultFilterState }),
       
@@ -153,6 +163,7 @@ export const useFilterStore = create<FilterStore>()(
         return filters.selectedBrands.length > 0 || 
                filters.onSale || 
                !filters.inStock ||
+               filters.itemCondition !== "all" ||
                filters.ageRange[0] !== 0 || 
                filters.ageRange[1] !== 36 ||
                filters.priceRange[0] !== 10 || 
@@ -164,6 +175,7 @@ export const useFilterStore = create<FilterStore>()(
         return tempFilters.selectedBrands.length > 0 || 
                tempFilters.onSale || 
                !tempFilters.inStock ||
+               tempFilters.itemCondition !== "all" ||
                tempFilters.ageRange[0] !== 0 || 
                tempFilters.ageRange[1] !== 36 ||
                tempFilters.priceRange[0] !== 10 || 
@@ -175,6 +187,7 @@ export const useFilterStore = create<FilterStore>()(
         return filters.selectedBrands.length + 
                (filters.onSale ? 1 : 0) + 
                (!filters.inStock ? 1 : 0) +
+               (filters.itemCondition !== "all" ? 1 : 0) +
                ((filters.ageRange[0] !== 0 || filters.ageRange[1] !== 36) ? 1 : 0) +
                ((filters.priceRange[0] !== 10 || filters.priceRange[1] !== 200) ? 1 : 0);
       },
@@ -184,6 +197,7 @@ export const useFilterStore = create<FilterStore>()(
         return tempFilters.selectedBrands.length + 
                (tempFilters.onSale ? 1 : 0) + 
                (!tempFilters.inStock ? 1 : 0) +
+               (tempFilters.itemCondition !== "all" ? 1 : 0) +
                ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) ? 1 : 0) +
                ((tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) ? 1 : 0);
       }
