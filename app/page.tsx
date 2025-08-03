@@ -19,10 +19,12 @@ export default function Home() {
   const setFiltersModalOpen = useFilterStore((state) => state.setFiltersModalOpen);
   const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
   
+  // Get applied filters from store
+  const filters = useFilterStore((state) => state.filters);
+  
   useEffect(() => {
     fetchFeed().then((data) => {
       setItems(data);
-      setFilteredItems(data);
     });
   }, []);
 
@@ -35,18 +37,37 @@ export default function Home() {
     setFiltersSelected(false);  // Reset filters selection state
   }, [resetToDefault, resetFilters, setFiltersModalOpen, setFiltersSelected]); // Include dependencies
 
-  // Filter items based on search query
+  // Filter items based on search query and applied filters
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredItems(items);
-    } else {
-      const filtered = items.filter((item) =>
+    let filtered = items;
+
+    // Apply search query filter
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((item) =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.seller.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredItems(filtered);
     }
-  }, [searchQuery, items]);
+
+    // Apply item condition filter
+    if (filters.itemCondition && filters.itemCondition !== 'all') {
+      filtered = filtered.filter((item) => item.condition === filters.itemCondition);
+    }
+
+    // Apply price range filter
+    if (filters.priceRange && filters.priceRange.length === 2) {
+      const [minPrice, maxPrice] = filters.priceRange;
+      filtered = filtered.filter((item) => {
+        const price = parseInt(item.price.replace(/[^\d]/g, ''));
+        return price >= minPrice && price <= maxPrice;
+      });
+    }
+
+    // Apply other filters as needed (age range, brands, stock status, etc.)
+    // You can add more filter logic here as your app grows
+
+    setFilteredItems(filtered);
+  }, [searchQuery, items, filters]);
 
   // Handle search
   const handleSearch = (query: string) => {
@@ -61,6 +82,7 @@ export default function Home() {
       seller: item.seller,
       price: item.price,
       rating: item.rating,
+      condition: item.condition,
       images: item.images,
     })),
     [filteredItems]

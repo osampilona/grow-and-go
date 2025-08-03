@@ -1,4 +1,3 @@
-
 export type FeedItem = {
   id: string;
   title: string;
@@ -8,6 +7,7 @@ export type FeedItem = {
   };
   price: string;
   rating: number;
+  condition: 'brand-new' | 'like-new' | 'very-good' | 'good' | 'fair';
   images: string[];
 };
 
@@ -21,6 +21,7 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK753',
     rating: 4.9,
+    condition: 'like-new',
     images: [
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
@@ -36,6 +37,7 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK500',
     rating: 4.7,
+    condition: 'very-good',
     images: [
       'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
@@ -51,6 +53,7 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK120',
     rating: 4.8,
+    condition: 'brand-new',
     images: [
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
@@ -66,6 +69,7 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK80',
     rating: 4.6,
+    condition: 'good',
     images: [
       'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
@@ -80,6 +84,7 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK200',
     rating: 4.5,
+    condition: 'like-new',
     images: [
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
@@ -96,9 +101,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK150',
     rating: 4.9,
+    condition: 'fair',
     images: [
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -110,10 +116,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1200',
     rating: 4.4,
+    condition: 'very-good',
     images: [
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -125,9 +132,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1800',
     rating: 4.8,
+    condition: 'brand-new',
     images: [
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -139,10 +148,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK600',
     rating: 4.7,
+    condition: 'like-new',
     images: [
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -154,9 +164,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK350',
     rating: 4.6,
+    condition: 'good',
     images: [
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -168,10 +180,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK400',
     rating: 4.5,
+    condition: 'fair',
     images: [
       'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -183,9 +196,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK900',
     rating: 4.7,
+    condition: 'very-good',
     images: [
       'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -197,10 +212,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK700',
     rating: 4.6,
+    condition: 'brand-new',
     images: [
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -212,9 +228,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK1100',
     rating: 4.8,
+    condition: 'like-new',
     images: [
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -226,10 +244,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK180',
     rating: 4.7,
+    condition: 'good',
     images: [
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -241,9 +259,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK250',
     rating: 4.9,
+    condition: 'very-good',
     images: [
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -255,10 +275,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK90',
     rating: 4.5,
+    condition: 'fair',
     images: [
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -270,9 +291,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK60',
     rating: 4.6,
+    condition: 'brand-new',
     images: [
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -284,10 +306,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK70',
     rating: 4.7,
+    condition: 'like-new',
     images: [
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -299,9 +322,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK50',
     rating: 4.8,
+    condition: 'good',
     images: [
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -313,10 +337,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK130',
     rating: 4.6,
+    condition: 'very-good',
     images: [
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
       'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -328,9 +353,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK40',
     rating: 4.7,
+    condition: 'brand-new',
     images: [
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -342,10 +368,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK55',
     rating: 4.8,
+    condition: 'fair',
     images: [
-      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -357,9 +384,10 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK35',
     rating: 4.6,
+    condition: 'like-new',
     images: [
-      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933273/pexels-photo-3933273.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
     ],
   },
   {
@@ -371,10 +399,11 @@ const mockFeed: FeedItem[] = [
     },
     price: 'DKK65',
     rating: 4.9,
+    condition: 'good',
     images: [
-      'https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/3933274/pexels-photo-3933274.jpeg?auto=compress&w=400&q=80',
-      'https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400&q=80',
+      'https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=400&q=80',
     ],
   },
 ];

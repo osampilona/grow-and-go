@@ -53,6 +53,7 @@ export const Navbar = memo(function Navbar() {
   const clearTempBrand = useFilterStore((state) => state.clearTempBrand);
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
+  const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
   const resetFilters = useFilterStore((state) => state.resetFilters);
 
@@ -148,6 +149,10 @@ export const Navbar = memo(function Navbar() {
   const handleClearInStock = useCallback(() => {
     clearTempInStock();
   }, [clearTempInStock]);
+
+  const handleClearItemCondition = useCallback(() => {
+    clearTempItemCondition();
+  }, [clearTempItemCondition]);
 
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
@@ -312,6 +317,7 @@ export const Navbar = memo(function Navbar() {
                 onClearBrand={handleClearBrand}
                 onClearOnSale={handleClearOnSale}
                 onClearInStock={handleClearInStock}
+                onClearItemCondition={handleClearItemCondition}
               />
             </CustomDrawerHeader>
           </DrawerHeader>
@@ -406,6 +412,7 @@ export const Navbar = memo(function Navbar() {
                     onClearBrand={handleClearBrand}
                     onClearOnSale={handleClearOnSale}
                     onClearInStock={handleClearInStock}
+                    onClearItemCondition={handleClearItemCondition}
                   />
                 </CustomDrawerHeader>
               </ModalHeader>

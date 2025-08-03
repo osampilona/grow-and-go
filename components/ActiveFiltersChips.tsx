@@ -6,12 +6,14 @@ interface ActiveFiltersChipsProps {
   onClearBrand: (brand: string) => void;
   onClearOnSale: () => void;
   onClearInStock: () => void;
+  onClearItemCondition: () => void;
 }
 
 export const ActiveFiltersChips = memo(function ActiveFiltersChips({
   onClearBrand,
   onClearOnSale,
-  onClearInStock
+  onClearInStock,
+  onClearItemCondition
 }: ActiveFiltersChipsProps) {
   const tempFilters = useFilterStore((state) => state.tempFilters);
   const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
@@ -74,6 +76,21 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           onClose={onClearInStock}
         >
           Include Out of Stock
+        </Chip>
+      )}
+      {/* Item Condition Chip */}
+      {tempFilters.itemCondition !== "all" && (
+        <Chip
+          size="sm"
+          variant="flat"
+          color="success"
+          onClose={onClearItemCondition}
+        >
+          {tempFilters.itemCondition === "brand-new" && "Brand New"}
+          {tempFilters.itemCondition === "like-new" && "Like New"}  
+          {tempFilters.itemCondition === "very-good" && "Very Good"}
+          {tempFilters.itemCondition === "good" && "Good"}
+          {tempFilters.itemCondition === "fair" && "Fair"}
         </Chip>
       )}
     </div>
