@@ -5,11 +5,19 @@ import Card from "../components/Card";
 import SearchBar from "../components/SearchBar";
 import { useEffect, useState, useMemo } from "react";
 import { fetchFeed, FeedItem } from "../data/mock/feed";
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
 
 export default function Home() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<FeedItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Get reset functions from stores
+  const resetToDefault = useCategoryStore((state) => state.resetToDefault);
+  const resetFilters = useFilterStore((state) => state.resetFilters);
+  const setFiltersModalOpen = useFilterStore((state) => state.setFiltersModalOpen);
+  const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
   
   useEffect(() => {
     fetchFeed().then((data) => {
@@ -17,6 +25,15 @@ export default function Home() {
       setFilteredItems(data);
     });
   }, []);
+
+  // Reset all filters and selections on page load/reload
+  useEffect(() => {
+    resetToDefault(); // Reset categories to "everything"
+    resetFilters();   // Reset all filters to default
+    setSearchQuery(""); // Reset search query
+    setFiltersModalOpen(false); // Close any open filter modals
+    setFiltersSelected(false);  // Reset filters selection state
+  }, [resetToDefault, resetFilters, setFiltersModalOpen, setFiltersSelected]); // Include dependencies
 
   // Filter items based on search query
   useEffect(() => {

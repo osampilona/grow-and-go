@@ -124,19 +124,6 @@ const FiltersList = memo(function FiltersList() {
           ))}
         </CheckboxGroup>
       </div>
-
-      {/* Clear All Button */}
-      <div className="pt-2 border-t border-divider">
-        <Button
-          color="danger"
-          variant="light"
-          size="sm"
-          onPress={clearAllTempFilters}
-          className="w-full"
-        >
-          Clear All Filters
-        </Button>
-      </div>
     </div>
   );
 });

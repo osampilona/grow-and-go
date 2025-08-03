@@ -29,6 +29,7 @@ export const Navbar = memo(function Navbar() {
   // Get selected categories count from store
   const selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
   const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
+  const resetToDefault = useCategoryStore((state) => state.resetToDefault);
 
   // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
@@ -45,6 +46,7 @@ export const Navbar = memo(function Navbar() {
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
+  const resetFilters = useFilterStore((state) => state.resetFilters);
 
   // State to track screen size
   const [isLargeScreen, setIsLargeScreen] = useState(false);
@@ -129,6 +131,27 @@ export const Navbar = memo(function Navbar() {
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
+
+  // Handler for resetting categories only
+  const handleResetCategories = useCallback(() => {
+    resetToDefault();
+    // Also update temp state to reflect the reset
+    initializeTempFilters();
+  }, [resetToDefault, initializeTempFilters]);
+
+  // Handler for resetting filters only
+  const handleResetFilters = useCallback(() => {
+    resetFilters();
+    // Also update temp state to reflect the reset
+    initializeTempFilters();
+  }, [resetFilters, initializeTempFilters]);
+
+  // Handler for resetting everything
+  const handleResetAll = useCallback(() => {
+    resetToDefault();
+    resetFilters();
+    clearAllTempFilters();
+  }, [resetToDefault, resetFilters, clearAllTempFilters]);
 
   // Calculate category count (exclude "everything" from count)
   const categoryCount = isEverythingSelected ? 0 : selectedCategoriesCount;
@@ -251,18 +274,19 @@ export const Navbar = memo(function Navbar() {
           <DrawerHeader className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Categories & Filters</h2>
-              {hasTempActiveFilters && (
+              {(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters) && (
                 <Button
                   size="sm"
-                  variant="light"
-                  color="danger"
-                  onPress={handleClearAllFilters}
+                  variant="flat"
+                  color="warning"
+                  onPress={handleResetAll}
                   className="text-xs"
                 >
-                  Clear All
+                  Reset All
                 </Button>
               )}
             </div>
+
             {hasTempActiveFilters && (
               <div className="flex flex-wrap gap-1">
                 {/* Age Range Chip */}
@@ -325,11 +349,37 @@ export const Navbar = memo(function Navbar() {
           <DrawerBody className="pb-6">
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-3">Categories</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-base font-semibold">Categories</h3>
+                  {categoryCount > 0 && (
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="secondary"
+                      onPress={handleResetCategories}
+                      className="text-xs"
+                    >
+                      Reset Categories
+                    </Button>
+                  )}
+                </div>
                 <CategoriesList />
               </div>
               <div>
-                <h3 className="text-base font-semibold mb-3">Filters</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-base font-semibold">Filters</h3>
+                  {(filterCount > 0 || hasTempActiveFilters) && (
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      color="secondary"
+                      onPress={handleResetFilters}
+                      className="text-xs"
+                    >
+                      Reset Filters
+                    </Button>
+                  )}
+                </div>
                 <FiltersList />
               </div>
             </div>
@@ -402,15 +452,15 @@ export const Navbar = memo(function Navbar() {
               <ModalHeader className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Filters</h2>
-                  {hasTempActiveFilters && (
+                  {(filterCount > 0 || hasTempActiveFilters) && (
                     <Button
                       size="sm"
-                      variant="light"
-                      color="danger"
-                      onPress={handleClearAllFilters}
+                      variant="flat"
+                      color="secondary"
+                      onPress={handleResetFilters}
                       className="text-xs"
                     >
-                      Clear All
+                      Reset Filters
                     </Button>
                   )}
                 </div>
