@@ -7,17 +7,44 @@ import {
   NavbarItem,
 } from "@heroui/navbar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import NextLink from "next/link";
 import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
+import { Badge } from "@heroui/badge";
 import { memo, useCallback, useEffect, useState } from "react";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
+import FiltersList from "./FiltersList";
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
 
 export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onOpenChange: onMenuOpenChange } = useDisclosure();
+  const { isOpen: isFiltersModalOpen, onOpen: onFiltersModalOpen, onOpenChange: onFiltersModalOpenChange } = useDisclosure();
+
+  // Get selected categories count from store
+  const selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
+  const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
+
+  // Get filter state and actions from store
+  const filters = useFilterStore((state) => state.filters);
+  const tempFilters = useFilterStore((state) => state.tempFilters);
+  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters());
+  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
+  const getFilterCount = useFilterStore((state) => state.getFilterCount());
+  const isFiltersSelected = useFilterStore((state) => state.isFiltersSelected);
+  const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
+  const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
+  const applyFilters = useFilterStore((state) => state.applyFilters);
+  const cancelFilters = useFilterStore((state) => state.cancelFilters);
+  const clearTempBrand = useFilterStore((state) => state.clearTempBrand);
+  const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
+  const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
+  const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   // State to track screen size
   const [isLargeScreen, setIsLargeScreen] = useState(false);
@@ -40,8 +67,10 @@ export const Navbar = memo(function Navbar() {
 
   // Memoized close handlers to prevent unnecessary re-renders
   const onClose = useCallback(() => {
+    // Reset temp state when drawer closes without applying
+    cancelFilters();
     onOpenChange();
-  }, [onOpenChange]);
+  }, [onOpenChange, cancelFilters]);
 
   const onMenuClose = useCallback(() => {
     onMenuOpenChange();
@@ -49,12 +78,66 @@ export const Navbar = memo(function Navbar() {
 
   // Memoized button handlers
   const handleCategoryOpen = useCallback(() => {
+    // Initialize temp state with current state when drawer opens
+    initializeTempFilters();
     onOpen();
-  }, [onOpen]);
+  }, [onOpen, initializeTempFilters]);
 
   const handleMenuOpen = useCallback(() => {
     onMenuOpen();
   }, [onMenuOpen]);
+
+  // Handler for filters button
+  const handleFiltersClick = useCallback(() => {
+    setFiltersSelected(true);
+    // Initialize temp state with current state with new object reference
+    initializeTempFilters();
+    onFiltersModalOpen();
+  }, [onFiltersModalOpen, setFiltersSelected, initializeTempFilters]);
+
+  // Handler for when filters modal closes
+  const handleFiltersModalClose = useCallback(() => {
+    setFiltersSelected(false);
+    // Reset temp state to current state with new object reference
+    cancelFilters();
+    onFiltersModalOpenChange();
+  }, [onFiltersModalOpenChange, setFiltersSelected, cancelFilters]);
+
+  // Handler for applying filters (save temp state to main state)
+  const handleApplyFilters = useCallback(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+  // Handler for canceling filters (revert temp state)
+  const handleCancelFilters = useCallback(() => {
+    cancelFilters();
+  }, [cancelFilters]);
+
+  // Handler for clearing individual filters (works on temp state in modal)
+  const handleClearBrand = useCallback((brand: string) => {
+    clearTempBrand(brand);
+  }, [clearTempBrand]);
+
+  const handleClearOnSale = useCallback(() => {
+    clearTempOnSale();
+  }, [clearTempOnSale]);
+
+  const handleClearInStock = useCallback(() => {
+    clearTempInStock();
+  }, [clearTempInStock]);
+
+  const handleClearAllFilters = useCallback(() => {
+    clearAllTempFilters();
+  }, [clearAllTempFilters]);
+
+  // Calculate category count (exclude "everything" from count)
+  const categoryCount = isEverythingSelected ? 0 : selectedCategoriesCount;
+  
+  // Get filter count from store
+  const filterCount = getFilterCount;
+  
+  // Combined count for mobile
+  const totalCount = filterCount + categoryCount;
 
   return (
     <>
@@ -70,25 +153,66 @@ export const Navbar = memo(function Navbar() {
 
         {/* Categories for large screens */}
         <NavbarContent className="hidden lg:flex basis-1/5 sm:basis-full justify-center">
-          <NavbarItem>
+          <NavbarItem className="flex items-center gap-3">
             <CategoriesList />
+            {/* Independent Filters Button */}
+            <Badge 
+              content={filterCount > 0 ? filterCount : undefined}
+              color="primary"
+              size="sm"
+              showOutline={false}
+            >
+              <button
+                onClick={handleFiltersClick}
+                className={
+                  `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer border border-default-500 dark:border-default-600 ` +
+                  ((isFiltersSelected || hasActiveFilters)
+                    ? "dark:bg-white/10 dark:backdrop-blur-sm" 
+                    : "")
+                }
+                style={{ minWidth: 66 }}
+              >
+                <img
+                  src={(isFiltersSelected || hasActiveFilters) ? "/filters.svg" : "/filters_bw.svg"}
+                  alt="Filters"
+                  className={
+                    `w-7 h-7 mb-1 object-contain transition-all duration-150 ` +
+                    ((isFiltersSelected || hasActiveFilters) ? "" : "dark:invert")
+                  }
+                  style={{ minWidth: 28, minHeight: 28 }}
+                />
+                <span className="text-xs font-semibold text-foreground">
+                  Filters
+                </span>
+              </button>
+            </Badge>
           </NavbarItem>
         </NavbarContent>
 
         {/* Categories button for smaller screens */}
-        <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center">
+        <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center!">
           <NavbarItem>
-            <button 
-              onClick={handleCategoryOpen}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
+            <Badge 
+              content={totalCount > 0 ? totalCount : undefined}
+              color="primary"
+              size="sm"
+              showOutline={false}
             >
-              <img 
-                src="/cubes_bw.svg" 
-                alt="Categories" 
-                className="w-7 h-7 object-contain dark:invert" 
-              />
-              <span className="text-sm font-medium">Filters</span>
-            </button>
+              <button 
+                onClick={handleCategoryOpen}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
+              >
+                <img 
+                  src={(hasActiveFilters || categoryCount > 0) ? "/cubes.svg" : "/cubes_bw.svg"} 
+                  alt="Categories" 
+                  className={
+                    `w-7 h-7 object-contain transition-all duration-150 ` +
+                    ((hasActiveFilters || categoryCount > 0) ? "" : "dark:invert")
+                  }
+                />
+                <span className="text-sm font-medium">Filters</span>
+              </button>
+            </Badge>
           </NavbarItem>
         </NavbarContent>
 
@@ -101,7 +225,7 @@ export const Navbar = memo(function Navbar() {
               <img 
                 src="/baby-toy.svg" 
                 alt="Menu" 
-                className="w-8 h-8 object-contain dark:invert" 
+                className="w-8 h-8 object-contain" 
               />
             </button>
           </NavbarItem>
@@ -111,24 +235,123 @@ export const Navbar = memo(function Navbar() {
       {/* Top Drawer for Categories */}
       <Drawer 
         isOpen={isOpen} 
-        onOpenChange={onOpenChange}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Reset temp state when drawer closes
+            cancelFilters();
+          }
+          onOpenChange();
+        }}
         placement="top"
-        size="md"
+        size="xl"
         isDismissable={true}
         backdrop="opaque"
       >
         <DrawerContent className="bg-white dark:bg-slate-800">
-          <DrawerHeader className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold">Categories & Filters</h2>
+          <DrawerHeader className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Categories & Filters</h2>
+              {hasTempActiveFilters && (
+                <Button
+                  size="sm"
+                  variant="light"
+                  color="danger"
+                  onPress={handleClearAllFilters}
+                  className="text-xs"
+                >
+                  Clear All
+                </Button>
+              )}
+            </div>
+            {hasTempActiveFilters && (
+              <div className="flex flex-wrap gap-1">
+                {/* Age Range Chip */}
+                {(tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                  >
+                    Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]} months
+                  </Chip>
+                )}
+                {/* Price Range Chip */}
+                {(tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color="secondary"
+                  >
+                    Price: ${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}
+                  </Chip>
+                )}
+                {/* Brand Chips */}
+                {tempFilters.selectedBrands.map((brand) => (
+                  <Chip
+                    key={`brand-${brand}`}
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                    onClose={() => handleClearBrand(brand)}
+                  >
+                    {brand}
+                  </Chip>
+                ))}
+                {/* On Sale Chip */}
+                {tempFilters.onSale && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color="warning"
+                    onClose={handleClearOnSale}
+                  >
+                    On Sale
+                  </Chip>
+                )}
+                {/* Include Out of Stock Chip */}
+                {!tempFilters.inStock && (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    color="default"
+                    onClose={handleClearInStock}
+                  >
+                    Include Out of Stock
+                  </Chip>
+                )}
+              </div>
+            )}
           </DrawerHeader>
           <DrawerBody className="pb-6">
-            <CategoriesList />
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-base font-semibold mb-3">Categories</h3>
+                <CategoriesList />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold mb-3">Filters</h3>
+                <FiltersList />
+              </div>
+            </div>
           </DrawerBody>
           <DrawerFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button 
+                  color="danger" 
+                  variant="light" 
+                  onPress={() => {
+                    handleCancelFilters();
+                    onClose();
+                  }}
+                >
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button 
+                  color="primary" 
+                  onPress={() => {
+                    handleApplyFilters();
+                    onClose();
+                  }}
+                >
                   Apply
                 </Button>
               </DrawerFooter>
@@ -163,6 +386,121 @@ export const Navbar = memo(function Navbar() {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Filters Modal */}
+      <Modal 
+        isOpen={isFiltersModalOpen} 
+        onOpenChange={handleFiltersModalClose}
+        placement="center"
+        backdrop="opaque"
+        size="2xl"
+        scrollBehavior="inside"
+      >
+        <ModalContent className="bg-white dark:bg-slate-800">
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  {hasTempActiveFilters && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="danger"
+                      onPress={handleClearAllFilters}
+                      className="text-xs"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </div>
+                {hasTempActiveFilters && (
+                  <div className="flex flex-wrap gap-1">
+                    {/* Age Range Chip */}
+                    {(tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) && (
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                      >
+                        Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]} months
+                      </Chip>
+                    )}
+                    {/* Price Range Chip */}
+                    {(tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) && (
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color="secondary"
+                      >
+                        Price: ${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}
+                      </Chip>
+                    )}
+                    {/* Brand Chips */}
+                    {tempFilters.selectedBrands.map((brand) => (
+                      <Chip
+                        key={`brand-${brand}`}
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                        onClose={() => handleClearBrand(brand)}
+                      >
+                        {brand}
+                      </Chip>
+                    ))}
+                    {/* On Sale Chip */}
+                    {tempFilters.onSale && (
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color="warning"
+                        onClose={handleClearOnSale}
+                      >
+                        On Sale
+                      </Chip>
+                    )}
+                    {/* Include Out of Stock Chip */}
+                    {!tempFilters.inStock && (
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color="default"
+                        onClose={handleClearInStock}
+                      >
+                        Include Out of Stock
+                      </Chip>
+                    )}
+                  </div>
+                )}
+              </ModalHeader>
+              <ModalBody>
+                <FiltersList />
+              </ModalBody>
+              <ModalFooter>
+                <Button 
+                  color="danger" 
+                  variant="light" 
+                  onPress={() => {
+                    handleCancelFilters();
+                    onClose();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  color="primary" 
+                  onPress={() => {
+                    handleApplyFilters();
+                    onClose();
+                  }}
+                >
+                  Apply Filters
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 });

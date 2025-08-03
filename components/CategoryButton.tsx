@@ -3,10 +3,12 @@ import { useCategoryStore } from "../stores/categoryStore";
 
 interface CategoryButtonProps {
   category: { id: string; name: string; img?: string; imgColored?: string };
+  showBorder?: boolean;
 }
 
 const CategoryButton = memo(function CategoryButton({ 
-  category
+  category,
+  showBorder = false
 }: CategoryButtonProps) {
   // Get state and actions directly from global store
   const hasHydrated = useCategoryStore((state) => state.hasHydrated);
@@ -21,7 +23,10 @@ const CategoryButton = memo(function CategoryButton({
 
   // During SSR or before hydration, show default state
   const isSelectedState = hasHydrated ? isSelected : category.id === "everything";
-  const iconSrc = getIconForCategory(category.id);
+  
+  // Get icon from store if available, otherwise use the category prop directly
+  const storeIconSrc = getIconForCategory(category.id);
+  const iconSrc = storeIconSrc || (isSelectedState ? category.imgColored : category.img);
   
   // Don't gray out categories when "Everything" is selected
   const shouldGrayOut = !isEverythingSelected && !isSelectedState;
@@ -29,7 +34,15 @@ const CategoryButton = memo(function CategoryButton({
   return (
     <button
       onClick={handleClick}
-      className="flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer"
+      className={
+        `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+        (isSelectedState 
+          ? "dark:bg-white/10 dark:backdrop-blur-sm" 
+          : "") +
+        (showBorder
+          ? " border border-default-500 dark:border-default-600"
+          : "")
+      }
       style={{ minWidth: 66 }}
     >
       {iconSrc && (
@@ -40,7 +53,7 @@ const CategoryButton = memo(function CategoryButton({
             `w-7 h-7 mb-1 object-contain transition-all duration-150 ` +
             (shouldGrayOut 
               ? "opacity-60 dark:invert" 
-              : "dark:invert")
+              : isSelectedState ? "" : "dark:invert")
           }
           style={{ minWidth: 28, minHeight: 28 }}
         />
