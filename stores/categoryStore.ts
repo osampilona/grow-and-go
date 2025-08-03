@@ -6,24 +6,26 @@ export interface Category {
   id: string;
   name: string;
   img?: string;
+  imgColored?: string; // Add colored version
 }
 
 export const categories: Category[] = [
-  { id: "everything", name: "Everything", img: "/everything.svg" },
-  { id: "strollers", name: "Transport", img: "/baby-carriage.svg" },
-  { id: "clothing", name: "Accessories", img: "/baby-socks.svg" },
-  { id: "baby-clothes", name: "Clothes", img: "/onesie.svg" },
-  { id: "toys", name: "Toys", img: "/toys.svg" },
-  { id: "books", name: "Books", img: "/baby-book.svg" },
-  { id: "gear", name: "Gear", img: "/phone.svg" },
-  { id: "maternity", name: "Maternity", img: "/mother.svg" },
-  { id: "room", name: "Furniture", img: "/feeding-chair.svg" },
+  { id: "everything", name: "Everything", img: "/cubes_bw.svg", imgColored: "/cubes.svg" },
+  { id: "strollers", name: "Transport", img: "/stroller_bw.svg", imgColored: "/stroller.svg" },
+  { id: "clothing", name: "Accessories", img: "/bottle_bw.svg", imgColored: "/bottle.svg" },
+  { id: "baby-clothes", name: "Clothes", img: "/clothes_bw.svg", imgColored: "/clothes.svg" },
+  { id: "toys", name: "Toys", img: "/toys_bw.svg", imgColored: "/toys.svg" },
+  { id: "books", name: "Books", img: "/reading_bw.svg", imgColored: "/reading.svg" },
+  { id: "gear", name: "Gear", img: "/gear_bw.svg", imgColored: "/gear.svg" },
+  { id: "maternity", name: "Maternity", img: "/maternity_bw.svg", imgColored: "/maternity.svg" },
+  { id: "room", name: "Furniture", img: "/highchair_bw.svg", imgColored: "/highchair.svg" },
 ];
 
 interface CategoryState {
   selected: string[]; // array of category ids
   categories: Category[];
   isLoading: boolean;
+  hasHydrated: boolean;
   
   // Actions
   toggleCategory: (catId: string) => void;
@@ -34,6 +36,8 @@ interface CategoryState {
   isSelected: (catId: string) => boolean;
   getSelectedCategories: () => Category[];
   getSelectedCount: () => number;
+  getIconForCategory: (catId: string) => string | undefined; // New method to get appropriate icon
+  setHasHydrated: (hasHydrated: boolean) => void;
 }
 
 export const useCategoryStore = create<CategoryState>()(
@@ -42,6 +46,7 @@ export const useCategoryStore = create<CategoryState>()(
       selected: ["everything"],
       categories,
       isLoading: false,
+      hasHydrated: false,
       
       toggleCategory: (catId: string) => set((state) => {
         // If selecting 'everything', unselect all others and select only 'everything'
@@ -79,7 +84,12 @@ export const useCategoryStore = create<CategoryState>()(
       })),
       
       isSelected: (catId: string) => {
-        return get().selected.includes(catId);
+        const state = get();
+        // During SSR or before hydration, show default state
+        if (!state.hasHydrated) {
+          return catId === "everything";
+        }
+        return state.selected.includes(catId);
       },
       
       getSelectedCategories: () => {
@@ -90,11 +100,32 @@ export const useCategoryStore = create<CategoryState>()(
       getSelectedCount: () => {
         return get().selected.length;
       },
+      
+      getIconForCategory: (catId: string) => {
+        const { categories, selected, hasHydrated } = get();
+        const category = categories.find(cat => cat.id === catId);
+        if (!category) return undefined;
+        
+        // During SSR or before hydration, show default state
+        if (!hasHydrated) {
+          return catId === "everything" ? category.imgColored : category.img;
+        }
+        
+        // Show colored icon if selected, black/white if not
+        return selected.includes(catId) ? category.imgColored : category.img;
+      },
+      
+      setHasHydrated: (hasHydrated: boolean) => set(() => ({ hasHydrated })),
     }),
     {
       name: 'category-store', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
-      partialize: (state) => ({ selected: state.selected }), // only persist selected categories
+      partialize: (state) => ({}), // Don't persist anything - always start fresh
+      onRehydrateStorage: () => (state) => {
+        // Always reset to default on reload
+        state?.resetToDefault();
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
