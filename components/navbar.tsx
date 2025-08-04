@@ -42,9 +42,9 @@ export const Navbar = memo(function Navbar() {
   // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
   const tempFilters = useFilterStore((state) => state.tempFilters);
-  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters());
-  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
-  const getFilterCount = useFilterStore((state) => state.getFilterCount());
+  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters);
+  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters);
+  const getFilterCount = useFilterStore((state) => state.getFilterCount);
   const isFiltersSelected = useFilterStore((state) => state.isFiltersSelected);
   const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
@@ -54,6 +54,7 @@ export const Navbar = memo(function Navbar() {
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
+  const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
   const resetFilters = useFilterStore((state) => state.resetFilters);
 
@@ -154,6 +155,10 @@ export const Navbar = memo(function Navbar() {
     clearTempItemCondition();
   }, [clearTempItemCondition]);
 
+  const handleClearSellerRating = useCallback(() => {
+    clearTempSellerRating();
+  }, [clearTempSellerRating]);
+
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
@@ -191,7 +196,7 @@ export const Navbar = memo(function Navbar() {
   const categoryCount = tempSelectedCategoriesCount;
   
   // Get filter count from store
-  const filterCount = getFilterCount;
+  const filterCount = getFilterCount();
   
   // Combined count for mobile
   const totalCount = filterCount + categoryCount;
@@ -223,18 +228,18 @@ export const Navbar = memo(function Navbar() {
                 onClick={handleFiltersClick}
                 className={
                   `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer border border-default-500 dark:border-default-600 ` +
-                  ((isFiltersSelected || hasActiveFilters)
+                  ((isFiltersSelected || hasActiveFilters())
                     ? "dark:bg-white/10 dark:backdrop-blur-sm" 
                     : "")
                 }
                 style={{ minWidth: 66 }}
               >
                 <img
-                  src={(isFiltersSelected || hasActiveFilters) ? "/filters.svg" : "/filters_bw.svg"}
+                  src={(isFiltersSelected || hasActiveFilters()) ? "/filters.svg" : "/filters_bw.svg"}
                   alt="Filters"
                   className={
                     `w-7 h-7 mb-1 object-contain transition-all duration-150 ` +
-                    ((isFiltersSelected || hasActiveFilters) ? "" : "dark:invert")
+                    ((isFiltersSelected || hasActiveFilters()) ? "" : "dark:invert")
                   }
                   style={{ minWidth: 28, minHeight: 28 }}
                 />
@@ -260,11 +265,11 @@ export const Navbar = memo(function Navbar() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
               >
                 <img 
-                  src={(hasActiveFilters || categoryCount > 0) ? "/cubes.svg" : "/cubes_bw.svg"} 
+                  src={(hasActiveFilters() || categoryCount > 0) ? "/cubes.svg" : "/cubes_bw.svg"} 
                   alt="Categories" 
                   className={
                     `w-7 h-7 object-contain transition-all duration-150 ` +
-                    ((hasActiveFilters || categoryCount > 0) ? "" : "dark:invert")
+                    ((hasActiveFilters() || categoryCount > 0) ? "" : "dark:invert")
                   }
                 />
                 <span className="text-sm font-medium">Filters</span>
@@ -310,7 +315,7 @@ export const Navbar = memo(function Navbar() {
             <CustomDrawerHeader
               title="Categories & Filters"
               onClose={onClose}
-              showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters)}
+              showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters())}
               onResetAll={handleResetAll}
             >
               <ActiveFiltersChips
@@ -318,6 +323,7 @@ export const Navbar = memo(function Navbar() {
                 onClearOnSale={handleClearOnSale}
                 onClearInStock={handleClearInStock}
                 onClearItemCondition={handleClearItemCondition}
+                onClearSellerRating={handleClearSellerRating}
               />
             </CustomDrawerHeader>
           </DrawerHeader>
@@ -405,7 +411,7 @@ export const Navbar = memo(function Navbar() {
                 <CustomDrawerHeader
                   title="Filters"
                   onClose={handleFiltersModalClose}
-                  showResetAll={(filterCount > 0 || hasTempActiveFilters)}
+                  showResetAll={(filterCount > 0 || hasTempActiveFilters())}
                   onResetAll={handleResetFilters}
                 >
                   <ActiveFiltersChips
@@ -413,6 +419,7 @@ export const Navbar = memo(function Navbar() {
                     onClearOnSale={handleClearOnSale}
                     onClearInStock={handleClearInStock}
                     onClearItemCondition={handleClearItemCondition}
+                    onClearSellerRating={handleClearSellerRating}
                   />
                 </CustomDrawerHeader>
               </ModalHeader>

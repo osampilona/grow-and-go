@@ -67,6 +67,11 @@ export default function Home() {
       filtered = filtered.filter((item) => item.condition === filters.itemCondition);
     }
 
+    // Apply seller rating filter
+    if (filters.sellerRating > 0) {
+      filtered = filtered.filter((item) => item.rating >= filters.sellerRating);
+    }
+
     // Apply price range filter
     if (filters.priceRange && filters.priceRange.length === 2) {
       const [minPrice, maxPrice] = filters.priceRange;

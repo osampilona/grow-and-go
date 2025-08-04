@@ -7,6 +7,7 @@ import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDi
 import { useFilterStore } from "../stores/filterStore";
 import FiltersList from "./FiltersList";
 import { ActiveFiltersChips } from "./ActiveFiltersChips";
+import { CustomDrawerHeader } from "./DrawerHeader";
 
 interface SearchWithFiltersProps {
   onSearch?: (query: string) => void;
@@ -27,11 +28,12 @@ const SearchWithFilters = ({
   // Filter modal controls
   const { isOpen: isFilterModalOpen, onOpen: onFilterModalOpen, onOpenChange: onFilterModalOpenChange } = useDisclosure();
 
-  // Filter store
+  // Filter store - Get functions to call in component
   const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters);
   const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters);
   const getFilterCount = useFilterStore((state) => state.getFilterCount);
   const getTempFilterCount = useFilterStore((state) => state.getTempFilterCount);
+  const tempFilters = useFilterStore((state) => state.tempFilters);
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
   const cancelFilters = useFilterStore((state) => state.cancelFilters);
@@ -39,6 +41,32 @@ const SearchWithFilters = ({
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
+  const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
+
+  // Computed value to check if temp filters are active (reactive to tempFilters changes)
+  const hasTempFiltersActive = useMemo(() => {
+    return tempFilters.selectedBrands.length > 0 || 
+           tempFilters.onSale || 
+           !tempFilters.inStock ||
+           tempFilters.itemCondition !== "all" ||
+           tempFilters.sellerRating > 0 ||
+           tempFilters.ageRange[0] !== 0 || 
+           tempFilters.ageRange[1] !== 36 ||
+           tempFilters.priceRange[0] !== 10 || 
+           tempFilters.priceRange[1] !== 200;
+  }, [tempFilters]);
+
+  // Computed value for temp filter count (reactive to tempFilters changes)
+  const tempFilterCount = useMemo(() => {
+    return tempFilters.selectedBrands.length + 
+           (tempFilters.onSale ? 1 : 0) + 
+           (!tempFilters.inStock ? 1 : 0) +
+           (tempFilters.itemCondition !== "all" ? 1 : 0) +
+           (tempFilters.sellerRating > 0 ? 1 : 0) +
+           ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) ? 1 : 0) +
+           ((tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) ? 1 : 0);
+  }, [tempFilters]);
 
   // Screen size detection
   useEffect(() => {
@@ -73,14 +101,12 @@ const SearchWithFilters = ({
   // Handle filter modal close
   const handleFilterClose = useCallback(() => {
     cancelFilters();
-    onFilterModalOpenChange();
-  }, [cancelFilters, onFilterModalOpenChange]);
+  }, [cancelFilters]);
 
   // Handle apply filters
   const handleApplyFilters = useCallback(() => {
     applyFilters();
-    onFilterModalOpenChange();
-  }, [applyFilters, onFilterModalOpenChange]);
+  }, [applyFilters]);
 
   // Clear handlers for active filter chips
   const handleClearBrand = useCallback((brand: string) => {
@@ -98,6 +124,14 @@ const SearchWithFilters = ({
   const handleClearItemCondition = useCallback(() => {
     clearTempItemCondition();
   }, [clearTempItemCondition]);
+
+  const handleClearSellerRating = useCallback(() => {
+    clearTempSellerRating();
+  }, [clearTempSellerRating]);
+
+  const handleResetAllFilters = useCallback(() => {
+    clearAllTempFilters();
+  }, [clearAllTempFilters]);
 
   // Handle Enter key press
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
@@ -354,32 +388,35 @@ const SearchWithFilters = ({
       {/* Filter Modal for Large Screens */}
       <Modal 
         isOpen={isFilterModalOpen} 
-        onOpenChange={onFilterModalOpenChange}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Modal is closing - cancel any unsaved changes
+            handleFilterClose();
+          }
+          onFilterModalOpenChange();
+        }}
         size="2xl"
         scrollBehavior="inside"
         backdrop="blur"
       >
-        <ModalContent>
+        <ModalContent className="hide-close-button">
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <IoFilter size={24} />
-                  <span>Filters</span>
-                  {hasTempActiveFilters() && (
-                    <span className="px-2 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">
-                      {getTempFilterCount()} active
-                    </span>
-                  )}
-                </div>
-                {hasTempActiveFilters() && (
+              <ModalHeader className="flex flex-col gap-3">
+                <CustomDrawerHeader
+                  title="Filters"
+                  onClose={onClose}
+                  showResetAll={hasTempFiltersActive}
+                  onResetAll={handleResetAllFilters}
+                >
                   <ActiveFiltersChips
                     onClearBrand={handleClearBrand}
                     onClearOnSale={handleClearOnSale}
                     onClearInStock={handleClearInStock}
                     onClearItemCondition={handleClearItemCondition}
+                    onClearSellerRating={handleClearSellerRating}
                   />
-                )}
+                </CustomDrawerHeader>
               </ModalHeader>
               <ModalBody>
                 <FiltersList />
@@ -388,19 +425,21 @@ const SearchWithFilters = ({
                 <Button 
                   color="danger" 
                   variant="light" 
-                  onPress={handleFilterClose}
+                  onPress={() => {
+                    handleFilterClose();
+                    onClose();
+                  }}
                 >
                   Cancel
                 </Button>
                 <Button 
                   color="primary" 
-                  onPress={handleApplyFilters}
-                  disabled={!hasTempActiveFilters()}
+                  onPress={() => {
+                    handleApplyFilters();
+                    onClose();
+                  }}
                 >
                   Apply Filters
-                  {hasTempActiveFilters() && (
-                    <span className="ml-1">({getTempFilterCount()})</span>
-                  )}
                 </Button>
               </ModalFooter>
             </>
