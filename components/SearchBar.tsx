@@ -105,9 +105,9 @@ export const SearchBar = memo(({
   // Memoize className to prevent string concatenation on every render
   const containerClassName = useMemo(() => `
     relative flex items-center h-14
-    bg-white/30 dark:bg-slate-800/30 
-    backdrop-blur-md 
-    ${isExpanded ? 'border border-white/40 dark:border-slate-700/40' : 'border-0'}
+    bg-white/60 dark:bg-slate-800/60 
+    backdrop-blur-xl 
+    ${isExpanded ? 'border border-white/50 dark:border-slate-700/50' : 'border-0'}
     rounded-full
     shadow-lg shadow-black/10 dark:shadow-black/20
     hover:shadow-xl hover:shadow-black/15 dark:hover:shadow-black/30
@@ -129,8 +129,8 @@ export const SearchBar = memo(({
           whileTap={{ scale: 0.98 }}
           onClick={handleContainerClick}
           style={{
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
           }}
         >
           {/* Search Icon / Button */}

@@ -3,6 +3,7 @@
 
 import Card from "../components/Card";
 import SearchBar from "../components/SearchBar";
+import SearchWithFilters from "../components/SearchWithFilters";
 import { useEffect, useState, useMemo } from "react";
 import { fetchFeed, FeedItem } from "../data/mock/feed";
 import { useCategoryStore } from "../stores/categoryStore";
@@ -12,6 +13,7 @@ export default function Home() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<FeedItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   
   // Get reset functions from stores
   const resetToDefault = useCategoryStore((state) => state.resetToDefault);
@@ -21,6 +23,17 @@ export default function Home() {
   
   // Get applied filters from store
   const filters = useFilterStore((state) => state.filters);
+
+  // Screen size detection
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   
   useEffect(() => {
     fetchFeed().then((data) => {
@@ -90,13 +103,25 @@ export default function Home() {
 
   return (
     <div className="relative">
-      {/* Floating Search Bar - Bottom of screen */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-        <SearchBar 
-          onSearch={handleSearch}
-          placeholder="Search..."
-        />
-      </div>
+      {/* Floating Search Bar - Bottom of screen for smaller screens */}
+      {!isLargeScreen && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <SearchBar 
+            onSearch={handleSearch}
+            placeholder="Search..."
+          />
+        </div>
+      )}
+
+      {/* SearchWithFilters - Bottom of screen for large screens */}
+      {isLargeScreen && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <SearchWithFilters 
+            onSearch={handleSearch}
+            placeholder="Search..."
+          />
+        </div>
+      )}
 
       {/* Results count */}
       {searchQuery && (

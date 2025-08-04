@@ -213,7 +213,7 @@ export const Navbar = memo(function Navbar() {
           <NavbarItem className="flex items-center gap-3">
             <CategoriesList />
             {/* Independent Filters Button */}
-            <Badge 
+            {/* <Badge 
               content={filterCount > 0 ? filterCount : undefined}
               color="primary"
               size="sm"
@@ -242,7 +242,7 @@ export const Navbar = memo(function Navbar() {
                   Filters
                 </span>
               </button>
-            </Badge>
+            </Badge> */}
           </NavbarItem>
         </NavbarContent>
 
