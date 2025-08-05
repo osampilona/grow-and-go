@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useMemo, useCallback } from "react";
 import { Slider } from "@heroui/slider";
 import { Select, SelectItem } from "@heroui/select";
 import { Checkbox, CheckboxGroup } from "@heroui/checkbox";
@@ -21,7 +21,8 @@ const FiltersList = memo(function FiltersList() {
   const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
-  const brands = [
+  // MEMOIZED: Static brands array to prevent recreation
+  const brands = useMemo(() => [
     "Fisher-Price",
     "Carter's", 
     "Pampers",
@@ -30,7 +31,44 @@ const FiltersList = memo(function FiltersList() {
     "Skip Hop",
     "Chicco",
     "Graco"
-  ];
+  ], []);
+
+  // MEMOIZED: Handlers to prevent unnecessary re-renders
+  const handleAgeRangeChange = useCallback((value: number | number[]) => {
+    setTempAgeRange(Array.isArray(value) ? value : [value]);
+  }, [setTempAgeRange]);
+
+  const handlePriceRangeChange = useCallback((value: number | number[]) => {
+    setTempPriceRange(Array.isArray(value) ? value : [value]);
+  }, [setTempPriceRange]);
+
+  const handleSortByChange = useCallback((keys: any) => {
+    setTempSortBy(Array.from(keys)[0] as string);
+  }, [setTempSortBy]);
+
+  const handleItemConditionChange = useCallback((keys: any) => {
+    setTempItemCondition(Array.from(keys)[0] as string);
+  }, [setTempItemCondition]);
+
+  const handleSellerRatingChange = useCallback((keys: any) => {
+    const rating = Array.from(keys)[0];
+    setTempSellerRating(rating ? parseFloat(rating as string) : null);
+  }, [setTempSellerRating]);
+
+  const handleLocationRangeChange = useCallback((value: number | number[]) => {
+    setTempLocationRange(Array.isArray(value) ? value[0] : value);
+  }, [setTempLocationRange]);
+
+  // MEMOIZED: Tooltip content to prevent recreating objects
+  const ageTooltipContent = useMemo(() => 
+    `${tempFilters.ageRange[0]} - ${tempFilters.ageRange[1]} months`, 
+    [tempFilters.ageRange]
+  );
+
+  const priceTooltipContent = useMemo(() => 
+    `$${tempFilters.priceRange[0]} - $${tempFilters.priceRange[1]}`, 
+    [tempFilters.priceRange]
+  );
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -43,12 +81,12 @@ const FiltersList = memo(function FiltersList() {
           minValue={0}
           maxValue={60}
           value={tempFilters.ageRange}
-          onChange={(value) => setTempAgeRange(Array.isArray(value) ? value : [value])}
+          onChange={handleAgeRangeChange}
           className="w-full"
           color="primary"
           showTooltip={true}
           tooltipProps={{
-            content: `${tempFilters.ageRange[0]} - ${tempFilters.ageRange[1]} months`
+            content: ageTooltipContent
           }}
         />
       </div>
@@ -62,12 +100,12 @@ const FiltersList = memo(function FiltersList() {
           minValue={0}
           maxValue={500}
           value={tempFilters.priceRange}
-          onChange={(value) => setTempPriceRange(Array.isArray(value) ? value : [value])}
+          onChange={handlePriceRangeChange}
           className="w-full"
           color="secondary"
           showTooltip={true}
           tooltipProps={{
-            content: `$${tempFilters.priceRange[0]} - $${tempFilters.priceRange[1]}`
+            content: priceTooltipContent
           }}
         />
       </div>
@@ -79,7 +117,7 @@ const FiltersList = memo(function FiltersList() {
           placeholder="Sort products by..."
           className="w-full"
           selectedKeys={[tempFilters.sortBy]}
-          onSelectionChange={(keys) => setTempSortBy(Array.from(keys)[0] as string)}
+          onSelectionChange={handleSortByChange}
         >
           <SelectItem key="newest">Newest First</SelectItem>
           <SelectItem key="oldest">Oldest First</SelectItem>
@@ -119,7 +157,7 @@ const FiltersList = memo(function FiltersList() {
           placeholder="Select item condition..."
           className="w-full"
           selectedKeys={[tempFilters.itemCondition]}
-          onSelectionChange={(keys) => setTempItemCondition(Array.from(keys)[0] as string)}
+          onSelectionChange={handleItemConditionChange}
         >
           <SelectItem key="all">All Conditions</SelectItem>
           <SelectItem key="brand-new">Brand New</SelectItem>
@@ -137,10 +175,7 @@ const FiltersList = memo(function FiltersList() {
           placeholder="Select minimum rating"
           className="w-full"
           selectedKeys={tempFilters.sellerRating ? [tempFilters.sellerRating.toString()] : []}
-          onSelectionChange={(keys) => {
-            const rating = Array.from(keys)[0];
-            setTempSellerRating(rating ? parseFloat(rating as string) : null);
-          }}
+          onSelectionChange={handleSellerRatingChange}
         >
           <SelectItem key="4.0">4.0+ stars</SelectItem>
           <SelectItem key="3.5">3.5+ stars</SelectItem>
@@ -160,7 +195,7 @@ const FiltersList = memo(function FiltersList() {
             minValue={5}
             maxValue={100}
             value={tempFilters.locationRange}
-            onChange={(value) => setTempLocationRange(Array.isArray(value) ? value[0] : value)}
+            onChange={handleLocationRangeChange}
             color="warning"
             formatOptions={{
               style: "unit",
