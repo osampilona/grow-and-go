@@ -58,8 +58,8 @@ const SearchWithFilters = ({
            (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
            // Only count price range as active if it's NOT the full range (0-500)
            (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
-           // Only count location range as active if it's NOT the default range (5-25)
-           (tempFilters.locationRange[0] !== 5 || tempFilters.locationRange[1] !== 25) ||
+           // Only count location range as active if it's NOT the default value (25)
+           tempFilters.locationRange !== 25 ||
            tempFilters.sortBy !== "newest";
   }, [tempFilters]);
 
@@ -74,8 +74,8 @@ const SearchWithFilters = ({
            ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
            // Only count price range as active if it's NOT the full range (0-500)
            ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
-           // Only count location range as active if it's NOT the default range (5-25)
-           ((tempFilters.locationRange[0] !== 5 || tempFilters.locationRange[1] !== 25) ? 1 : 0) +
+           // Only count location range as active if it's NOT the default value (25)
+           (tempFilters.locationRange !== 25 ? 1 : 0) +
            (tempFilters.sortBy !== "newest" ? 1 : 0);
   }, [tempFilters]);
 
