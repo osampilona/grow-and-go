@@ -11,6 +11,7 @@ export interface FilterState {
   onSale: boolean;
   itemCondition: string; // New field for item condition
   sellerRating: number | null; // New field for minimum seller rating (null = no filter)
+  isLocationRangeSet: boolean; // Track if user has actively set location range
 }
 
 interface FilterStore {
@@ -81,6 +82,7 @@ export const defaultFilterState: FilterState = {
   onSale: false,
   itemCondition: "all",
   sellerRating: null, // No rating filter by default
+  isLocationRangeSet: false, // Default to false - user hasn't set it yet
 };
 
 export const useFilterStore = create<FilterStore>()(
@@ -115,7 +117,7 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, priceRange }
       })),
       setTempLocationRange: (locationRange) => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange }
+        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: true }
       })),
       setTempSelectedBrands: (selectedBrands) => set((state) => ({
         tempFilters: { ...state.tempFilters, selectedBrands }
@@ -165,7 +167,7 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, priceRange: [0, 500] }
       })),
       clearTempLocationRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange: 25 }
+        tempFilters: { ...state.tempFilters, locationRange: 25, isLocationRangeSet: false }
       })),
       clearAllTempFilters: () => set({ tempFilters: defaultFilterState }),
       
@@ -231,7 +233,7 @@ export const useFilterStore = create<FilterStore>()(
                ((filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ? 1 : 0) +
                // Only count price range as active if it's NOT the full range (0-500)
                ((filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ? 1 : 0) +
-               (filters.locationRange !== defaultFilterState.locationRange ? 1 : 0) +
+               (filters.isLocationRangeSet ? 1 : 0) +
                (filters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       },
       
@@ -246,7 +248,7 @@ export const useFilterStore = create<FilterStore>()(
                ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
                // Only count price range as active if it's NOT the full range (0-500)
                ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
-               (tempFilters.locationRange !== defaultFilterState.locationRange ? 1 : 0) +
+               (tempFilters.isLocationRangeSet ? 1 : 0) +
                (tempFilters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       }
     }),

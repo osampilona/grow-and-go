@@ -113,8 +113,8 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
-      {/* 7. Location Range Chip - only show if NOT the default (25) */}
-      {tempFilters.locationRange !== 25 && (
+      {/* 7. Location Range Chip - show if user has actively set it */}
+      {tempFilters.isLocationRangeSet && (
         <Chip
           size="sm"
           variant="flat"
