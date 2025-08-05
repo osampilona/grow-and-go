@@ -68,8 +68,17 @@ export default function Home() {
     }
 
     // Apply seller rating filter
-    if (filters.sellerRating > 0) {
-      filtered = filtered.filter((item) => item.rating >= filters.sellerRating);
+    if (filters.sellerRating !== null && filters.sellerRating > 0) {
+      filtered = filtered.filter((item) => item.rating >= filters.sellerRating!);
+    }
+
+    // Apply location range filter
+    // Note: This is a placeholder as the mock data doesn't include location info
+    // In a real app, you would filter based on distance from user's location
+    if (filters.locationRange && filters.locationRange.length === 2) {
+      // For now, this is just a placeholder - no actual filtering
+      // You would implement geolocation-based filtering here
+      console.log(`Location range filter: ${filters.locationRange[0]}-${filters.locationRange[1]} km`);
     }
 
     // Apply price range filter

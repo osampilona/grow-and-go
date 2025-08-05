@@ -8,6 +8,9 @@ interface ActiveFiltersChipsProps {
   onClearInStock: () => void;
   onClearItemCondition: () => void;
   onClearSellerRating: () => void;
+  onClearAgeRange: () => void;
+  onClearPriceRange: () => void;
+  onClearLocationRange: () => void;
 }
 
 export const ActiveFiltersChips = memo(function ActiveFiltersChips({
@@ -15,30 +18,46 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
   onClearOnSale,
   onClearInStock,
   onClearItemCondition,
-  onClearSellerRating
+  onClearSellerRating,
+  onClearAgeRange,
+  onClearPriceRange,
+  onClearLocationRange
 }: ActiveFiltersChipsProps) {
   const tempFilters = useFilterStore((state) => state.tempFilters);
 
   return (
     <div className="flex flex-wrap gap-1">
-      {/* Age Range Chip */}
-      {(tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) && (
+      {/* Age Range Chip - only show if NOT the full range (0-60) */}
+      {(tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) && (
         <Chip
           size="sm"
           variant="flat"
           color="primary"
+          onClose={onClearAgeRange}
         >
           Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]} months
         </Chip>
       )}
-      {/* Price Range Chip */}
-      {(tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) && (
+      {/* Price Range Chip - only show if NOT the full range (0-500) */}
+      {(tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) && (
         <Chip
           size="sm"
           variant="flat"
           color="secondary"
+          onClose={onClearPriceRange}
         >
           Price: ${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}
+        </Chip>
+      )}
+      {/* Location Range Chip - only show if NOT the default range (5-25) */}
+      {(tempFilters.locationRange[0] !== 5 || tempFilters.locationRange[1] !== 25) && (
+        <Chip
+          size="sm"
+          variant="flat"
+          color="success"
+          onClose={onClearLocationRange}
+        >
+          Location: {tempFilters.locationRange[0]}-{tempFilters.locationRange[1]} km
         </Chip>
       )}
       {/* Brand Chips */}
@@ -91,7 +110,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
         </Chip>
       )}
       {/* Seller Rating Chip */}
-      {tempFilters.sellerRating > 0 && (
+      {tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 && (
         <Chip
           size="sm"
           variant="flat"

@@ -18,6 +18,7 @@ const FiltersList = memo(function FiltersList() {
   const setTempOnSale = useFilterStore((state) => state.setTempOnSale);
   const setTempItemCondition = useFilterStore((state) => state.setTempItemCondition);
   const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
+  const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   const brands = [
@@ -129,25 +130,48 @@ const FiltersList = memo(function FiltersList() {
         </Select>
       </div>
 
-      {/* Seller Rating */}
+      {/* Seller Rating Filter */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Minimum Seller Rating</h3>
+        <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
         <Select
-          placeholder="Select minimum rating..."
+          placeholder="Select minimum rating"
           className="w-full"
-          selectedKeys={tempFilters.sellerRating > 0 ? [tempFilters.sellerRating.toString()] : []}
+          selectedKeys={tempFilters.sellerRating ? [tempFilters.sellerRating.toString()] : []}
           onSelectionChange={(keys) => {
-            const rating = Array.from(keys)[0] as string;
-            setTempSellerRating(rating ? parseFloat(rating) : 0);
+            const rating = Array.from(keys)[0];
+            setTempSellerRating(rating ? parseFloat(rating as string) : null);
           }}
         >
-          <SelectItem key="0">All Ratings</SelectItem>
-          <SelectItem key="3">3+ Stars</SelectItem>
-          <SelectItem key="3.5">3.5+ Stars</SelectItem>
-          <SelectItem key="4">4+ Stars</SelectItem>
-          <SelectItem key="4.5">4.5+ Stars</SelectItem>
-          <SelectItem key="4.8">4.8+ Stars</SelectItem>
+          <SelectItem key="4.0">4.0+ stars</SelectItem>
+          <SelectItem key="3.5">3.5+ stars</SelectItem>
+          <SelectItem key="3.0">3.0+ stars</SelectItem>
+          <SelectItem key="2.5">2.5+ stars</SelectItem>
+          <SelectItem key="2.0">2.0+ stars</SelectItem>
         </Select>
+      </div>
+
+      {/* Location Range Filter */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Location Range</h3>
+        <div className="px-2">
+          <Slider
+            size="sm"
+            step={5}
+            minValue={5}
+            maxValue={100}
+            value={tempFilters.locationRange}
+            onChange={(value) => setTempLocationRange(Array.isArray(value) ? value : [value, value])}
+            formatOptions={{
+              style: "unit",
+              unit: "kilometer",
+              unitDisplay: "short"
+            }}
+            className="max-w-md"
+          />
+        </div>
+        <p className="text-xs text-foreground-500 px-2">
+          Show items within {tempFilters.locationRange[0]}-{tempFilters.locationRange[1]} km
+        </p>
       </div>
 
       {/* Brand Selection */}

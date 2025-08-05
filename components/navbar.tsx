@@ -55,6 +55,9 @@ export const Navbar = memo(function Navbar() {
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearTempAgeRange = useFilterStore((state) => state.clearTempAgeRange);
+  const clearTempPriceRange = useFilterStore((state) => state.clearTempPriceRange);
+  const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
   const resetFilters = useFilterStore((state) => state.resetFilters);
 
@@ -158,6 +161,18 @@ export const Navbar = memo(function Navbar() {
   const handleClearSellerRating = useCallback(() => {
     clearTempSellerRating();
   }, [clearTempSellerRating]);
+
+  const handleClearAgeRange = useCallback(() => {
+    clearTempAgeRange();
+  }, [clearTempAgeRange]);
+
+  const handleClearPriceRange = useCallback(() => {
+    clearTempPriceRange();
+  }, [clearTempPriceRange]);
+
+  const handleClearLocationRange = useCallback(() => {
+    clearTempLocationRange();
+  }, [clearTempLocationRange]);
 
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
@@ -302,6 +317,9 @@ export const Navbar = memo(function Navbar() {
                 onClearInStock={handleClearInStock}
                 onClearItemCondition={handleClearItemCondition}
                 onClearSellerRating={handleClearSellerRating}
+                onClearAgeRange={handleClearAgeRange}
+                onClearPriceRange={handleClearPriceRange}
+                onClearLocationRange={handleClearLocationRange}
               />
             </CustomDrawerHeader>
           </DrawerHeader>
@@ -398,6 +416,9 @@ export const Navbar = memo(function Navbar() {
                     onClearInStock={handleClearInStock}
                     onClearItemCondition={handleClearItemCondition}
                     onClearSellerRating={handleClearSellerRating}
+                    onClearAgeRange={handleClearAgeRange}
+                    onClearPriceRange={handleClearPriceRange}
+                    onClearLocationRange={handleClearLocationRange}
                   />
                 </CustomDrawerHeader>
               </ModalHeader>
