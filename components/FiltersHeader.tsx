@@ -84,7 +84,7 @@ export const FiltersHeader = memo(function FiltersHeader({
         {/* Category Chips - Only show for mobile drawer */}
         {showCategoryChips && onClearCategory && hasActiveCategories && (
           <div>
-            <h4 className="text-xs font-medium text-foreground-500 mb-2">Active Categories</h4>
+            <h4 className="text-xs font-medium text-foreground-500 mb-2">Selected Categories</h4>
             <ActiveCategoryChips onClearCategory={onClearCategory} />
           </div>
         )}
@@ -92,7 +92,7 @@ export const FiltersHeader = memo(function FiltersHeader({
         {/* Filter Chips */}
         {hasTempActiveFilters && (
           <div>
-            <h4 className="text-xs font-medium text-foreground-500 mb-2">Active Filters</h4>
+            <h4 className="text-xs font-medium text-foreground-500 mb-2">Selected Filters</h4>
             <ActiveFiltersChips
               onClearBrand={onClearBrand}
               onClearOnSale={onClearOnSale}
