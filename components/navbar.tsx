@@ -18,9 +18,8 @@ import { memo, useCallback, useEffect, useState, useMemo } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
 import FiltersList from "./FiltersList";
-import { ActiveFiltersChips } from "./ActiveFiltersChips";
-import { CustomDrawerHeader } from "./DrawerHeader";
 import { FilterSection } from "./FilterSection";
+import { FiltersHeader } from "./FiltersHeader";
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
 import { CloseIcon } from "./icons";
@@ -55,6 +54,7 @@ export const Navbar = memo(function Navbar() {
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearTempSortBy = useFilterStore((state) => state.clearTempSortBy);
   const clearTempAgeRange = useFilterStore((state) => state.clearTempAgeRange);
   const clearTempPriceRange = useFilterStore((state) => state.clearTempPriceRange);
   const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
@@ -161,6 +161,10 @@ export const Navbar = memo(function Navbar() {
   const handleClearSellerRating = useCallback(() => {
     clearTempSellerRating();
   }, [clearTempSellerRating]);
+
+  const handleClearSortBy = useCallback(() => {
+    clearTempSortBy();
+  }, [clearTempSortBy]);
 
   const handleClearAgeRange = useCallback(() => {
     clearTempAgeRange();
@@ -305,23 +309,21 @@ export const Navbar = memo(function Navbar() {
       >
         <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
           <DrawerHeader className="flex flex-col gap-3">
-            <CustomDrawerHeader
+            <FiltersHeader
               title="Categories & Filters"
               onClose={onClose}
               showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters())}
               onResetAll={handleResetAll}
-            >
-              <ActiveFiltersChips
-                onClearBrand={handleClearBrand}
-                onClearOnSale={handleClearOnSale}
-                onClearInStock={handleClearInStock}
-                onClearItemCondition={handleClearItemCondition}
-                onClearSellerRating={handleClearSellerRating}
-                onClearAgeRange={handleClearAgeRange}
-                onClearPriceRange={handleClearPriceRange}
-                onClearLocationRange={handleClearLocationRange}
-              />
-            </CustomDrawerHeader>
+              onClearBrand={handleClearBrand}
+              onClearOnSale={handleClearOnSale}
+              onClearInStock={handleClearInStock}
+              onClearItemCondition={handleClearItemCondition}
+              onClearSellerRating={handleClearSellerRating}
+              onClearSortBy={handleClearSortBy}
+              onClearAgeRange={handleClearAgeRange}
+              onClearPriceRange={handleClearPriceRange}
+              onClearLocationRange={handleClearLocationRange}
+            />
           </DrawerHeader>
           <DrawerBody className="pb-6">
             <FilterSection
@@ -404,23 +406,21 @@ export const Navbar = memo(function Navbar() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
-                <CustomDrawerHeader
+                <FiltersHeader
                   title="Filters"
                   onClose={handleFiltersModalClose}
                   showResetAll={(filterCount > 0 || hasTempActiveFilters())}
                   onResetAll={handleResetFilters}
-                >
-                  <ActiveFiltersChips
-                    onClearBrand={handleClearBrand}
-                    onClearOnSale={handleClearOnSale}
-                    onClearInStock={handleClearInStock}
-                    onClearItemCondition={handleClearItemCondition}
-                    onClearSellerRating={handleClearSellerRating}
-                    onClearAgeRange={handleClearAgeRange}
-                    onClearPriceRange={handleClearPriceRange}
-                    onClearLocationRange={handleClearLocationRange}
-                  />
-                </CustomDrawerHeader>
+                  onClearBrand={handleClearBrand}
+                  onClearOnSale={handleClearOnSale}
+                  onClearInStock={handleClearInStock}
+                  onClearItemCondition={handleClearItemCondition}
+                  onClearSellerRating={handleClearSellerRating}
+                  onClearSortBy={handleClearSortBy}
+                  onClearAgeRange={handleClearAgeRange}
+                  onClearPriceRange={handleClearPriceRange}
+                  onClearLocationRange={handleClearLocationRange}
+                />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />

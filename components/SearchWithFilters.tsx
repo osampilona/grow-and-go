@@ -6,8 +6,7 @@ import { IoSearch, IoClose, IoFilter, IoOptions } from "react-icons/io5";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { useFilterStore } from "../stores/filterStore";
 import FiltersList from "./FiltersList";
-import { ActiveFiltersChips } from "./ActiveFiltersChips";
-import { CustomDrawerHeader } from "./DrawerHeader";
+import { FiltersHeader } from "./FiltersHeader";
 
 interface SearchWithFiltersProps {
   onSearch?: (query: string) => void;
@@ -42,6 +41,7 @@ const SearchWithFilters = ({
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearTempSortBy = useFilterStore((state) => state.clearTempSortBy);
   const clearTempAgeRange = useFilterStore((state) => state.clearTempAgeRange);
   const clearTempPriceRange = useFilterStore((state) => state.clearTempPriceRange);
   const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
@@ -139,6 +139,10 @@ const SearchWithFilters = ({
   const handleClearSellerRating = useCallback(() => {
     clearTempSellerRating();
   }, [clearTempSellerRating]);
+
+  const handleClearSortBy = useCallback(() => {
+    clearTempSortBy();
+  }, [clearTempSortBy]);
 
   const handleClearAgeRange = useCallback(() => {
     clearTempAgeRange();
@@ -426,23 +430,21 @@ const SearchWithFilters = ({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
-                <CustomDrawerHeader
+                <FiltersHeader
                   title="Filters"
                   onClose={onClose}
                   showResetAll={hasTempFiltersActive}
                   onResetAll={handleResetAllFilters}
-                >
-                  <ActiveFiltersChips
-                    onClearBrand={handleClearBrand}
-                    onClearOnSale={handleClearOnSale}
-                    onClearInStock={handleClearInStock}
-                    onClearItemCondition={handleClearItemCondition}
-                    onClearSellerRating={handleClearSellerRating}
-                    onClearAgeRange={handleClearAgeRange}
-                    onClearPriceRange={handleClearPriceRange}
-                    onClearLocationRange={handleClearLocationRange}
-                  />
-                </CustomDrawerHeader>
+                  onClearBrand={handleClearBrand}
+                  onClearOnSale={handleClearOnSale}
+                  onClearInStock={handleClearInStock}
+                  onClearItemCondition={handleClearItemCondition}
+                  onClearSellerRating={handleClearSellerRating}
+                  onClearSortBy={handleClearSortBy}
+                  onClearAgeRange={handleClearAgeRange}
+                  onClearPriceRange={handleClearPriceRange}
+                  onClearLocationRange={handleClearLocationRange}
+                />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />

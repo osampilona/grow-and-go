@@ -50,6 +50,7 @@ interface FilterStore {
   clearTempInStock: () => void;
   clearTempItemCondition: () => void;
   clearTempSellerRating: () => void;
+  clearTempSortBy: () => void;
   clearTempAgeRange: () => void;
   clearTempPriceRange: () => void;
   clearTempLocationRange: () => void;
@@ -153,6 +154,9 @@ export const useFilterStore = create<FilterStore>()(
       })),
       clearTempSellerRating: () => set((state) => ({
         tempFilters: { ...state.tempFilters, sellerRating: null }
+      })),
+      clearTempSortBy: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, sortBy: "newest" }
       })),
       clearTempAgeRange: () => set((state) => ({
         tempFilters: { ...state.tempFilters, ageRange: [0, 60] }
