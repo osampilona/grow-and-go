@@ -12,7 +12,6 @@ const FiltersList = memo(function FiltersList() {
   const tempFilters = useFilterStore((state) => state.tempFilters);
   const setTempAgeRange = useFilterStore((state) => state.setTempAgeRange);
   const setTempPriceRange = useFilterStore((state) => state.setTempPriceRange);
-  const setTempSelectedBrands = useFilterStore((state) => state.setTempSelectedBrands);
   const setTempSortBy = useFilterStore((state) => state.setTempSortBy);
   const setTempInStock = useFilterStore((state) => state.setTempInStock);
   const setTempOnSale = useFilterStore((state) => state.setTempOnSale);
@@ -20,18 +19,6 @@ const FiltersList = memo(function FiltersList() {
   const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
   const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
-
-  // MEMOIZED: Static brands array to prevent recreation
-  const brands = useMemo(() => [
-    "Fisher-Price",
-    "Carter's", 
-    "Pampers",
-    "Gerber",
-    "Baby Einstein",
-    "Skip Hop",
-    "Chicco",
-    "Graco"
-  ], []);
 
   // MEMOIZED: Handlers to prevent unnecessary re-renders
   const handleAgeRangeChange = useCallback((value: number | number[]) => {
@@ -210,21 +197,6 @@ const FiltersList = memo(function FiltersList() {
         </p>
       </div>
 
-      {/* Brand Selection */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
-        <CheckboxGroup
-          color="primary"
-          value={tempFilters.selectedBrands}
-          onValueChange={setTempSelectedBrands}
-        >
-          {brands.map((brand) => (
-            <Checkbox key={brand} value={brand}>
-              {brand}
-            </Checkbox>
-          ))}
-        </CheckboxGroup>
-      </div>
     </div>
   );
 });

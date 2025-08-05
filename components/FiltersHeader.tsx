@@ -15,7 +15,6 @@ interface FiltersHeaderProps {
   showCategoryChips?: boolean;
   onClearCategory?: (category: string) => void;
   // Clear handlers for ActiveFiltersChips
-  onClearBrand: (brand: string) => void;
   onClearOnSale: () => void;
   onClearInStock: () => void;
   onClearItemCondition: () => void;
@@ -33,7 +32,6 @@ export const FiltersHeader = memo(function FiltersHeader({
   onResetAll,
   showCategoryChips = false,
   onClearCategory,
-  onClearBrand,
   onClearOnSale,
   onClearInStock,
   onClearItemCondition,
@@ -94,7 +92,6 @@ export const FiltersHeader = memo(function FiltersHeader({
           <div>
             <h4 className="text-xs font-medium text-foreground-500 mb-2">Selected Filters</h4>
             <ActiveFiltersChips
-              onClearBrand={onClearBrand}
               onClearOnSale={onClearOnSale}
               onClearInStock={onClearInStock}
               onClearItemCondition={onClearItemCondition}

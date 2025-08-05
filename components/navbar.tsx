@@ -50,7 +50,6 @@ export const Navbar = memo(function Navbar() {
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
   const cancelFilters = useFilterStore((state) => state.cancelFilters);
-  const clearTempBrand = useFilterStore((state) => state.clearTempBrand);
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
@@ -143,10 +142,6 @@ export const Navbar = memo(function Navbar() {
   }, [cancelTemp, cancelFilters]);
 
   // Handler for clearing individual filters (works on temp state in modal)
-  const handleClearBrand = useCallback((brand: string) => {
-    clearTempBrand(brand);
-  }, [clearTempBrand]);
-
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
   }, [clearTempOnSale]);
@@ -321,7 +316,6 @@ export const Navbar = memo(function Navbar() {
               onResetAll={handleResetAll}
               showCategoryChips={true}
               onClearCategory={handleClearCategory}
-              onClearBrand={handleClearBrand}
               onClearOnSale={handleClearOnSale}
               onClearInStock={handleClearInStock}
               onClearItemCondition={handleClearItemCondition}
@@ -418,7 +412,6 @@ export const Navbar = memo(function Navbar() {
                   onClose={handleFiltersModalClose}
                   showResetAll={(filterCount > 0 || hasTempActiveFilters())}
                   onResetAll={handleResetFilters}
-                  onClearBrand={handleClearBrand}
                   onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}

@@ -5,7 +5,6 @@ export interface FilterState {
   ageRange: number[];
   priceRange: number[];
   locationRange: number; // Single value for maximum distance in km
-  selectedBrands: string[];
   sortBy: string;
   inStock: boolean;
   onSale: boolean;
@@ -38,7 +37,6 @@ interface FilterStore {
   setTempAgeRange: (range: number[]) => void;
   setTempPriceRange: (range: number[]) => void;
   setTempLocationRange: (range: number) => void;
-  setTempSelectedBrands: (brands: string[]) => void;
   setTempSortBy: (sortBy: string) => void;
   setTempInStock: (inStock: boolean) => void;
   setTempOnSale: (onSale: boolean) => void;
@@ -46,7 +44,6 @@ interface FilterStore {
   setTempSellerRating: (rating: number | null) => void;
   
   // Individual temp filter clearing actions
-  clearTempBrand: (brand: string) => void;
   clearTempOnSale: () => void;
   clearTempInStock: () => void;
   clearTempItemCondition: () => void;
@@ -76,7 +73,6 @@ export const defaultFilterState: FilterState = {
   ageRange: [0, 60],
   priceRange: [0, 500],
   locationRange: 25, // Default to 25 km maximum distance
-  selectedBrands: [],
   sortBy: "newest",
   inStock: true, // Default to show only in-stock items
   onSale: false,
@@ -119,9 +115,6 @@ export const useFilterStore = create<FilterStore>()(
       setTempLocationRange: (locationRange) => set((state) => ({
         tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: true }
       })),
-      setTempSelectedBrands: (selectedBrands) => set((state) => ({
-        tempFilters: { ...state.tempFilters, selectedBrands }
-      })),
       setTempSortBy: (sortBy) => set((state) => ({
         tempFilters: { ...state.tempFilters, sortBy }
       })),
@@ -139,12 +132,6 @@ export const useFilterStore = create<FilterStore>()(
       })),
       
       // Individual temp filter clearing actions
-      clearTempBrand: (brand) => set((state) => ({
-        tempFilters: {
-          ...state.tempFilters,
-          selectedBrands: state.tempFilters.selectedBrands.filter(b => b !== brand)
-        }
-      })),
       clearTempOnSale: () => set((state) => ({
         tempFilters: { ...state.tempFilters, onSale: false }
       })),
@@ -194,8 +181,7 @@ export const useFilterStore = create<FilterStore>()(
       // Helper functions
       hasActiveFilters: () => {
         const { filters } = get();
-        return filters.selectedBrands.length > 0 || 
-               filters.onSale !== defaultFilterState.onSale || 
+        return filters.onSale !== defaultFilterState.onSale || 
                filters.inStock !== defaultFilterState.inStock ||
                filters.itemCondition !== defaultFilterState.itemCondition ||
                (filters.sellerRating !== null && filters.sellerRating > 0) ||
@@ -209,8 +195,7 @@ export const useFilterStore = create<FilterStore>()(
       
       hasTempActiveFilters: () => {
         const { tempFilters } = get();
-        return tempFilters.selectedBrands.length > 0 || 
-               tempFilters.onSale !== defaultFilterState.onSale || 
+        return tempFilters.onSale !== defaultFilterState.onSale || 
                tempFilters.inStock !== defaultFilterState.inStock ||
                tempFilters.itemCondition !== defaultFilterState.itemCondition ||
                (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
@@ -224,8 +209,7 @@ export const useFilterStore = create<FilterStore>()(
       
       getFilterCount: () => {
         const { filters } = get();
-        return filters.selectedBrands.length + 
-               (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+        return (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (filters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (filters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
                (filters.sellerRating !== null && filters.sellerRating > 0 ? 1 : 0) +
@@ -239,8 +223,7 @@ export const useFilterStore = create<FilterStore>()(
       
       getTempFilterCount: () => {
         const { tempFilters } = get();
-        return tempFilters.selectedBrands.length + 
-               (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+        return (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (tempFilters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (tempFilters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
                (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +

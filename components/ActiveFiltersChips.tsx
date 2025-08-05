@@ -3,7 +3,6 @@ import { Chip } from "@heroui/chip";
 import { useFilterStore } from "../stores/filterStore";
 
 interface ActiveFiltersChipsProps {
-  onClearBrand: (brand: string) => void;
   onClearOnSale: () => void;
   onClearInStock: () => void;
   onClearItemCondition: () => void;
@@ -15,7 +14,6 @@ interface ActiveFiltersChipsProps {
 }
 
 export const ActiveFiltersChips = memo(function ActiveFiltersChips({
-  onClearBrand,
   onClearOnSale,
   onClearInStock,
   onClearItemCondition,
@@ -124,18 +122,6 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           Location: {tempFilters.locationRange} km
         </Chip>
       )}
-      {/* 8. Brand Chips */}
-      {tempFilters.selectedBrands.map((brand) => (
-        <Chip
-          key={`brand-${brand}`}
-          size="sm"
-          variant="flat"
-          color="primary"
-          onClose={() => onClearBrand(brand)}
-        >
-          {brand}
-        </Chip>
-      ))}
     </div>
   );
 });
