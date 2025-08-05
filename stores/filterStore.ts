@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface FilterState {
   ageRange: number[];
   priceRange: number[];
-  locationRange: number[]; // New field for location range in km
+  locationRange: number; // Single value for maximum distance in km
   selectedBrands: string[];
   sortBy: string;
   inStock: boolean;
@@ -36,7 +36,7 @@ interface FilterStore {
   // Individual temp filter actions
   setTempAgeRange: (range: number[]) => void;
   setTempPriceRange: (range: number[]) => void;
-  setTempLocationRange: (range: number[]) => void;
+  setTempLocationRange: (range: number) => void;
   setTempSelectedBrands: (brands: string[]) => void;
   setTempSortBy: (sortBy: string) => void;
   setTempInStock: (inStock: boolean) => void;
@@ -74,7 +74,7 @@ interface FilterStore {
 export const defaultFilterState: FilterState = {
   ageRange: [0, 60],
   priceRange: [0, 500],
-  locationRange: [5, 25], // Default to 5-25 km range
+  locationRange: 25, // Default to 25 km maximum distance
   selectedBrands: [],
   sortBy: "newest",
   inStock: true, // Default to show only in-stock items
@@ -165,7 +165,7 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, priceRange: [0, 500] }
       })),
       clearTempLocationRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange: [5, 25] }
+        tempFilters: { ...state.tempFilters, locationRange: 25 }
       })),
       clearAllTempFilters: () => set({ tempFilters: defaultFilterState }),
       
@@ -201,8 +201,7 @@ export const useFilterStore = create<FilterStore>()(
                (filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ||
                // Only count price range as active if it's NOT the full range (0-500)
                (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ||
-               filters.locationRange[0] !== defaultFilterState.locationRange[0] || 
-               filters.locationRange[1] !== defaultFilterState.locationRange[1] ||
+               filters.locationRange !== defaultFilterState.locationRange ||
                filters.sortBy !== defaultFilterState.sortBy;
       },
       
@@ -217,8 +216,7 @@ export const useFilterStore = create<FilterStore>()(
                (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
                // Only count price range as active if it's NOT the full range (0-500)
                (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
-               tempFilters.locationRange[0] !== defaultFilterState.locationRange[0] || 
-               tempFilters.locationRange[1] !== defaultFilterState.locationRange[1] ||
+               tempFilters.locationRange !== defaultFilterState.locationRange ||
                tempFilters.sortBy !== defaultFilterState.sortBy;
       },
       
@@ -233,7 +231,7 @@ export const useFilterStore = create<FilterStore>()(
                ((filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ? 1 : 0) +
                // Only count price range as active if it's NOT the full range (0-500)
                ((filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ? 1 : 0) +
-               ((filters.locationRange[0] !== defaultFilterState.locationRange[0] || filters.locationRange[1] !== defaultFilterState.locationRange[1]) ? 1 : 0) +
+               (filters.locationRange !== defaultFilterState.locationRange ? 1 : 0) +
                (filters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       },
       
@@ -248,7 +246,7 @@ export const useFilterStore = create<FilterStore>()(
                ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
                // Only count price range as active if it's NOT the full range (0-500)
                ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
-               ((tempFilters.locationRange[0] !== defaultFilterState.locationRange[0] || tempFilters.locationRange[1] !== defaultFilterState.locationRange[1]) ? 1 : 0) +
+               (tempFilters.locationRange !== defaultFilterState.locationRange ? 1 : 0) +
                (tempFilters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       }
     }),

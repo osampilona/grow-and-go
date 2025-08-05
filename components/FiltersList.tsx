@@ -155,12 +155,13 @@ const FiltersList = memo(function FiltersList() {
         <h3 className="text-sm font-semibold text-foreground">Location Range</h3>
         <div className="px-2">
           <Slider
-            size="sm"
+            size="md"
             step={5}
             minValue={5}
             maxValue={100}
             value={tempFilters.locationRange}
-            onChange={(value) => setTempLocationRange(Array.isArray(value) ? value : [value, value])}
+            onChange={(value) => setTempLocationRange(Array.isArray(value) ? value[0] : value)}
+            color="warning"
             formatOptions={{
               style: "unit",
               unit: "kilometer",
@@ -170,7 +171,7 @@ const FiltersList = memo(function FiltersList() {
           />
         </div>
         <p className="text-xs text-foreground-500 px-2">
-          Show items within {tempFilters.locationRange[0]}-{tempFilters.locationRange[1]} km
+          Show items within {tempFilters.locationRange} km
         </p>
       </div>
 

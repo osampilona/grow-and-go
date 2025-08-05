@@ -113,15 +113,15 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
-      {/* 7. Location Range Chip - only show if NOT the default range (5-25) */}
-      {(tempFilters.locationRange[0] !== 5 || tempFilters.locationRange[1] !== 25) && (
+      {/* 7. Location Range Chip - only show if NOT the default (25) */}
+      {tempFilters.locationRange !== 25 && (
         <Chip
           size="sm"
           variant="flat"
-          color="success"
+          color="warning"
           onClose={onClearLocationRange}
         >
-          Location: {tempFilters.locationRange[0]}-{tempFilters.locationRange[1]} km
+          Location: {tempFilters.locationRange} km
         </Chip>
       )}
       {/* 8. Brand Chips */}
