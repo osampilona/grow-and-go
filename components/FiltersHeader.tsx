@@ -2,12 +2,18 @@ import { memo } from "react";
 import { Button } from "@heroui/button";
 import { CloseIcon } from "./icons";
 import { ActiveFiltersChips } from "./ActiveFiltersChips";
+import { ActiveCategoryChips } from "./ActiveCategoryChips";
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
 
 interface FiltersHeaderProps {
   title: string;
   onClose: () => void;
   showResetAll?: boolean;
   onResetAll?: () => void;
+  // Show category chips (only for mobile drawer)
+  showCategoryChips?: boolean;
+  onClearCategory?: (category: string) => void;
   // Clear handlers for ActiveFiltersChips
   onClearBrand: (brand: string) => void;
   onClearOnSale: () => void;
@@ -25,6 +31,8 @@ export const FiltersHeader = memo(function FiltersHeader({
   onClose,
   showResetAll = false,
   onResetAll,
+  showCategoryChips = false,
+  onClearCategory,
   onClearBrand,
   onClearOnSale,
   onClearInStock,
@@ -35,6 +43,16 @@ export const FiltersHeader = memo(function FiltersHeader({
   onClearPriceRange,
   onClearLocationRange
 }: FiltersHeaderProps) {
+  // Check if there are active categories (excluding "everything")
+  const tempSelected = useCategoryStore((state) => state.tempSelected);
+  const isTempEverythingSelected = useCategoryStore((state) => state.isTempSelected("everything"));
+  const hasActiveCategories = showCategoryChips && !isTempEverythingSelected && 
+    tempSelected.length > 0 && 
+    tempSelected.filter(cat => cat !== "everything").length > 0;
+
+  // Check if there are active filters
+  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -62,17 +80,33 @@ export const FiltersHeader = memo(function FiltersHeader({
           </Button>
         </div>
       </div>
-      <ActiveFiltersChips
-        onClearBrand={onClearBrand}
-        onClearOnSale={onClearOnSale}
-        onClearInStock={onClearInStock}
-        onClearItemCondition={onClearItemCondition}
-        onClearSellerRating={onClearSellerRating}
-        onClearSortBy={onClearSortBy}
-        onClearAgeRange={onClearAgeRange}
-        onClearPriceRange={onClearPriceRange}
-        onClearLocationRange={onClearLocationRange}
-      />
+      <div className="flex flex-col gap-3">
+        {/* Category Chips - Only show for mobile drawer */}
+        {showCategoryChips && onClearCategory && hasActiveCategories && (
+          <div>
+            <h4 className="text-xs font-medium text-foreground-500 mb-2">Active Categories</h4>
+            <ActiveCategoryChips onClearCategory={onClearCategory} />
+          </div>
+        )}
+        
+        {/* Filter Chips */}
+        {hasTempActiveFilters && (
+          <div>
+            <h4 className="text-xs font-medium text-foreground-500 mb-2">Active Filters</h4>
+            <ActiveFiltersChips
+              onClearBrand={onClearBrand}
+              onClearOnSale={onClearOnSale}
+              onClearInStock={onClearInStock}
+              onClearItemCondition={onClearItemCondition}
+              onClearSellerRating={onClearSellerRating}
+              onClearSortBy={onClearSortBy}
+              onClearAgeRange={onClearAgeRange}
+              onClearPriceRange={onClearPriceRange}
+              onClearLocationRange={onClearLocationRange}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 });

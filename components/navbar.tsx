@@ -37,6 +37,7 @@ export const Navbar = memo(function Navbar() {
   const initializeTemp = useCategoryStore((state) => state.initializeTemp);
   const applyTemp = useCategoryStore((state) => state.applyTemp);
   const cancelTemp = useCategoryStore((state) => state.cancelTemp);
+  const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
 
   // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
@@ -178,6 +179,10 @@ export const Navbar = memo(function Navbar() {
     clearTempLocationRange();
   }, [clearTempLocationRange]);
 
+  const handleClearCategory = useCallback((category: string) => {
+    toggleTempCategory(category);
+  }, [toggleTempCategory]);
+
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
@@ -314,6 +319,8 @@ export const Navbar = memo(function Navbar() {
               onClose={onClose}
               showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters())}
               onResetAll={handleResetAll}
+              showCategoryChips={true}
+              onClearCategory={handleClearCategory}
               onClearBrand={handleClearBrand}
               onClearOnSale={handleClearOnSale}
               onClearInStock={handleClearInStock}
