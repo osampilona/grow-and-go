@@ -226,37 +226,6 @@ export const Navbar = memo(function Navbar() {
         <NavbarContent className="hidden lg:flex basis-1/5 sm:basis-full justify-center">
           <NavbarItem className="flex items-center gap-3">
             <CategoriesList />
-            {/* Independent Filters Button */}
-            {/* <Badge 
-              content={filterCount > 0 ? filterCount : undefined}
-              color="primary"
-              size="sm"
-              showOutline={false}
-            >
-              <button
-                onClick={handleFiltersClick}
-                className={
-                  `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer border border-default-500 dark:border-default-600 ` +
-                  ((isFiltersSelected || hasActiveFilters())
-                    ? "dark:bg-white/10 dark:backdrop-blur-sm" 
-                    : "")
-                }
-                style={{ minWidth: 66 }}
-              >
-                <img
-                  src={(isFiltersSelected || hasActiveFilters()) ? "/filters.svg" : "/filters_bw.svg"}
-                  alt="Filters"
-                  className={
-                    `w-7 h-7 mb-1 object-contain transition-all duration-150 ` +
-                    ((isFiltersSelected || hasActiveFilters()) ? "" : "dark:invert")
-                  }
-                  style={{ minWidth: 28, minHeight: 28 }}
-                />
-                <span className="text-xs font-semibold text-foreground">
-                  Filters
-                </span>
-              </button>
-            </Badge> */}
           </NavbarItem>
         </NavbarContent>
 
@@ -281,9 +250,9 @@ export const Navbar = memo(function Navbar() {
                     ((hasActiveFilters() || categoryCount > 0) ? "" : "dark:invert")
                   }
                 />
+                <span className="text-sm font-medium">Filters</span>
               </button>
             </Badge>
-            <span className="text-sm font-medium">Filters</span>
           </NavbarItem>
         </NavbarContent>
 

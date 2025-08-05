@@ -397,7 +397,7 @@ const SearchWithFilters = ({
         }}
         size="2xl"
         scrollBehavior="inside"
-        backdrop="blur"
+        backdrop="opaque"
       >
         <ModalContent className="hide-close-button">
           {(onClose) => (
