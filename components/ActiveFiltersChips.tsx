@@ -7,20 +7,17 @@ interface ActiveFiltersChipsProps {
   onClearOnSale: () => void;
   onClearInStock: () => void;
   onClearItemCondition: () => void;
+  onClearSellerRating: () => void;
 }
 
 export const ActiveFiltersChips = memo(function ActiveFiltersChips({
   onClearBrand,
   onClearOnSale,
   onClearInStock,
-  onClearItemCondition
+  onClearItemCondition,
+  onClearSellerRating
 }: ActiveFiltersChipsProps) {
   const tempFilters = useFilterStore((state) => state.tempFilters);
-  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
-
-  if (!hasTempActiveFilters) {
-    return null;
-  }
 
   return (
     <div className="flex flex-wrap gap-1">
@@ -91,6 +88,17 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.itemCondition === "very-good" && "Very Good"}
           {tempFilters.itemCondition === "good" && "Good"}
           {tempFilters.itemCondition === "fair" && "Fair"}
+        </Chip>
+      )}
+      {/* Seller Rating Chip */}
+      {tempFilters.sellerRating > 0 && (
+        <Chip
+          size="sm"
+          variant="flat"
+          color="warning"
+          onClose={onClearSellerRating}
+        >
+          {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
     </div>

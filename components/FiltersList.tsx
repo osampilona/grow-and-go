@@ -17,6 +17,7 @@ const FiltersList = memo(function FiltersList() {
   const setTempInStock = useFilterStore((state) => state.setTempInStock);
   const setTempOnSale = useFilterStore((state) => state.setTempOnSale);
   const setTempItemCondition = useFilterStore((state) => state.setTempItemCondition);
+  const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   const brands = [
@@ -125,6 +126,27 @@ const FiltersList = memo(function FiltersList() {
           <SelectItem key="very-good">Very Good</SelectItem>
           <SelectItem key="good">Good</SelectItem>
           <SelectItem key="fair">Fair</SelectItem>
+        </Select>
+      </div>
+
+      {/* Seller Rating */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Minimum Seller Rating</h3>
+        <Select
+          placeholder="Select minimum rating..."
+          className="w-full"
+          selectedKeys={tempFilters.sellerRating > 0 ? [tempFilters.sellerRating.toString()] : []}
+          onSelectionChange={(keys) => {
+            const rating = Array.from(keys)[0] as string;
+            setTempSellerRating(rating ? parseFloat(rating) : 0);
+          }}
+        >
+          <SelectItem key="0">All Ratings</SelectItem>
+          <SelectItem key="3">3+ Stars</SelectItem>
+          <SelectItem key="3.5">3.5+ Stars</SelectItem>
+          <SelectItem key="4">4+ Stars</SelectItem>
+          <SelectItem key="4.5">4.5+ Stars</SelectItem>
+          <SelectItem key="4.8">4.8+ Stars</SelectItem>
         </Select>
       </div>
 
