@@ -467,7 +467,7 @@ const SearchWithFilters = ({
                     onClose();
                   }}
                 >
-                  Apply Filters
+                  Apply
                 </Button>
               </ModalFooter>
             </>
