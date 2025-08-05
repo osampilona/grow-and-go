@@ -272,9 +272,9 @@ export const Navbar = memo(function Navbar() {
                     ((hasActiveFilters() || categoryCount > 0) ? "" : "dark:invert")
                   }
                 />
-                <span className="text-sm font-medium">Filters</span>
               </button>
             </Badge>
+            <span className="text-sm font-medium">Filters</span>
           </NavbarItem>
         </NavbarContent>
 
