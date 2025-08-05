@@ -206,7 +206,16 @@ export const Navbar = memo(function Navbar() {
       <HeroUINavbar maxWidth="2xl" position="sticky" className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-gray-200/20 dark:border-slate-700/20 pt-2">
         <NavbarContent className="basis-1/5 sm:basis-full " justify="start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
-            <NextLink className="flex justify-start items-center cursor-pointer" href="/">
+            <NextLink 
+              className="flex justify-start items-center cursor-pointer" 
+              href="/"
+              onClick={() => {
+                // Reset categories to default
+                resetToDefault();
+                // Reset all filters
+                resetFilters();
+              }}
+            >
               <img src="/logo.svg" alt="Canopy Logo" className="h-8 w-8 object-contain" />
               <p className="font-bold text-inherit hidden lg:flex">Canopy</p>
             </NextLink>
