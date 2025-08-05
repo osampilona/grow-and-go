@@ -6,8 +6,7 @@ import { IoSearch, IoClose, IoFilter, IoOptions } from "react-icons/io5";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { useFilterStore } from "../stores/filterStore";
 import FiltersList from "./FiltersList";
-import { ActiveFiltersChips } from "./ActiveFiltersChips";
-import { CustomDrawerHeader } from "./DrawerHeader";
+import { FiltersHeader } from "./FiltersHeader";
 
 interface SearchWithFiltersProps {
   onSearch?: (query: string) => void;
@@ -42,6 +41,10 @@ const SearchWithFilters = ({
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearTempSortBy = useFilterStore((state) => state.clearTempSortBy);
+  const clearTempAgeRange = useFilterStore((state) => state.clearTempAgeRange);
+  const clearTempPriceRange = useFilterStore((state) => state.clearTempPriceRange);
+  const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   // Computed value to check if temp filters are active (reactive to tempFilters changes)
@@ -50,11 +53,14 @@ const SearchWithFilters = ({
            tempFilters.onSale || 
            !tempFilters.inStock ||
            tempFilters.itemCondition !== "all" ||
-           tempFilters.sellerRating > 0 ||
-           tempFilters.ageRange[0] !== 0 || 
-           tempFilters.ageRange[1] !== 36 ||
-           tempFilters.priceRange[0] !== 10 || 
-           tempFilters.priceRange[1] !== 200;
+           (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
+           // Only count age range as active if it's NOT the full range (0-60)
+           (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
+           // Only count price range as active if it's NOT the full range (0-500)
+           (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
+           // Only count location range as active if it's NOT the default value (25)
+           tempFilters.locationRange !== 25 ||
+           tempFilters.sortBy !== "newest";
   }, [tempFilters]);
 
   // Computed value for temp filter count (reactive to tempFilters changes)
@@ -63,9 +69,14 @@ const SearchWithFilters = ({
            (tempFilters.onSale ? 1 : 0) + 
            (!tempFilters.inStock ? 1 : 0) +
            (tempFilters.itemCondition !== "all" ? 1 : 0) +
-           (tempFilters.sellerRating > 0 ? 1 : 0) +
-           ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) ? 1 : 0) +
-           ((tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) ? 1 : 0);
+           (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +
+           // Only count age range as active if it's NOT the full range (0-60)
+           ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
+           // Only count price range as active if it's NOT the full range (0-500)
+           ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
+           // Only count location range as active if it's NOT the default value (25)
+           (tempFilters.locationRange !== 25 ? 1 : 0) +
+           (tempFilters.sortBy !== "newest" ? 1 : 0);
   }, [tempFilters]);
 
   // Screen size detection
@@ -128,6 +139,22 @@ const SearchWithFilters = ({
   const handleClearSellerRating = useCallback(() => {
     clearTempSellerRating();
   }, [clearTempSellerRating]);
+
+  const handleClearSortBy = useCallback(() => {
+    clearTempSortBy();
+  }, [clearTempSortBy]);
+
+  const handleClearAgeRange = useCallback(() => {
+    clearTempAgeRange();
+  }, [clearTempAgeRange]);
+
+  const handleClearPriceRange = useCallback(() => {
+    clearTempPriceRange();
+  }, [clearTempPriceRange]);
+
+  const handleClearLocationRange = useCallback(() => {
+    clearTempLocationRange();
+  }, [clearTempLocationRange]);
 
   const handleResetAllFilters = useCallback(() => {
     clearAllTempFilters();
@@ -397,26 +424,27 @@ const SearchWithFilters = ({
         }}
         size="2xl"
         scrollBehavior="inside"
-        backdrop="blur"
+        backdrop="opaque"
       >
         <ModalContent className="hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
-                <CustomDrawerHeader
+                <FiltersHeader
                   title="Filters"
                   onClose={onClose}
                   showResetAll={hasTempFiltersActive}
                   onResetAll={handleResetAllFilters}
-                >
-                  <ActiveFiltersChips
-                    onClearBrand={handleClearBrand}
-                    onClearOnSale={handleClearOnSale}
-                    onClearInStock={handleClearInStock}
-                    onClearItemCondition={handleClearItemCondition}
-                    onClearSellerRating={handleClearSellerRating}
-                  />
-                </CustomDrawerHeader>
+                  onClearBrand={handleClearBrand}
+                  onClearOnSale={handleClearOnSale}
+                  onClearInStock={handleClearInStock}
+                  onClearItemCondition={handleClearItemCondition}
+                  onClearSellerRating={handleClearSellerRating}
+                  onClearSortBy={handleClearSortBy}
+                  onClearAgeRange={handleClearAgeRange}
+                  onClearPriceRange={handleClearPriceRange}
+                  onClearLocationRange={handleClearLocationRange}
+                />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />
@@ -439,7 +467,7 @@ const SearchWithFilters = ({
                     onClose();
                   }}
                 >
-                  Apply Filters
+                  Apply
                 </Button>
               </ModalFooter>
             </>

@@ -18,9 +18,8 @@ import { memo, useCallback, useEffect, useState, useMemo } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
 import FiltersList from "./FiltersList";
-import { ActiveFiltersChips } from "./ActiveFiltersChips";
-import { CustomDrawerHeader } from "./DrawerHeader";
 import { FilterSection } from "./FilterSection";
+import { FiltersHeader } from "./FiltersHeader";
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
 import { CloseIcon } from "./icons";
@@ -38,6 +37,7 @@ export const Navbar = memo(function Navbar() {
   const initializeTemp = useCategoryStore((state) => state.initializeTemp);
   const applyTemp = useCategoryStore((state) => state.applyTemp);
   const cancelTemp = useCategoryStore((state) => state.cancelTemp);
+  const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
 
   // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
@@ -55,6 +55,10 @@ export const Navbar = memo(function Navbar() {
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
   const clearTempSellerRating = useFilterStore((state) => state.clearTempSellerRating);
+  const clearTempSortBy = useFilterStore((state) => state.clearTempSortBy);
+  const clearTempAgeRange = useFilterStore((state) => state.clearTempAgeRange);
+  const clearTempPriceRange = useFilterStore((state) => state.clearTempPriceRange);
+  const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
   const resetFilters = useFilterStore((state) => state.resetFilters);
 
@@ -159,6 +163,26 @@ export const Navbar = memo(function Navbar() {
     clearTempSellerRating();
   }, [clearTempSellerRating]);
 
+  const handleClearSortBy = useCallback(() => {
+    clearTempSortBy();
+  }, [clearTempSortBy]);
+
+  const handleClearAgeRange = useCallback(() => {
+    clearTempAgeRange();
+  }, [clearTempAgeRange]);
+
+  const handleClearPriceRange = useCallback(() => {
+    clearTempPriceRange();
+  }, [clearTempPriceRange]);
+
+  const handleClearLocationRange = useCallback(() => {
+    clearTempLocationRange();
+  }, [clearTempLocationRange]);
+
+  const handleClearCategory = useCallback((category: string) => {
+    toggleTempCategory(category);
+  }, [toggleTempCategory]);
+
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
   }, [clearAllTempFilters]);
@@ -226,37 +250,6 @@ export const Navbar = memo(function Navbar() {
         <NavbarContent className="hidden lg:flex basis-1/5 sm:basis-full justify-center">
           <NavbarItem className="flex items-center gap-3">
             <CategoriesList />
-            {/* Independent Filters Button */}
-            {/* <Badge 
-              content={filterCount > 0 ? filterCount : undefined}
-              color="primary"
-              size="sm"
-              showOutline={false}
-            >
-              <button
-                onClick={handleFiltersClick}
-                className={
-                  `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer border border-default-500 dark:border-default-600 ` +
-                  ((isFiltersSelected || hasActiveFilters())
-                    ? "dark:bg-white/10 dark:backdrop-blur-sm" 
-                    : "")
-                }
-                style={{ minWidth: 66 }}
-              >
-                <img
-                  src={(isFiltersSelected || hasActiveFilters()) ? "/filters.svg" : "/filters_bw.svg"}
-                  alt="Filters"
-                  className={
-                    `w-7 h-7 mb-1 object-contain transition-all duration-150 ` +
-                    ((isFiltersSelected || hasActiveFilters()) ? "" : "dark:invert")
-                  }
-                  style={{ minWidth: 28, minHeight: 28 }}
-                />
-                <span className="text-xs font-semibold text-foreground">
-                  Filters
-                </span>
-              </button>
-            </Badge> */}
           </NavbarItem>
         </NavbarContent>
 
@@ -281,9 +274,9 @@ export const Navbar = memo(function Navbar() {
                     ((hasActiveFilters() || categoryCount > 0) ? "" : "dark:invert")
                   }
                 />
+                <span className="text-sm font-medium">Filters</span>
               </button>
             </Badge>
-            <span className="text-sm font-medium">Filters</span>
           </NavbarItem>
         </NavbarContent>
 
@@ -321,20 +314,23 @@ export const Navbar = memo(function Navbar() {
       >
         <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
           <DrawerHeader className="flex flex-col gap-3">
-            <CustomDrawerHeader
+            <FiltersHeader
               title="Categories & Filters"
               onClose={onClose}
               showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters())}
               onResetAll={handleResetAll}
-            >
-              <ActiveFiltersChips
-                onClearBrand={handleClearBrand}
-                onClearOnSale={handleClearOnSale}
-                onClearInStock={handleClearInStock}
-                onClearItemCondition={handleClearItemCondition}
-                onClearSellerRating={handleClearSellerRating}
-              />
-            </CustomDrawerHeader>
+              showCategoryChips={true}
+              onClearCategory={handleClearCategory}
+              onClearBrand={handleClearBrand}
+              onClearOnSale={handleClearOnSale}
+              onClearInStock={handleClearInStock}
+              onClearItemCondition={handleClearItemCondition}
+              onClearSellerRating={handleClearSellerRating}
+              onClearSortBy={handleClearSortBy}
+              onClearAgeRange={handleClearAgeRange}
+              onClearPriceRange={handleClearPriceRange}
+              onClearLocationRange={handleClearLocationRange}
+            />
           </DrawerHeader>
           <DrawerBody className="pb-6">
             <FilterSection
@@ -417,20 +413,21 @@ export const Navbar = memo(function Navbar() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
-                <CustomDrawerHeader
+                <FiltersHeader
                   title="Filters"
                   onClose={handleFiltersModalClose}
                   showResetAll={(filterCount > 0 || hasTempActiveFilters())}
                   onResetAll={handleResetFilters}
-                >
-                  <ActiveFiltersChips
-                    onClearBrand={handleClearBrand}
-                    onClearOnSale={handleClearOnSale}
-                    onClearInStock={handleClearInStock}
-                    onClearItemCondition={handleClearItemCondition}
-                    onClearSellerRating={handleClearSellerRating}
-                  />
-                </CustomDrawerHeader>
+                  onClearBrand={handleClearBrand}
+                  onClearOnSale={handleClearOnSale}
+                  onClearInStock={handleClearInStock}
+                  onClearItemCondition={handleClearItemCondition}
+                  onClearSellerRating={handleClearSellerRating}
+                  onClearSortBy={handleClearSortBy}
+                  onClearAgeRange={handleClearAgeRange}
+                  onClearPriceRange={handleClearPriceRange}
+                  onClearLocationRange={handleClearLocationRange}
+                />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />

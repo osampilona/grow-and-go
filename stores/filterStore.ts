@@ -4,12 +4,14 @@ import { persist } from 'zustand/middleware';
 export interface FilterState {
   ageRange: number[];
   priceRange: number[];
+  locationRange: number; // Single value for maximum distance in km
   selectedBrands: string[];
   sortBy: string;
   inStock: boolean;
   onSale: boolean;
   itemCondition: string; // New field for item condition
-  sellerRating: number; // New field for minimum seller rating
+  sellerRating: number | null; // New field for minimum seller rating (null = no filter)
+  isLocationRangeSet: boolean; // Track if user has actively set location range
 }
 
 interface FilterStore {
@@ -35,12 +37,13 @@ interface FilterStore {
   // Individual temp filter actions
   setTempAgeRange: (range: number[]) => void;
   setTempPriceRange: (range: number[]) => void;
+  setTempLocationRange: (range: number) => void;
   setTempSelectedBrands: (brands: string[]) => void;
   setTempSortBy: (sortBy: string) => void;
   setTempInStock: (inStock: boolean) => void;
   setTempOnSale: (onSale: boolean) => void;
   setTempItemCondition: (condition: string) => void;
-  setTempSellerRating: (rating: number) => void;
+  setTempSellerRating: (rating: number | null) => void;
   
   // Individual temp filter clearing actions
   clearTempBrand: (brand: string) => void;
@@ -48,6 +51,10 @@ interface FilterStore {
   clearTempInStock: () => void;
   clearTempItemCondition: () => void;
   clearTempSellerRating: () => void;
+  clearTempSortBy: () => void;
+  clearTempAgeRange: () => void;
+  clearTempPriceRange: () => void;
+  clearTempLocationRange: () => void;
   clearAllTempFilters: () => void;
   
   // Apply/Cancel actions
@@ -65,15 +72,17 @@ interface FilterStore {
   getTempFilterCount: () => number;
 }
 
-const defaultFilterState: FilterState = {
-  ageRange: [0, 36],
-  priceRange: [10, 200],
+export const defaultFilterState: FilterState = {
+  ageRange: [0, 60],
+  priceRange: [0, 500],
+  locationRange: 25, // Default to 25 km maximum distance
   selectedBrands: [],
   sortBy: "newest",
-  inStock: true,
+  inStock: true, // Default to show only in-stock items
   onSale: false,
-  itemCondition: "all", // Default to show all conditions
-  sellerRating: 0 // Default to show all seller ratings (0 and above)
+  itemCondition: "all",
+  sellerRating: null, // No rating filter by default
+  isLocationRangeSet: false, // Default to false - user hasn't set it yet
 };
 
 export const useFilterStore = create<FilterStore>()(
@@ -106,6 +115,9 @@ export const useFilterStore = create<FilterStore>()(
       })),
       setTempPriceRange: (priceRange) => set((state) => ({
         tempFilters: { ...state.tempFilters, priceRange }
+      })),
+      setTempLocationRange: (locationRange) => set((state) => ({
+        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: true }
       })),
       setTempSelectedBrands: (selectedBrands) => set((state) => ({
         tempFilters: { ...state.tempFilters, selectedBrands }
@@ -143,7 +155,19 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, itemCondition: "all" }
       })),
       clearTempSellerRating: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, sellerRating: 0 }
+        tempFilters: { ...state.tempFilters, sellerRating: null }
+      })),
+      clearTempSortBy: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, sortBy: "newest" }
+      })),
+      clearTempAgeRange: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, ageRange: [0, 60] }
+      })),
+      clearTempPriceRange: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, priceRange: [0, 500] }
+      })),
+      clearTempLocationRange: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, locationRange: 25, isLocationRangeSet: false }
       })),
       clearAllTempFilters: () => set({ tempFilters: defaultFilterState }),
       
@@ -171,49 +195,61 @@ export const useFilterStore = create<FilterStore>()(
       hasActiveFilters: () => {
         const { filters } = get();
         return filters.selectedBrands.length > 0 || 
-               filters.onSale || 
-               !filters.inStock ||
-               filters.itemCondition !== "all" ||
-               filters.sellerRating > 0 ||
-               filters.ageRange[0] !== 0 || 
-               filters.ageRange[1] !== 36 ||
-               filters.priceRange[0] !== 10 || 
-               filters.priceRange[1] !== 200;
+               filters.onSale !== defaultFilterState.onSale || 
+               filters.inStock !== defaultFilterState.inStock ||
+               filters.itemCondition !== defaultFilterState.itemCondition ||
+               (filters.sellerRating !== null && filters.sellerRating > 0) ||
+               // Only count age range as active if it's NOT the full range (0-60)
+               (filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ||
+               // Only count price range as active if it's NOT the full range (0-500)
+               (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ||
+               filters.locationRange !== defaultFilterState.locationRange ||
+               filters.sortBy !== defaultFilterState.sortBy;
       },
       
       hasTempActiveFilters: () => {
         const { tempFilters } = get();
         return tempFilters.selectedBrands.length > 0 || 
-               tempFilters.onSale || 
-               !tempFilters.inStock ||
-               tempFilters.itemCondition !== "all" ||
-               tempFilters.sellerRating > 0 ||
-               tempFilters.ageRange[0] !== 0 || 
-               tempFilters.ageRange[1] !== 36 ||
-               tempFilters.priceRange[0] !== 10 || 
-               tempFilters.priceRange[1] !== 200;
+               tempFilters.onSale !== defaultFilterState.onSale || 
+               tempFilters.inStock !== defaultFilterState.inStock ||
+               tempFilters.itemCondition !== defaultFilterState.itemCondition ||
+               (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
+               // Only count age range as active if it's NOT the full range (0-60)
+               (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
+               // Only count price range as active if it's NOT the full range (0-500)
+               (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
+               tempFilters.locationRange !== defaultFilterState.locationRange ||
+               tempFilters.sortBy !== defaultFilterState.sortBy;
       },
       
       getFilterCount: () => {
         const { filters } = get();
         return filters.selectedBrands.length + 
-               (filters.onSale ? 1 : 0) + 
-               (!filters.inStock ? 1 : 0) +
-               (filters.itemCondition !== "all" ? 1 : 0) +
-               (filters.sellerRating > 0 ? 1 : 0) +
-               ((filters.ageRange[0] !== 0 || filters.ageRange[1] !== 36) ? 1 : 0) +
-               ((filters.priceRange[0] !== 10 || filters.priceRange[1] !== 200) ? 1 : 0);
+               (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+               (filters.inStock !== defaultFilterState.inStock ? 1 : 0) +
+               (filters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
+               (filters.sellerRating !== null && filters.sellerRating > 0 ? 1 : 0) +
+               // Only count age range as active if it's NOT the full range (0-60)
+               ((filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ? 1 : 0) +
+               // Only count price range as active if it's NOT the full range (0-500)
+               ((filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ? 1 : 0) +
+               (filters.isLocationRangeSet ? 1 : 0) +
+               (filters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       },
       
       getTempFilterCount: () => {
         const { tempFilters } = get();
         return tempFilters.selectedBrands.length + 
-               (tempFilters.onSale ? 1 : 0) + 
-               (!tempFilters.inStock ? 1 : 0) +
-               (tempFilters.itemCondition !== "all" ? 1 : 0) +
-               (tempFilters.sellerRating > 0 ? 1 : 0) +
-               ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 36) ? 1 : 0) +
-               ((tempFilters.priceRange[0] !== 10 || tempFilters.priceRange[1] !== 200) ? 1 : 0);
+               (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+               (tempFilters.inStock !== defaultFilterState.inStock ? 1 : 0) +
+               (tempFilters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
+               (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +
+               // Only count age range as active if it's NOT the full range (0-60)
+               ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
+               // Only count price range as active if it's NOT the full range (0-500)
+               ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
+               (tempFilters.isLocationRangeSet ? 1 : 0) +
+               (tempFilters.sortBy !== defaultFilterState.sortBy ? 1 : 0);
       }
     }),
     {
