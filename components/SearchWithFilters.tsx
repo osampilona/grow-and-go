@@ -265,7 +265,7 @@ const SearchWithFilters = ({
                 {!isExpanded ? (
                   <motion.div
                     key="search-text"
-                    className="pl-1 flex-1 flex items-center justify-between text-gray-800 dark:text-gray-200 text-base font-normal select-none whitespace-nowrap"
+                    className="pl-1 flex-1 flex items-center justify-between text-gray-800 dark:text-gray-200 text-base font-normal select-none whitespace-nowrap h-[50px]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
