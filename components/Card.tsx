@@ -1,6 +1,7 @@
 import { Avatar } from "@heroui/react";
 import { memo } from "react";
 import Carousel from "./Carousel";
+import SwiperCarousel from "./SwiperCarousel";
 
 export type CardItem = {
   title: string;
@@ -14,7 +15,13 @@ export type CardItem = {
   images: string[];
 };
 
-const Card = memo(function Card({ item }: { item: CardItem }) {
+type CardProps = {
+  item: CardItem;
+  useSwiper?: boolean;
+  swiperEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
+};
+
+const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-rotate' }: CardProps) {
   const getConditionLabel = (condition: CardItem['condition']) => {
     switch (condition) {
       case 'brand-new':
@@ -52,12 +59,22 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
   return (
     <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent">
       <div className="relative">
-        <Carousel 
-          images={item.images} 
-          alt={item.title} 
-          className="w-full h-80 rounded-2xl"
-          navigationStyle="counter"
-        />
+        {useSwiper ? (
+          <SwiperCarousel 
+            images={item.images} 
+            alt={item.title} 
+            className="w-full h-80 rounded-2xl"
+            navigationStyle="counter"
+            creativeEffect={swiperEffect}
+          />
+        ) : (
+          <Carousel 
+            images={item.images} 
+            alt={item.title} 
+            className="w-full h-80 rounded-2xl"
+            navigationStyle="counter"
+          />
+        )}
         {/* Condition badge in top left */}
         <div className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-md z-30 ${getConditionColor(item.condition)}`}>
           {getConditionLabel(item.condition)}
