@@ -36,6 +36,7 @@ interface FilterStore {
   
   // Individual temp filter actions
   setTempGender: (gender: string[]) => void;
+  toggleTempGender: (gender: string) => void;
   setTempAgeRange: (range: number[]) => void;
   setTempPriceRange: (range: number[]) => void;
   setTempLocationRange: (range: number) => void;
@@ -113,6 +114,28 @@ export const useFilterStore = create<FilterStore>()(
       setTempGender: (gender) => set((state) => ({
         tempFilters: { ...state.tempFilters, gender }
       })),
+      toggleTempGender: (gender) => set((state) => {
+        const currentGenders = state.tempFilters.gender;
+        const isSelected = currentGenders.includes(gender);
+        
+        if (isSelected) {
+          // Remove gender if already selected
+          return {
+            tempFilters: { 
+              ...state.tempFilters, 
+              gender: currentGenders.filter(g => g !== gender) 
+            }
+          };
+        } else {
+          // Add gender if not selected
+          return {
+            tempFilters: { 
+              ...state.tempFilters, 
+              gender: [...currentGenders, gender] 
+            }
+          };
+        }
+      }),
       setTempAgeRange: (ageRange) => set((state) => ({
         tempFilters: { ...state.tempFilters, ageRange }
       })),

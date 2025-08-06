@@ -3,14 +3,12 @@
 import { memo, useMemo, useCallback } from "react";
 import { Slider } from "@heroui/slider";
 import { Select, SelectItem } from "@heroui/select";
-import { Checkbox, CheckboxGroup } from "@heroui/checkbox";
 import { Switch } from "@heroui/switch";
 import { Button } from "@heroui/button";
 import { useFilterStore } from "../stores/filterStore";
 
 const FiltersList = memo(function FiltersList() {
   const tempFilters = useFilterStore((state) => state.tempFilters);
-  const setTempGender = useFilterStore((state) => state.setTempGender);
   const setTempAgeRange = useFilterStore((state) => state.setTempAgeRange);
   const setTempPriceRange = useFilterStore((state) => state.setTempPriceRange);
   const setTempSortBy = useFilterStore((state) => state.setTempSortBy);
@@ -19,13 +17,10 @@ const FiltersList = memo(function FiltersList() {
   const setTempItemCondition = useFilterStore((state) => state.setTempItemCondition);
   const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
   const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
+  const toggleTempGender = useFilterStore((state) => state.toggleTempGender);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   // MEMOIZED: Handlers to prevent unnecessary re-renders
-  const handleGenderChange = useCallback((selectedGenders: string[]) => {
-    setTempGender(selectedGenders);
-  }, [setTempGender]);
-
   const handleAgeRangeChange = useCallback((value: number | number[]) => {
     setTempAgeRange(Array.isArray(value) ? value : [value]);
   }, [setTempAgeRange]);
@@ -67,16 +62,49 @@ const FiltersList = memo(function FiltersList() {
       {/* Gender Filter */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Gender</h3>
-        <CheckboxGroup
-          value={tempFilters.gender}
-          onValueChange={handleGenderChange}
-          className="w-full"
-          color="primary"
-          orientation="horizontal"
-        >
-          <Checkbox value="Boy">Boy</Checkbox>
-          <Checkbox value="Girl">Girl</Checkbox>
-        </CheckboxGroup>
+        <div className="flex gap-3">
+          <button
+            onClick={() => toggleTempGender("Boy")}
+            className={
+              `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+              (tempFilters.gender.includes("Boy") 
+                ? "dark:bg-white/10 dark:backdrop-blur-sm border border-primary" 
+                : "border border-default-300")
+            }
+            style={{ minWidth: 66 }}
+          >
+            <img
+              src={tempFilters.gender.includes("Boy") ? "/boy.svg" : "/boy_bw.svg"}
+              alt="Boy"
+              className="w-7 h-7 mb-1 object-contain transition-all duration-150"
+              style={{ minWidth: 28, minHeight: 28 }}
+            />
+            <span className="text-xs font-semibold text-foreground">
+              Boy
+            </span>
+          </button>
+          
+          <button
+            onClick={() => toggleTempGender("Girl")}
+            className={
+              `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+              (tempFilters.gender.includes("Girl") 
+                ? "dark:bg-white/10 dark:backdrop-blur-sm border border-secondary" 
+                : "border border-default-300")
+            }
+            style={{ minWidth: 66 }}
+          >
+            <img
+              src={tempFilters.gender.includes("Girl") ? "/girl.svg" : "/girl_bw.svg"}
+              alt="Girl"
+              className="w-7 h-7 mb-1 object-contain transition-all duration-150"
+              style={{ minWidth: 28, minHeight: 28 }}
+            />
+            <span className="text-xs font-semibold text-foreground">
+              Girl
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Age Range Slider */}
