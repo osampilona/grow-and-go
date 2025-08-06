@@ -13,7 +13,11 @@ import "../styles/swiper-carousel.css";
 interface SwiperCarouselProps {
   images: string[];
   alt: string;
-  className?: string;
+    className?: string;
+    // Navigation style can be 'arrows' or 'counter'
+  // 'arrows' shows navigation arrows, 'counter' shows a counter indicator
+  // 'arrows' is the default style and has arrows only for lg screen
+  // 'counter' is useful for showing the current slide out of total slides
   navigationStyle?: 'arrows' | 'counter';
   creativeEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
 }
@@ -149,6 +153,12 @@ const SwiperCarousel = memo(function SwiperCarousel({
         {/* Counter indicator - only show if more than 1 image and counter style */}
         {imagesLength > 1 && navigationStyle === 'counter' && (
           <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-white/60 backdrop-blur-md text-black text-xs font-medium z-20 swiper-counter">
+            {activeIndex + 1} / {imagesLength}
+          </div>
+        )}
+        {/* Counter indicator for arrows style, only on screens smaller than lg */}
+        {imagesLength > 1 && navigationStyle === 'arrows' && (
+          <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-white/60 backdrop-blur-md text-black text-xs font-medium z-20 swiper-counter lg:hidden">
             {activeIndex + 1} / {imagesLength}
           </div>
         )}

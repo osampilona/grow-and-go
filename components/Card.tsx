@@ -62,7 +62,6 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
           images={item.images} 
           alt={item.title} 
           className="w-full h-80 rounded-2xl"
-          navigationStyle="arrows"
           creativeEffect={swiperEffect}
         />
         {/* Condition badge in top left */}

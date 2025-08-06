@@ -1,8 +1,8 @@
 /* SwiperCarousel custom styles */
 .swiper-carousel-container .swiper-button-next,
 .swiper-carousel-container .swiper-button-prev {
-  width: 40px !important;
-  height: 40px !important;
+  width: 30px !important;
+  height: 30px !important;
   margin-top: -20px !important;
   background: rgba(255, 255, 255, 0.7) !important;
   backdrop-filter: blur(4px) !important;
@@ -12,25 +12,24 @@
   transition: all 0.3s ease !important;
 }
 
+.swiper-carousel-container .swiper-button-next::after,
+.swiper-carousel-container .swiper-button-prev::after {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
 .swiper-carousel-container .swiper-button-next:hover,
 .swiper-carousel-container .swiper-button-prev:hover {
   background: rgba(255, 255, 255, 0.9) !important;
   transform: scale(1.05) !important;
 }
 
-.swiper-carousel-container .swiper-button-next::after,
-.swiper-carousel-container .swiper-button-prev::after {
-  font-size: 16px !important;
-  font-weight: bold !important;
-  color: #000 !important;
-}
-
 .swiper-carousel-container .swiper-button-next {
-  right: 8px !important;
+  right: 12px !important;
 }
 
 .swiper-carousel-container .swiper-button-prev {
-  left: 8px !important;
+  left: 12px !important;
 }
 
 /* Custom styles for pagination dots */
