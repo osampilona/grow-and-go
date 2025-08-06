@@ -56,6 +56,7 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
           images={item.images} 
           alt={item.title} 
           className="w-full h-80 rounded-2xl"
+          navigationStyle="counter"
         />
         {/* Condition badge in top left */}
         <div className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-md z-30 ${getConditionColor(item.condition)}`}>

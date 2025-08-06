@@ -7,17 +7,22 @@ interface CarouselProps {
   alt: string;
   className?: string;
   blurredBackground?: boolean;
+  navigationStyle?: 'arrows' | 'counter';
 }
 
 const Carousel = memo(function Carousel({ 
   images, 
   alt, 
   className = "",
-  blurredBackground = false
+  blurredBackground = false,
+  navigationStyle = 'arrows'
 }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const mouseStartX = useRef<number>(0);
+  const mouseEndX = useRef<number>(0);
+  const isDragging = useRef<boolean>(false);
   const imagesLength = images.length;
 
   const nextSlide = useCallback(() => {
@@ -57,6 +62,43 @@ const Carousel = memo(function Carousel({
     touchEndX.current = 0;
   }, [nextSlide, prevSlide]);
 
+  // Mouse drag handlers for desktop
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    isDragging.current = true;
+    e.preventDefault(); // Prevent text selection during drag
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    mouseEndX.current = e.clientX;
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging.current || !mouseStartX.current) return;
+    
+    const distance = mouseStartX.current - mouseEndX.current;
+    const isLeftDrag = distance > 50;
+    const isRightDrag = distance < -50;
+
+    if (isLeftDrag) {
+      nextSlide();
+    } else if (isRightDrag) {
+      prevSlide();
+    }
+
+    mouseStartX.current = 0;
+    mouseEndX.current = 0;
+    isDragging.current = false;
+  }, [nextSlide, prevSlide]);
+
+  const handleMouseLeave = useCallback(() => {
+    // Reset drag state if mouse leaves the carousel area
+    isDragging.current = false;
+    mouseStartX.current = 0;
+    mouseEndX.current = 0;
+  }, []);
+
   if (imagesLength === 0) return null;
 
   const currentImage = images[currentIndex];
@@ -64,10 +106,15 @@ const Carousel = memo(function Carousel({
 
   return (
     <div 
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden ${className} ${isDragging.current ? 'cursor-grabbing' : 'cursor-grab'}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      style={{ userSelect: 'none' }} // Prevent text selection during drag
     >
       {/* Single image display with smooth transition */}
       <div className="w-full h-full relative">
@@ -105,8 +152,8 @@ const Carousel = memo(function Carousel({
         )}
       </div>
 
-      {/* Navigation arrows - only show if more than 1 image */}
-      {hasMultipleImages && (
+      {/* Navigation arrows - only show if more than 1 image and arrows style */}
+      {hasMultipleImages && navigationStyle === 'arrows' && (
         <>
           <button
             onClick={prevSlide}
@@ -130,8 +177,15 @@ const Carousel = memo(function Carousel({
         </>
       )}
 
-      {/* Dots indicator - only show if more than 1 image */}
-      {hasMultipleImages && (
+      {/* Counter indicator - only show if more than 1 image and counter style */}
+      {hasMultipleImages && navigationStyle === 'counter' && (
+        <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-white/60 backdrop-blur-md text-black text-xs font-medium z-20">
+          {currentIndex + 1} / {imagesLength}
+        </div>
+      )}
+
+      {/* Dots indicator - only show if more than 1 image and arrows style */}
+      {hasMultipleImages && navigationStyle === 'arrows' && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
           {images.map((_, index) => (
             <button
