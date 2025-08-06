@@ -35,17 +35,17 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
   const getConditionColor = (condition: CardItem['condition']) => {
     switch (condition) {
       case 'brand-new':
-        return 'bg-success-100 text-success-700 border-success-300';
+        return 'bg-green-100 text-green-700 border-green-300';
       case 'like-new':
-        return 'bg-primary-100 text-primary-700 border-primary-300';
+        return 'bg-blue-100 text-blue-700 border-blue-300';
       case 'very-good':
-        return 'bg-secondary-100 text-secondary-700 border-secondary-300';
+        return 'bg-purple-100 text-purple-700 border-purple-300';
       case 'good':
-        return 'bg-warning-100 text-warning-700 border-warning-300';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       case 'fair':
-        return 'bg-danger-100 text-danger-700 border-danger-300';
+        return 'bg-red-100 text-red-700 border-red-300';
       default:
-        return 'bg-default-100 text-default-700 border-default-300';
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
