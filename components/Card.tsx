@@ -1,6 +1,5 @@
 import { Avatar } from "@heroui/react";
 import { memo } from "react";
-import Carousel from "./Carousel";
 import SwiperCarousel from "./SwiperCarousel";
 
 export type CardItem = {
@@ -59,22 +58,13 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
   return (
     <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent">
       <div className="relative">
-        {useSwiper ? (
-          <SwiperCarousel 
-            images={item.images} 
-            alt={item.title} 
-            className="w-full h-80 rounded-2xl"
-            navigationStyle="counter"
-            creativeEffect={swiperEffect}
-          />
-        ) : (
-          <Carousel 
-            images={item.images} 
-            alt={item.title} 
-            className="w-full h-80 rounded-2xl"
-            navigationStyle="counter"
-          />
-        )}
+        <SwiperCarousel 
+          images={item.images} 
+          alt={item.title} 
+          className="w-full h-80 rounded-2xl"
+          navigationStyle="counter"
+          creativeEffect={swiperEffect}
+        />
         {/* Condition badge in top left */}
         <div className={`absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-md z-30 ${getConditionColor(item.condition)}`}>
           {getConditionLabel(item.condition)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCreative, Navigation, Pagination } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -14,7 +14,6 @@ interface SwiperCarouselProps {
   images: string[];
   alt: string;
   className?: string;
-  blurredBackground?: boolean;
   navigationStyle?: 'arrows' | 'counter';
   creativeEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
 }
@@ -23,12 +22,14 @@ const SwiperCarousel = memo(function SwiperCarousel({
   images, 
   alt, 
   className = "",
-  blurredBackground = false,
   navigationStyle = 'arrows',
   creativeEffect = 'default'
 }: SwiperCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const imagesLength = images.length;
+  const swiperRef = useRef<SwiperType | null>(null);
+  // Generate a unique id for navigation elements per instance
+  const uniqueId = useRef(`swiper-${Math.random().toString(36).substr(2, 9)}`);
 
   if (imagesLength === 0) return null;
 
@@ -113,10 +114,13 @@ const SwiperCarousel = memo(function SwiperCarousel({
     loop: imagesLength > 1,
     speed: 600,
     onSlideChange: handleSlideChange,
+    onSwiper: (swiper: SwiperType) => {
+      swiperRef.current = swiper;
+    },
     // Navigation arrows
     navigation: navigationStyle === 'arrows' && imagesLength > 1 ? {
-      nextEl: '.swiper-button-next',
-      prevEl: '.swiper-button-prev',
+      nextEl: `.${uniqueId.current}-next`,
+      prevEl: `.${uniqueId.current}-prev`,
     } : false,
     // Pagination dots
     pagination: navigationStyle === 'arrows' && imagesLength > 1 ? {
@@ -133,34 +137,11 @@ const SwiperCarousel = memo(function SwiperCarousel({
         {images.map((image, index) => (
           <SwiperSlide key={index} className="h-full w-full">
             <div className="w-full h-full relative">
-              {blurredBackground && (
-                <>
-                  {/* Blurred background */}
-                  <img
-                    src={image}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
-                    aria-hidden="true"
-                  />
-                  
-                  {/* Main image - centered in container */}
-                  <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <img
-                      src={image}
-                      alt={`${alt} ${index + 1}`}
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  </div>
-                </>
-              )}
-              
-              {!blurredBackground && (
-                <img
-                  src={image}
-                  alt={`${alt} ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              )}
+              <img
+                src={image}
+                alt={`${alt} ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
             </div>
           </SwiperSlide>
         ))}
@@ -172,6 +153,23 @@ const SwiperCarousel = memo(function SwiperCarousel({
           </div>
         )}
       </Swiper>
+      {/* Swiper navigation arrows - only show if arrows style and more than 1 image */}
+      {imagesLength > 1 && navigationStyle === 'arrows' && (
+        <>
+          <button
+            className={`swiper-button-prev ${uniqueId.current}-prev`}
+            aria-label="Previous image"
+            onClick={e => { e.stopPropagation(); swiperRef.current?.slidePrev(); }}
+            onTouchStart={e => { e.stopPropagation(); swiperRef.current?.slidePrev(); }}
+          />
+          <button
+            className={`swiper-button-next ${uniqueId.current}-next`}
+            aria-label="Next image"
+            onClick={e => { e.stopPropagation(); swiperRef.current?.slideNext(); }}
+            onTouchStart={e => { e.stopPropagation(); swiperRef.current?.slideNext(); }}
+          />
+        </>
+      )}
     </div>
   );
 });
