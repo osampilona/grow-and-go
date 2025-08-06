@@ -6,9 +6,13 @@ import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
 import { Button } from "@heroui/button";
 import { useFilterStore } from "../stores/filterStore";
+import { useFilterOptimizations } from "../hooks/useFilterOptimizations";
 
 const FiltersList = memo(function FiltersList() {
-  const tempFilters = useFilterStore((state) => state.tempFilters);
+  // Use optimized hook instead of direct store access
+  const optimizedFilters = useFilterOptimizations();
+  
+  // Get only the action functions we need
   const setTempAgeRange = useFilterStore((state) => state.setTempAgeRange);
   const setTempPriceRange = useFilterStore((state) => state.setTempPriceRange);
   const setTempSortBy = useFilterStore((state) => state.setTempSortBy);
@@ -18,9 +22,44 @@ const FiltersList = memo(function FiltersList() {
   const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
   const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
   const toggleTempGender = useFilterStore((state) => state.toggleTempGender);
-  const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
-  // MEMOIZED: Handlers to prevent unnecessary re-renders
+  // MEMOIZED: Button click handlers with stable references
+  const handleBoyClick = useCallback(() => toggleTempGender("Boy"), [toggleTempGender]);
+  const handleGirlClick = useCallback(() => toggleTempGender("Girl"), [toggleTempGender]);
+
+  // MEMOIZED: Gender button styles to prevent recalculation
+  const boyButtonClass = useMemo(() => 
+    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+    (optimizedFilters.genderState.isBoySelected 
+      ? "dark:bg-white/10 dark:backdrop-blur-sm border border-primary" 
+      : "border border-default-300"),
+    [optimizedFilters.genderState.isBoySelected]
+  );
+
+  const girlButtonClass = useMemo(() => 
+    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+    (optimizedFilters.genderState.isGirlSelected 
+      ? "dark:bg-white/10 dark:backdrop-blur-sm border border-secondary" 
+      : "border border-default-300"),
+    [optimizedFilters.genderState.isGirlSelected]
+  );
+
+  // MEMOIZED: Image sources to prevent recalculation
+  const boyImageSrc = useMemo(() => 
+    optimizedFilters.genderState.isBoySelected ? "/boy.svg" : "/boy_bw.svg",
+    [optimizedFilters.genderState.isBoySelected]
+  );
+
+  const girlImageSrc = useMemo(() => 
+    optimizedFilters.genderState.isGirlSelected ? "/girl.svg" : "/girl_bw.svg",
+    [optimizedFilters.genderState.isGirlSelected]
+  );
+
+  // MEMOIZED: Static style objects to prevent recreation
+  const buttonBaseStyle = useMemo(() => ({ minWidth: 66 }), []);
+  const imageStyle = useMemo(() => ({ minWidth: 28, minHeight: 28 }), []);
+
+  // MEMOIZED: Other handlers to prevent unnecessary re-renders
   const handleAgeRangeChange = useCallback((value: number | number[]) => {
     setTempAgeRange(Array.isArray(value) ? value : [value]);
   }, [setTempAgeRange]);
@@ -48,13 +87,13 @@ const FiltersList = memo(function FiltersList() {
 
   // MEMOIZED: Tooltip content to prevent recreating objects
   const ageTooltipContent = useMemo(() => 
-    `${tempFilters.ageRange[0]} - ${tempFilters.ageRange[1]} months`, 
-    [tempFilters.ageRange]
+    `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`, 
+    [optimizedFilters.ageRange]
   );
 
   const priceTooltipContent = useMemo(() => 
-    `$${tempFilters.priceRange[0]} - $${tempFilters.priceRange[1]}`, 
-    [tempFilters.priceRange]
+    `$${optimizedFilters.priceRange[0]} - $${optimizedFilters.priceRange[1]}`, 
+    [optimizedFilters.priceRange]
   );
 
   return (
@@ -64,20 +103,15 @@ const FiltersList = memo(function FiltersList() {
         <h3 className="text-sm font-semibold text-foreground">Gender</h3>
         <div className="flex gap-3">
           <button
-            onClick={() => toggleTempGender("Boy")}
-            className={
-              `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
-              (tempFilters.gender.includes("Boy") 
-                ? "dark:bg-white/10 dark:backdrop-blur-sm border border-primary" 
-                : "border border-default-300")
-            }
-            style={{ minWidth: 66 }}
+            onClick={handleBoyClick}
+            className={boyButtonClass}
+            style={buttonBaseStyle}
           >
             <img
-              src={tempFilters.gender.includes("Boy") ? "/boy.svg" : "/boy_bw.svg"}
+              src={boyImageSrc}
               alt="Boy"
               className="w-7 h-7 mb-1 object-contain transition-all duration-150"
-              style={{ minWidth: 28, minHeight: 28 }}
+              style={imageStyle}
             />
             <span className="text-xs font-semibold text-foreground">
               Boy
@@ -85,20 +119,15 @@ const FiltersList = memo(function FiltersList() {
           </button>
           
           <button
-            onClick={() => toggleTempGender("Girl")}
-            className={
-              `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
-              (tempFilters.gender.includes("Girl") 
-                ? "dark:bg-white/10 dark:backdrop-blur-sm border border-secondary" 
-                : "border border-default-300")
-            }
-            style={{ minWidth: 66 }}
+            onClick={handleGirlClick}
+            className={girlButtonClass}
+            style={buttonBaseStyle}
           >
             <img
-              src={tempFilters.gender.includes("Girl") ? "/girl.svg" : "/girl_bw.svg"}
+              src={girlImageSrc}
               alt="Girl"
               className="w-7 h-7 mb-1 object-contain transition-all duration-150"
-              style={{ minWidth: 28, minHeight: 28 }}
+              style={imageStyle}
             />
             <span className="text-xs font-semibold text-foreground">
               Girl
@@ -106,7 +135,6 @@ const FiltersList = memo(function FiltersList() {
           </button>
         </div>
       </div>
-
       {/* Age Range Slider */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
@@ -115,7 +143,7 @@ const FiltersList = memo(function FiltersList() {
           step={1}
           minValue={0}
           maxValue={60}
-          value={tempFilters.ageRange}
+          value={optimizedFilters.ageRange}
           onChange={handleAgeRangeChange}
           className="w-full"
           color="primary"
@@ -134,7 +162,7 @@ const FiltersList = memo(function FiltersList() {
           step={5}
           minValue={0}
           maxValue={500}
-          value={tempFilters.priceRange}
+          value={optimizedFilters.priceRange}
           onChange={handlePriceRangeChange}
           className="w-full"
           color="secondary"
@@ -151,7 +179,7 @@ const FiltersList = memo(function FiltersList() {
         <Select
           placeholder="Sort products by..."
           className="w-full"
-          selectedKeys={[tempFilters.sortBy]}
+          selectedKeys={[optimizedFilters.sortBy]}
           onSelectionChange={handleSortByChange}
         >
           <SelectItem key="newest">Newest First</SelectItem>
@@ -169,7 +197,7 @@ const FiltersList = memo(function FiltersList() {
           <Switch
             color="primary"
             size="sm"
-            isSelected={tempFilters.inStock}
+            isSelected={optimizedFilters.inStock}
             onValueChange={setTempInStock}
           >
             Only In Stock
@@ -177,7 +205,7 @@ const FiltersList = memo(function FiltersList() {
           <Switch
             color="warning"
             size="sm"
-            isSelected={tempFilters.onSale}
+            isSelected={optimizedFilters.onSale}
             onValueChange={setTempOnSale}
           >
             On Sale Only
@@ -191,7 +219,7 @@ const FiltersList = memo(function FiltersList() {
         <Select
           placeholder="Select item condition..."
           className="w-full"
-          selectedKeys={[tempFilters.itemCondition]}
+          selectedKeys={[optimizedFilters.itemCondition]}
           onSelectionChange={handleItemConditionChange}
         >
           <SelectItem key="all">All Conditions</SelectItem>
@@ -209,7 +237,7 @@ const FiltersList = memo(function FiltersList() {
         <Select
           placeholder="Select minimum rating"
           className="w-full"
-          selectedKeys={tempFilters.sellerRating ? [tempFilters.sellerRating.toString()] : []}
+          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
           onSelectionChange={handleSellerRatingChange}
         >
           <SelectItem key="4.0">4.0+ stars</SelectItem>
@@ -229,7 +257,7 @@ const FiltersList = memo(function FiltersList() {
             step={5}
             minValue={5}
             maxValue={100}
-            value={tempFilters.locationRange}
+            value={optimizedFilters.locationRange}
             onChange={handleLocationRangeChange}
             color="warning"
             formatOptions={{
@@ -241,7 +269,7 @@ const FiltersList = memo(function FiltersList() {
           />
         </div>
         <p className="text-xs text-foreground-500 px-2">
-          Show items within {tempFilters.locationRange} km
+          Show items within {optimizedFilters.locationRange} km
         </p>
       </div>
 
