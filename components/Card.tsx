@@ -62,8 +62,8 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
           {getConditionLabel(item.condition)}
         </div>
         {/* Heart button in top right */}
-        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-background/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-background/80 z-30">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-foreground">
+        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
           </svg>
         </button>
