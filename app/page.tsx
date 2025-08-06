@@ -5,9 +5,10 @@ import Card from "../components/Card";
 import SearchBar from "../components/SearchBar";
 import SearchWithFilters from "../components/SearchWithFilters";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { fetchFeed, FeedItem } from "../data/mock/feed";
+import { fetchFeed, FeedItem } from "../data/mock/feed"; // 🚨 REMOVE WHEN BACKEND IS READY: Mock data import
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
+import { buildSearchParams, searchItems } from "../utils/api";
 
 export default function Home() {
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -22,6 +23,20 @@ export default function Home() {
   
   // Get applied filters from store
   const filters = useFilterStore((state) => state.filters);
+  
+  // Get selected categories from store for backend integration
+  const selectedCategories = useCategoryStore((state) => state.selected);
+
+  // BACKEND INTEGRATION HELPER - ready for when you connect to real API
+  // 🚨 REMOVE WHEN BACKEND IS READY: This function is temporary for development
+  const performBackendSearch = useCallback(async () => {
+    const searchParams = buildSearchParams(searchQuery, filters, selectedCategories);
+    console.log('Ready for backend API call with params:', searchParams); // 🚨 REMOVE: development logging
+    
+    // TODO: Uncomment when backend is ready
+    // const results = await searchItems(searchParams);
+    // setItems(results.items);
+  }, [searchQuery, filters, selectedCategories]);
 
   // Screen size detection - MEMOIZED to prevent unnecessary re-renders
   useEffect(() => {
@@ -37,6 +52,7 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
   
+  // 🚨 REMOVE WHEN BACKEND IS READY: Mock data loading (temporary)
   // Load items once on mount
   useEffect(() => {
     fetchFeed().then((data) => {
@@ -53,11 +69,17 @@ export default function Home() {
     setFiltersSelected(false);  // Reset filters selection state
   }, []); // Empty deps - only run on mount
 
-  // OPTIMIZED: Memoize expensive filtering logic
+  // TODO: Replace with backend API call when ready
+  // For now, apply client-side filtering to mock data
+  // 🚨 REMOVE WHEN BACKEND IS READY: All client-side filtering logic below
   const filteredItems = useMemo(() => {
+    // In production, this will be replaced with:
+    // const response = await api.searchItems({ searchQuery, filters, categories })
+    
     let filtered = items;
 
-    // Apply search query filter
+    // CLIENT-SIDE FILTERING (temporary - will be moved to backend)
+    // 🚨 REMOVE: Search query filtering (move to backend)
     if (searchQuery.trim()) {
       const queryLower = searchQuery.toLowerCase();
       filtered = filtered.filter((item) =>
@@ -66,26 +88,17 @@ export default function Home() {
       );
     }
 
-    // Apply item condition filter
+    // 🚨 REMOVE: Item condition filtering (move to backend)
     if (filters.itemCondition && filters.itemCondition !== 'all') {
       filtered = filtered.filter((item) => item.condition === filters.itemCondition);
     }
 
-    // Apply seller rating filter
+    // 🚨 REMOVE: Seller rating filtering (move to backend)
     if (filters.sellerRating !== null && filters.sellerRating > 0) {
       filtered = filtered.filter((item) => item.rating >= filters.sellerRating!);
     }
 
-    // Apply location range filter
-    // Note: This is a placeholder as the mock data doesn't include location info
-    // In a real app, you would filter based on distance from user's location
-    if (filters.locationRange && filters.locationRange !== 25) {
-      // For now, this is just a placeholder - no actual filtering
-      // You would implement geolocation-based filtering here
-      console.log(`Location range filter: within ${filters.locationRange} km`);
-    }
-
-    // Apply price range filter
+    // 🚨 REMOVE: Price range filtering (move to backend)
     if (filters.priceRange && filters.priceRange.length === 2) {
       const [minPrice, maxPrice] = filters.priceRange;
       filtered = filtered.filter((item) => {
@@ -94,8 +107,17 @@ export default function Home() {
       });
     }
 
+    // BACKEND-ONLY FILTERS (not implemented client-side):
+    // - Gender filtering (filters.gender)
+    // - Age range filtering (filters.ageRange) 
+    // - Location filtering (filters.locationRange)
+    // - Stock status (filters.inStock)
+    // - Sale status (filters.onSale)
+    // - Sorting (filters.sortBy)
+    // - Category filtering (from categoryStore)
+
     return filtered;
-  }, [searchQuery, items, filters]); // Only recalculate when these change
+  }, [searchQuery, items, filters]);
 
   // Handle search - MEMOIZED
   const handleSearch = useCallback((query: string) => {
