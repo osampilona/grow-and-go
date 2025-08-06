@@ -155,20 +155,20 @@ const SwiperCarousel = memo(function SwiperCarousel({
       </Swiper>
       {/* Swiper navigation arrows - only show if arrows style and more than 1 image */}
       {imagesLength > 1 && navigationStyle === 'arrows' && (
-        <>
+        <div className="hidden lg:flex absolute inset-0 pointer-events-none">
           <button
-            className={`swiper-button-prev ${uniqueId.current}-prev`}
+            className={`swiper-button-prev ${uniqueId.current}-prev pointer-events-auto`}
             aria-label="Previous image"
             onClick={e => { e.stopPropagation(); swiperRef.current?.slidePrev(); }}
             onTouchStart={e => { e.stopPropagation(); swiperRef.current?.slidePrev(); }}
           />
           <button
-            className={`swiper-button-next ${uniqueId.current}-next`}
+            className={`swiper-button-next ${uniqueId.current}-next pointer-events-auto`}
             aria-label="Next image"
             onClick={e => { e.stopPropagation(); swiperRef.current?.slideNext(); }}
             onTouchStart={e => { e.stopPropagation(); swiperRef.current?.slideNext(); }}
           />
-        </>
+        </div>
       )}
     </div>
   );
