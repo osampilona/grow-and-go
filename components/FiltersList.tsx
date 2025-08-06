@@ -10,6 +10,7 @@ import { useFilterStore } from "../stores/filterStore";
 
 const FiltersList = memo(function FiltersList() {
   const tempFilters = useFilterStore((state) => state.tempFilters);
+  const setTempGender = useFilterStore((state) => state.setTempGender);
   const setTempAgeRange = useFilterStore((state) => state.setTempAgeRange);
   const setTempPriceRange = useFilterStore((state) => state.setTempPriceRange);
   const setTempSortBy = useFilterStore((state) => state.setTempSortBy);
@@ -21,6 +22,10 @@ const FiltersList = memo(function FiltersList() {
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
   // MEMOIZED: Handlers to prevent unnecessary re-renders
+  const handleGenderChange = useCallback((selectedGenders: string[]) => {
+    setTempGender(selectedGenders);
+  }, [setTempGender]);
+
   const handleAgeRangeChange = useCallback((value: number | number[]) => {
     setTempAgeRange(Array.isArray(value) ? value : [value]);
   }, [setTempAgeRange]);
@@ -59,6 +64,21 @@ const FiltersList = memo(function FiltersList() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {/* Gender Filter */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Gender</h3>
+        <CheckboxGroup
+          value={tempFilters.gender}
+          onValueChange={handleGenderChange}
+          className="w-full"
+          color="primary"
+          orientation="horizontal"
+        >
+          <Checkbox value="Boy">Boy</Checkbox>
+          <Checkbox value="Girl">Girl</Checkbox>
+        </CheckboxGroup>
+      </div>
+
       {/* Age Range Slider */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>

@@ -3,6 +3,7 @@ import { Chip } from "@heroui/chip";
 import { useFilterStore } from "../stores/filterStore";
 
 interface ActiveFiltersChipsProps {
+  onClearGender: (gendersToKeep?: string[]) => void;
   onClearOnSale: () => void;
   onClearInStock: () => void;
   onClearItemCondition: () => void;
@@ -14,6 +15,7 @@ interface ActiveFiltersChipsProps {
 }
 
 export const ActiveFiltersChips = memo(function ActiveFiltersChips({
+  onClearGender,
   onClearOnSale,
   onClearInStock,
   onClearItemCondition,
@@ -27,7 +29,23 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
 
   return (
     <div className="flex flex-wrap gap-1">
-      {/* 1. Age Range Chip - only show if NOT the full range (0-60) */}
+      {/* 1. Gender Chips - Show separate chips for each selected gender */}
+      {tempFilters.gender.map((gender) => (
+        <Chip
+          key={gender}
+          size="sm"
+          variant="flat"
+          color={gender === "Girl" ? "secondary" : "primary"}
+          onClose={() => {
+            // Remove this specific gender from the array
+            const updatedGenders = tempFilters.gender.filter(g => g !== gender);
+            onClearGender(updatedGenders);
+          }}
+        >
+          {gender}
+        </Chip>
+      ))}
+      {/* 2. Age Range Chip - only show if NOT the full range (0-60) */}
       {(tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) && (
         <Chip
           size="sm"
@@ -38,7 +56,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]} months
         </Chip>
       )}
-      {/* 2. Price Range Chip - only show if NOT the full range (0-500) */}
+      {/* 3. Price Range Chip - only show if NOT the full range (0-500) */}
       {(tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) && (
         <Chip
           size="sm"
@@ -49,7 +67,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           Price: ${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}
         </Chip>
       )}
-      {/* 3. Sort By Chip */}
+      {/* 4. Sort By Chip */}
       {tempFilters.sortBy !== "newest" && (
         <Chip
           size="sm"
@@ -63,7 +81,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.sortBy === "popular" && "Most Popular"}
         </Chip>
       )}
-      {/* 4. Availability & Sales - Include Out of Stock Chip */}
+      {/* 5. Availability & Sales - Include Out of Stock Chip */}
       {!tempFilters.inStock && (
         <Chip
           size="sm"
@@ -74,7 +92,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           Include Out of Stock
         </Chip>
       )}
-      {/* 4. Availability & Sales - On Sale Chip */}
+      {/* 5. Availability & Sales - On Sale Chip */}
       {tempFilters.onSale && (
         <Chip
           size="sm"
@@ -85,7 +103,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           On Sale
         </Chip>
       )}
-      {/* 5. Item Condition Chip */}
+      {/* 6. Item Condition Chip */}
       {tempFilters.itemCondition !== "all" && (
         <Chip
           size="sm"
@@ -100,7 +118,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.itemCondition === "fair" && "Fair"}
         </Chip>
       )}
-      {/* 6. Seller Rating Chip */}
+      {/* 7. Seller Rating Chip */}
       {tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 && (
         <Chip
           size="sm"
@@ -111,7 +129,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
-      {/* 7. Location Range Chip - show if user has actively set it */}
+      {/* 8. Location Range Chip - show if user has actively set it */}
       {tempFilters.isLocationRangeSet && (
         <Chip
           size="sm"

@@ -36,6 +36,8 @@ const SearchWithFilters = ({
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
   const cancelFilters = useFilterStore((state) => state.cancelFilters);
+  const setTempGender = useFilterStore((state) => state.setTempGender);
+  const clearTempGender = useFilterStore((state) => state.clearTempGender);
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
@@ -48,7 +50,8 @@ const SearchWithFilters = ({
 
   // Computed value to check if temp filters are active (reactive to tempFilters changes)
   const hasTempFiltersActive = useMemo(() => {
-    return tempFilters.onSale || 
+    return tempFilters.gender.length > 0 ||
+           tempFilters.onSale || 
            !tempFilters.inStock ||
            tempFilters.itemCondition !== "all" ||
            (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
@@ -63,7 +66,8 @@ const SearchWithFilters = ({
 
   // Computed value for temp filter count (reactive to tempFilters changes)
   const tempFilterCount = useMemo(() => {
-    return (tempFilters.onSale ? 1 : 0) + 
+    return (tempFilters.gender.length > 0 ? 1 : 0) +
+           (tempFilters.onSale ? 1 : 0) + 
            (!tempFilters.inStock ? 1 : 0) +
            (tempFilters.itemCondition !== "all" ? 1 : 0) +
            (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +
@@ -117,6 +121,16 @@ const SearchWithFilters = ({
   }, [applyFilters]);
 
   // Clear handlers for active filter chips
+  const handleClearGender = useCallback((gendersToKeep?: string[]) => {
+    if (gendersToKeep !== undefined) {
+      // Partial clear - set to the remaining genders
+      setTempGender(gendersToKeep);
+    } else {
+      // Full clear - clear all genders
+      clearTempGender();
+    }
+  }, [setTempGender, clearTempGender]);
+
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
   }, [clearTempOnSale]);
@@ -428,6 +442,7 @@ const SearchWithFilters = ({
                   onClose={onClose}
                   showResetAll={hasTempFiltersActive}
                   onResetAll={handleResetAllFilters}
+                  onClearGender={handleClearGender}
                   onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}

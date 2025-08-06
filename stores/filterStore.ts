@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface FilterState {
+  gender: string[]; // Changed to array to support multiple gender selection
   ageRange: number[];
   priceRange: number[];
   locationRange: number; // Single value for maximum distance in km
@@ -34,6 +35,7 @@ interface FilterStore {
   initializeTempFilters: () => void;
   
   // Individual temp filter actions
+  setTempGender: (gender: string[]) => void;
   setTempAgeRange: (range: number[]) => void;
   setTempPriceRange: (range: number[]) => void;
   setTempLocationRange: (range: number) => void;
@@ -44,6 +46,7 @@ interface FilterStore {
   setTempSellerRating: (rating: number | null) => void;
   
   // Individual temp filter clearing actions
+  clearTempGender: () => void;
   clearTempOnSale: () => void;
   clearTempInStock: () => void;
   clearTempItemCondition: () => void;
@@ -70,6 +73,7 @@ interface FilterStore {
 }
 
 export const defaultFilterState: FilterState = {
+  gender: [], // Default to empty array (show all genders)
   ageRange: [0, 60],
   priceRange: [0, 500],
   locationRange: 25, // Default to 25 km maximum distance
@@ -106,6 +110,9 @@ export const useFilterStore = create<FilterStore>()(
       },
       
       // Individual temp filter actions
+      setTempGender: (gender) => set((state) => ({
+        tempFilters: { ...state.tempFilters, gender }
+      })),
       setTempAgeRange: (ageRange) => set((state) => ({
         tempFilters: { ...state.tempFilters, ageRange }
       })),
@@ -132,6 +139,9 @@ export const useFilterStore = create<FilterStore>()(
       })),
       
       // Individual temp filter clearing actions
+      clearTempGender: () => set((state) => ({
+        tempFilters: { ...state.tempFilters, gender: [] }
+      })),
       clearTempOnSale: () => set((state) => ({
         tempFilters: { ...state.tempFilters, onSale: false }
       })),
@@ -181,7 +191,8 @@ export const useFilterStore = create<FilterStore>()(
       // Helper functions
       hasActiveFilters: () => {
         const { filters } = get();
-        return filters.onSale !== defaultFilterState.onSale || 
+        return filters.gender.length > 0 ||
+               filters.onSale !== defaultFilterState.onSale || 
                filters.inStock !== defaultFilterState.inStock ||
                filters.itemCondition !== defaultFilterState.itemCondition ||
                (filters.sellerRating !== null && filters.sellerRating > 0) ||
@@ -189,13 +200,14 @@ export const useFilterStore = create<FilterStore>()(
                (filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) ||
                // Only count price range as active if it's NOT the full range (0-500)
                (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) ||
-               filters.locationRange !== defaultFilterState.locationRange ||
+               filters.isLocationRangeSet ||
                filters.sortBy !== defaultFilterState.sortBy;
       },
       
       hasTempActiveFilters: () => {
         const { tempFilters } = get();
-        return tempFilters.onSale !== defaultFilterState.onSale || 
+        return tempFilters.gender.length > 0 ||
+               tempFilters.onSale !== defaultFilterState.onSale || 
                tempFilters.inStock !== defaultFilterState.inStock ||
                tempFilters.itemCondition !== defaultFilterState.itemCondition ||
                (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
@@ -203,13 +215,14 @@ export const useFilterStore = create<FilterStore>()(
                (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
                // Only count price range as active if it's NOT the full range (0-500)
                (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
-               tempFilters.locationRange !== defaultFilterState.locationRange ||
+               tempFilters.isLocationRangeSet ||
                tempFilters.sortBy !== defaultFilterState.sortBy;
       },
       
       getFilterCount: () => {
         const { filters } = get();
-        return (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+        return (filters.gender.length > 0 ? 1 : 0) +
+               (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (filters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (filters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
                (filters.sellerRating !== null && filters.sellerRating > 0 ? 1 : 0) +
@@ -223,7 +236,8 @@ export const useFilterStore = create<FilterStore>()(
       
       getTempFilterCount: () => {
         const { tempFilters } = get();
-        return (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
+        return (tempFilters.gender.length > 0 ? 1 : 0) +
+               (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (tempFilters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (tempFilters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
                (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +
