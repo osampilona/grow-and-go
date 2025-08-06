@@ -35,17 +35,17 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
   const getConditionColor = (condition: CardItem['condition']) => {
     switch (condition) {
       case 'brand-new':
-        return 'bg-success-100 text-success-700 border-success-300';
+        return 'bg-green-100 text-green-700 border-green-300';
       case 'like-new':
-        return 'bg-primary-100 text-primary-700 border-primary-300';
+        return 'bg-blue-100 text-blue-700 border-blue-300';
       case 'very-good':
-        return 'bg-secondary-100 text-secondary-700 border-secondary-300';
+        return 'bg-purple-100 text-purple-700 border-purple-300';
       case 'good':
-        return 'bg-warning-100 text-warning-700 border-warning-300';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
       case 'fair':
-        return 'bg-danger-100 text-danger-700 border-danger-300';
+        return 'bg-red-100 text-red-700 border-red-300';
       default:
-        return 'bg-default-100 text-default-700 border-default-300';
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
@@ -62,8 +62,8 @@ const Card = memo(function Card({ item }: { item: CardItem }) {
           {getConditionLabel(item.condition)}
         </div>
         {/* Heart button in top right */}
-        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-background/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-background/80 z-30">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-foreground">
+        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
           </svg>
         </button>

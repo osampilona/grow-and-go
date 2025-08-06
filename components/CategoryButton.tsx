@@ -46,9 +46,9 @@ const CategoryButton = memo(function CategoryButton({
 
   // MEMOIZED: Button className to prevent recalculation
   const buttonClassName = useMemo(() => 
-    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
     (isSelectedState 
-      ? "dark:bg-white/10 dark:backdrop-blur-sm" 
+      ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm" 
       : "") +
     (showBorder
       ? " border border-default-500 dark:border-default-600"

@@ -29,18 +29,18 @@ const FiltersList = memo(function FiltersList() {
 
   // MEMOIZED: Gender button styles to prevent recalculation
   const boyButtonClass = useMemo(() => 
-    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
     (optimizedFilters.genderState.isBoySelected 
-      ? "dark:bg-white/10 dark:backdrop-blur-sm border border-primary" 
-      : "border border-default-300"),
+      ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm" 
+      : ""),
     [optimizedFilters.genderState.isBoySelected]
   );
 
   const girlButtonClass = useMemo(() => 
-    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none bg-transparent transition-all duration-150 cursor-pointer ` +
+    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
     (optimizedFilters.genderState.isGirlSelected 
-      ? "dark:bg-white/10 dark:backdrop-blur-sm border border-secondary" 
-      : "border border-default-300"),
+      ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm" 
+      : ""),
     [optimizedFilters.genderState.isGirlSelected]
   );
 
@@ -110,7 +110,9 @@ const FiltersList = memo(function FiltersList() {
             <img
               src={boyImageSrc}
               alt="Boy"
-              className="w-7 h-7 mb-1 object-contain transition-all duration-150"
+              className={`w-7 h-7 mb-1 object-contain transition-all duration-150 ${
+                optimizedFilters.genderState.isBoySelected ? "" : "dark:invert"
+              }`}
               style={imageStyle}
             />
             <span className="text-xs font-semibold text-foreground">
@@ -126,7 +128,9 @@ const FiltersList = memo(function FiltersList() {
             <img
               src={girlImageSrc}
               alt="Girl"
-              className="w-7 h-7 mb-1 object-contain transition-all duration-150"
+              className={`w-7 h-7 mb-1 object-contain transition-all duration-150 ${
+                optimizedFilters.genderState.isGirlSelected ? "" : "dark:invert"
+              }`}
               style={imageStyle}
             />
             <span className="text-xs font-semibold text-foreground">
