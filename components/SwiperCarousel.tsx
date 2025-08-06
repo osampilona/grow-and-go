@@ -132,6 +132,8 @@ const SwiperCarousel = memo(function SwiperCarousel({
       clickable: true,
       bulletClass: 'swiper-pagination-bullet',
       bulletActiveClass: 'swiper-pagination-bullet-active',
+      dynamicBullets: true,
+      dynamicMainBullets: 5,
     } : false,
   };
 
@@ -156,12 +158,18 @@ const SwiperCarousel = memo(function SwiperCarousel({
             {activeIndex + 1} / {imagesLength}
           </div>
         )}
-        {/* Counter indicator for arrows style, only on screens smaller than lg */}
+      {/* Counter indicator for arrows style, only on screens smaller than lg */}
         {imagesLength > 1 && navigationStyle === 'arrows' && (
           <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-white/60 backdrop-blur-md text-black text-xs font-medium z-20 swiper-counter lg:hidden">
             {activeIndex + 1} / {imagesLength}
           </div>
         )}
+      {/* Pagination for arrows style, only on lg and up screens */}
+      {imagesLength > 1 && navigationStyle === 'arrows' && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 hidden lg:flex">
+          <div className="swiper-pagination" />
+        </div>
+      )}
       </Swiper>
       {/* Swiper navigation arrows - only show if arrows style and more than 1 image */}
       {imagesLength > 1 && navigationStyle === 'arrows' && (
