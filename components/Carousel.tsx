@@ -66,7 +66,8 @@ const Carousel = memo(function Carousel({
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     mouseStartX.current = e.clientX;
     isDragging.current = true;
-    e.preventDefault(); // Prevent text selection during drag
+    // Prevent text selection during drag
+    e.preventDefault();
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -93,7 +94,7 @@ const Carousel = memo(function Carousel({
   }, [nextSlide, prevSlide]);
 
   const handleMouseLeave = useCallback(() => {
-    // Reset drag state if mouse leaves the carousel area
+    // Reset drag state if mouse leaves the component
     isDragging.current = false;
     mouseStartX.current = 0;
     mouseEndX.current = 0;
@@ -106,7 +107,7 @@ const Carousel = memo(function Carousel({
 
   return (
     <div 
-      className={`relative overflow-hidden ${className} ${isDragging.current ? 'cursor-grabbing' : 'cursor-grab'}`}
+      className={`relative overflow-hidden ${className} ${isDragging.current ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -114,7 +115,6 @@ const Carousel = memo(function Carousel({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      style={{ userSelect: 'none' }} // Prevent text selection during drag
     >
       {/* Single image display with smooth transition */}
       <div className="w-full h-full relative">
