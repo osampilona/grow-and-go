@@ -36,7 +36,8 @@ const SearchWithFilters = ({
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
   const cancelFilters = useFilterStore((state) => state.cancelFilters);
-  const clearTempBrand = useFilterStore((state) => state.clearTempBrand);
+  const setTempGender = useFilterStore((state) => state.setTempGender);
+  const clearTempGender = useFilterStore((state) => state.clearTempGender);
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
@@ -49,7 +50,7 @@ const SearchWithFilters = ({
 
   // Computed value to check if temp filters are active (reactive to tempFilters changes)
   const hasTempFiltersActive = useMemo(() => {
-    return tempFilters.selectedBrands.length > 0 || 
+    return tempFilters.gender.length > 0 ||
            tempFilters.onSale || 
            !tempFilters.inStock ||
            tempFilters.itemCondition !== "all" ||
@@ -58,14 +59,14 @@ const SearchWithFilters = ({
            (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
            // Only count price range as active if it's NOT the full range (0-500)
            (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
-           // Only count location range as active if it's NOT the default value (25)
-           tempFilters.locationRange !== 25 ||
+           // Only count location range as active if user has actively set it
+           tempFilters.isLocationRangeSet ||
            tempFilters.sortBy !== "newest";
   }, [tempFilters]);
 
   // Computed value for temp filter count (reactive to tempFilters changes)
   const tempFilterCount = useMemo(() => {
-    return tempFilters.selectedBrands.length + 
+    return (tempFilters.gender.length > 0 ? 1 : 0) +
            (tempFilters.onSale ? 1 : 0) + 
            (!tempFilters.inStock ? 1 : 0) +
            (tempFilters.itemCondition !== "all" ? 1 : 0) +
@@ -74,8 +75,8 @@ const SearchWithFilters = ({
            ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
            // Only count price range as active if it's NOT the full range (0-500)
            ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
-           // Only count location range as active if it's NOT the default value (25)
-           (tempFilters.locationRange !== 25 ? 1 : 0) +
+           // Only count location range as active if user has actively set it
+           (tempFilters.isLocationRangeSet ? 1 : 0) +
            (tempFilters.sortBy !== "newest" ? 1 : 0);
   }, [tempFilters]);
 
@@ -120,9 +121,15 @@ const SearchWithFilters = ({
   }, [applyFilters]);
 
   // Clear handlers for active filter chips
-  const handleClearBrand = useCallback((brand: string) => {
-    clearTempBrand(brand);
-  }, [clearTempBrand]);
+  const handleClearGender = useCallback((gendersToKeep?: string[]) => {
+    if (gendersToKeep !== undefined) {
+      // Partial clear - set to the remaining genders
+      setTempGender(gendersToKeep);
+    } else {
+      // Full clear - clear all genders
+      clearTempGender();
+    }
+  }, [setTempGender, clearTempGender]);
 
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
@@ -435,7 +442,7 @@ const SearchWithFilters = ({
                   onClose={onClose}
                   showResetAll={hasTempFiltersActive}
                   onResetAll={handleResetAllFilters}
-                  onClearBrand={handleClearBrand}
+                  onClearGender={handleClearGender}
                   onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}

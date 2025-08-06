@@ -39,7 +39,7 @@ export const Navbar = memo(function Navbar() {
   const cancelTemp = useCategoryStore((state) => state.cancelTemp);
   const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
 
-  // Get filter state and actions from store
+    // Get filter state and actions from store
   const filters = useFilterStore((state) => state.filters);
   const tempFilters = useFilterStore((state) => state.tempFilters);
   const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters);
@@ -50,7 +50,8 @@ export const Navbar = memo(function Navbar() {
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
   const cancelFilters = useFilterStore((state) => state.cancelFilters);
-  const clearTempBrand = useFilterStore((state) => state.clearTempBrand);
+  const setTempGender = useFilterStore((state) => state.setTempGender);
+  const clearTempGender = useFilterStore((state) => state.clearTempGender);
   const clearTempOnSale = useFilterStore((state) => state.clearTempOnSale);
   const clearTempInStock = useFilterStore((state) => state.clearTempInStock);
   const clearTempItemCondition = useFilterStore((state) => state.clearTempItemCondition);
@@ -143,9 +144,15 @@ export const Navbar = memo(function Navbar() {
   }, [cancelTemp, cancelFilters]);
 
   // Handler for clearing individual filters (works on temp state in modal)
-  const handleClearBrand = useCallback((brand: string) => {
-    clearTempBrand(brand);
-  }, [clearTempBrand]);
+  const handleClearGender = useCallback((gendersToKeep?: string[]) => {
+    if (gendersToKeep !== undefined) {
+      // Partial clear - set to the remaining genders
+      setTempGender(gendersToKeep);
+    } else {
+      // Full clear - clear all genders
+      clearTempGender();
+    }
+  }, [setTempGender, clearTempGender]);
 
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
@@ -321,7 +328,7 @@ export const Navbar = memo(function Navbar() {
               onResetAll={handleResetAll}
               showCategoryChips={true}
               onClearCategory={handleClearCategory}
-              onClearBrand={handleClearBrand}
+              onClearGender={handleClearGender}
               onClearOnSale={handleClearOnSale}
               onClearInStock={handleClearInStock}
               onClearItemCondition={handleClearItemCondition}
@@ -418,7 +425,7 @@ export const Navbar = memo(function Navbar() {
                   onClose={handleFiltersModalClose}
                   showResetAll={(filterCount > 0 || hasTempActiveFilters())}
                   onResetAll={handleResetFilters}
-                  onClearBrand={handleClearBrand}
+                  onClearGender={handleClearGender}
                   onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}
