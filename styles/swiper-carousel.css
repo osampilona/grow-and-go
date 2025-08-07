@@ -1,0 +1,78 @@
+/* SwiperCarousel custom styles */
+.swiper-carousel-container .swiper-button-next,
+.swiper-carousel-container .swiper-button-prev {
+  width: 30px !important;
+  height: 30px !important;
+  margin-top: -20px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-carousel-container .swiper-button-next::after,
+.swiper-carousel-container .swiper-button-prev::after {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.swiper-carousel-container .swiper-button-next:hover,
+.swiper-carousel-container .swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  transform: scale(1.05) !important;
+}
+
+.swiper-carousel-container .swiper-button-next {
+  right: 12px !important;
+}
+
+.swiper-carousel-container .swiper-button-prev {
+  left: 12px !important;
+}
+
+/* Custom styles for pagination dots */
+.swiper-carousel-container .swiper-pagination {
+  bottom: 8px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.swiper-carousel-container .swiper-pagination-bullet {
+  width: 5px !important;
+  height: 5px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+  border-radius: 50% !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.swiper-carousel-container .swiper-pagination-bullet:hover {
+  background: rgba(255, 255, 255, 0.7) !important;
+  transform: scale(1.2) !important;
+}
+
+.swiper-carousel-container .swiper-pagination-bullet-active {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.2) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Hide navigation when using counter style */
+.swiper-carousel-container.counter-style .swiper-pagination {
+  display: none !important;
+}
+
+.swiper-carousel-container.counter-style .swiper-button-next,
+.swiper-carousel-container.counter-style .swiper-button-prev {
+  display: none !important;
+}
+.swiper {
+  width: 100% !important;
+  height: 100% !important;
+}

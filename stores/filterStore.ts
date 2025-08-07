@@ -76,7 +76,7 @@ interface FilterStore {
 export const defaultFilterState: FilterState = {
   gender: [], // Default to empty array (show all genders)
   ageRange: [0, 60],
-  priceRange: [0, 500],
+  priceRange: [0, 1500],
   locationRange: 25, // Default to 25 km maximum distance
   sortBy: "newest",
   inStock: true, // Default to show only in-stock items
@@ -214,7 +214,7 @@ export const useFilterStore = create<FilterStore>()(
       // Helper functions
       hasActiveFilters: () => {
         const { filters } = get();
-        return filters.gender.length > 0 ||
+        return (filters.gender?.length ?? 0) > 0 ||
                filters.onSale !== defaultFilterState.onSale || 
                filters.inStock !== defaultFilterState.inStock ||
                filters.itemCondition !== defaultFilterState.itemCondition ||
@@ -229,7 +229,7 @@ export const useFilterStore = create<FilterStore>()(
       
       hasTempActiveFilters: () => {
         const { tempFilters } = get();
-        return tempFilters.gender.length > 0 ||
+        return (tempFilters.gender?.length ?? 0) > 0 ||
                tempFilters.onSale !== defaultFilterState.onSale || 
                tempFilters.inStock !== defaultFilterState.inStock ||
                tempFilters.itemCondition !== defaultFilterState.itemCondition ||
@@ -244,7 +244,7 @@ export const useFilterStore = create<FilterStore>()(
       
       getFilterCount: () => {
         const { filters } = get();
-        return (filters.gender.length > 0 ? 1 : 0) +
+        return ((filters.gender?.length ?? 0) > 0 ? 1 : 0) +
                (filters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (filters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (filters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
@@ -259,7 +259,7 @@ export const useFilterStore = create<FilterStore>()(
       
       getTempFilterCount: () => {
         const { tempFilters } = get();
-        return (tempFilters.gender.length > 0 ? 1 : 0) +
+        return ((tempFilters.gender?.length ?? 0) > 0 ? 1 : 0) +
                (tempFilters.onSale !== defaultFilterState.onSale ? 1 : 0) + 
                (tempFilters.inStock !== defaultFilterState.inStock ? 1 : 0) +
                (tempFilters.itemCondition !== defaultFilterState.itemCondition ? 1 : 0) +
