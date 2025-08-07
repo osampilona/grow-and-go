@@ -1,4 +1,5 @@
-import { Avatar } from "@heroui/react";
+import { useEffect, useState } from "react";
+import { Avatar, Skeleton } from "@heroui/react";
 import { memo } from "react";
 import SwiperCarousel from "./SwiperCarousel";
 
@@ -18,9 +19,18 @@ type CardProps = {
   item: CardItem;
   useSwiper?: boolean;
   swiperEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
+  isLoading?: boolean;
 };
 
-const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-rotate' }: CardProps) {
+
+
+const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-rotate', isLoading = false }: CardProps) {
+  // Demo: show skeleton for 1s
+  const [showSkeleton, setShowSkeleton] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSkeleton(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
   const getConditionLabel = (condition: CardItem['condition']) => {
     switch (condition) {
       case 'brand-new':
@@ -55,6 +65,28 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
     }
   };
 
+  if (isLoading || showSkeleton) {
+    // Custom skeleton layout inspired by HeroUI docs
+    return (
+      <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent p-4 space-y-5">
+        <Skeleton className="rounded-2xl">
+          <div className="h-80 w-full rounded-2xl bg-default-300" />
+        </Skeleton>
+        <div className="space-y-3">
+          <Skeleton className="w-3/5 rounded-lg">
+            <div className="h-4 w-3/5 rounded-lg bg-default-200" />
+          </Skeleton>
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-4 w-4/5 rounded-lg bg-default-200" />
+          </Skeleton>
+          <Skeleton className="w-2/5 rounded-lg">
+            <div className="h-4 w-2/5 rounded-lg bg-default-300" />
+          </Skeleton>
+        </div>
+      </div>
+    );
+  }
+  // ...existing card content...
   return (
     <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent">
       <div className="relative">
@@ -78,13 +110,11 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
       <div className="flex flex-col gap-2 mt-2">
         {/* Title */}
         <h3 className="text-base font-semibold text-foreground truncate">{item.title}</h3>
-        
         {/* Seller info */}
         <div className="flex items-center gap-2">
           <Avatar size="sm" src={item.seller.avatar} />
           <p className="text-foreground/70 text-sm font-medium">{item.seller.name}</p>
         </div>
-        
         {/* Price - moved to bottom */}
         <div className="text-xl font-bold text-foreground">
           {item.price}
