@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Avatar, Skeleton } from "@heroui/react";
 import { memo } from "react";
 import SwiperCarousel from "./SwiperCarousel";
 
 export type CardItem = {
+  id: string;
   title: string;
-  seller: {
+  user: {
+    userId: string;
     name: string;
     avatar: string;
   };
@@ -25,12 +28,13 @@ type CardProps = {
 
 
 const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-rotate', isLoading = false }: CardProps) {
-  // Demo: show skeleton for 1s
+  const router = useRouter();
   const [showSkeleton, setShowSkeleton] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => setShowSkeleton(false), 1000);
     return () => clearTimeout(timer);
   }, []);
+
   const getConditionLabel = (condition: CardItem['condition']) => {
     switch (condition) {
       case 'brand-new':
@@ -65,6 +69,17 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
     }
   };
 
+  // Handler for card click (excluding avatar/name)
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    router.push(`/products/${item.id}`);
+  };
+
+  // Handler for user click
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/user/${item.user.userId}`);
+  };
+
   if (isLoading || showSkeleton) {
     // Custom skeleton layout inspired by HeroUI docs
     return (
@@ -86,9 +101,12 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
       </div>
     );
   }
-  // ...existing card content...
+
   return (
-    <div className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent">
+    <div
+      className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="relative">
         <SwiperCarousel 
           images={item.images} 
@@ -110,10 +128,12 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
       <div className="flex flex-col gap-2 mt-2">
         {/* Title */}
         <h3 className="text-base font-semibold text-foreground truncate">{item.title}</h3>
-        {/* Seller info */}
+        {/* User info */}
         <div className="flex items-center gap-2">
-          <Avatar size="sm" src={item.seller.avatar} />
-          <p className="text-foreground/70 text-sm font-medium">{item.seller.name}</p>
+          <span onClick={handleUserClick} className="flex items-center gap-2 cursor-pointer">
+            <Avatar size="sm" src={item.user.avatar} />
+            <p className="text-foreground/70 text-sm font-medium">{item.user.name}</p>
+          </span>
         </div>
         {/* Price - moved to bottom */}
         <div className="text-xl font-bold text-foreground">

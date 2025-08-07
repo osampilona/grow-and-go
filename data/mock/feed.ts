@@ -1,7 +1,8 @@
 export type FeedItem = {
   id: string;
   title: string;
-  seller: {
+  user: {
+    userId: string;
     name: string;
     avatar: string;
   };
@@ -15,7 +16,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '1',
     title: 'Baby clothes (0-24 months)',
-    seller: {
+    user: {
+      userId: 'u1',
       name: 'Anna',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
     },
@@ -36,7 +38,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '2',
     title: 'Wooden baby chair',
-    seller: {
+    user: {
+      userId: 'u2',
       name: 'Ben',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704e',
     },
@@ -60,7 +63,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '3',
     title: 'Soft baby blanket',
-    seller: {
+    user: {
+      userId: 'u3',
       name: 'Clara',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704f',
     },
@@ -76,7 +80,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '4',
     title: 'Eco baby bottle',
-    seller: {
+    user: {
+      userId: 'u4',
       name: 'Dina',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267050',
     },
@@ -91,7 +96,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '5',
     title: 'Baby shoes',
-    seller: {
+    user: {
+      userId: 'u5',
       name: 'Ella',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267051',
     },
@@ -108,7 +114,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '6',
     title: 'Organic baby food set',
-    seller: {
+    user: {
+      userId: 'u6',
       name: 'Fiona',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267052',
     },
@@ -123,7 +130,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '7',
     title: 'Baby stroller',
-    seller: {
+    user: {
+      userId: 'u7',
       name: 'George',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267053',
     },
@@ -139,7 +147,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '8',
     title: 'Baby crib',
-    seller: {
+    user: {
+      userId: 'u8',
       name: 'Hannah',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267054',
     },
@@ -155,7 +164,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '9',
     title: 'Baby carrier',
-    seller: {
+    user: {
+      userId: 'u9',
       name: 'Ivan',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267055',
     },
@@ -171,7 +181,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '10',
     title: 'Baby play mat',
-    seller: {
+    user: {
+      userId: 'u10',
       name: 'Julia',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267056',
     },
@@ -187,7 +198,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '11',
     title: 'Baby bath tub',
-    seller: {
+    user: {
+      userId: 'u11',
       name: 'Klara',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267057',
     },
@@ -203,7 +215,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '12',
     title: 'Baby monitor',
-    seller: {
+    user: {
+      userId: 'u12',
       name: 'Leo',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267058',
     },
@@ -219,7 +232,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '13',
     title: 'Baby walker',
-    seller: {
+    user: {
+      userId: 'u13',
       name: 'Maja',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267059',
     },
@@ -235,7 +249,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '14',
     title: 'Baby changing table',
-    seller: {
+    user: {
+      userId: 'u14',
       name: 'Nina',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267060',
     },
@@ -251,7 +266,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '15',
     title: 'Baby feeding set',
-    seller: {
+    user: {
+      userId: 'u15',
       name: 'Oskar',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267061',
     },
@@ -266,7 +282,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '16',
     title: 'Baby sleeping bag',
-    seller: {
+    user: {
+      userId: 'u16',
       name: 'Petra',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267062',
     },
@@ -282,7 +299,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '17',
     title: 'Baby bibs (set of 5)',
-    seller: {
+    user: {
+      userId: 'u17',
       name: 'Quinn',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267063',
     },
@@ -298,7 +316,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '18',
     title: 'Baby socks',
-    seller: {
+    user: {
+      userId: 'u18',
       name: 'Rosa',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267064',
     },
@@ -313,7 +332,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '19',
     title: 'Baby hat',
-    seller: {
+    user: {
+      userId: 'u19',
       name: 'Sara',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267065',
     },
@@ -329,7 +349,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '20',
     title: 'Baby mittens',
-    seller: {
+    user: {
+      userId: 'u20',
       name: 'Tina',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267066',
     },
@@ -344,7 +365,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '21',
     title: 'Baby bathrobe',
-    seller: {
+    user: {
+      userId: 'u21',
       name: 'Uma',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267067',
     },
@@ -360,7 +382,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '22',
     title: 'Baby shampoo',
-    seller: {
+    user: {
+      userId: 'u22',
       name: 'Vera',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267068',
     },
@@ -375,7 +398,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '23',
     title: 'Baby lotion',
-    seller: {
+    user: {
+      userId: 'u23',
       name: 'Wendy',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267069',
     },
@@ -391,7 +415,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '24',
     title: 'Baby wipes',
-    seller: {
+    user: {
+      userId: 'u24',
       name: 'Xenia',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267070',
     },
@@ -406,7 +431,8 @@ const mockFeed: FeedItem[] = [
   {
     id: '25',
     title: 'Baby teether',
-    seller: {
+    user: {
+      userId: 'u25',
       name: 'Yara',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e290267071',
     },
