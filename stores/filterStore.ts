@@ -76,7 +76,7 @@ interface FilterStore {
 export const defaultFilterState: FilterState = {
   gender: [], // Default to empty array (show all genders)
   ageRange: [0, 60],
-  priceRange: [0, 500],
+  priceRange: [0, 1500],
   locationRange: 25, // Default to 25 km maximum distance
   sortBy: "newest",
   inStock: true, // Default to show only in-stock items
