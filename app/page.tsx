@@ -84,7 +84,7 @@ export default function Home() {
       const queryLower = searchQuery.toLowerCase();
       filtered = filtered.filter((item) =>
         item.title.toLowerCase().includes(queryLower) ||
-        item.seller.name.toLowerCase().includes(queryLower)
+        item.user.name.toLowerCase().includes(queryLower)
       );
     }
 
@@ -93,7 +93,7 @@ export default function Home() {
       filtered = filtered.filter((item) => item.condition === filters.itemCondition);
     }
 
-    // 🚨 REMOVE: Seller rating filtering (move to backend)
+    // 🚨 REMOVE: User rating filtering (move to backend)
     if (filters.sellerRating !== null && filters.sellerRating > 0) {
       filtered = filtered.filter((item) => item.rating >= filters.sellerRating!);
     }
