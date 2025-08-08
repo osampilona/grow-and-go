@@ -12,7 +12,7 @@ export default function ProductPage() {
   const product: FeedItem | undefined = mockFeed.find((item: FeedItem) => item.id === slug);
 
   return (
-      <div className="w-full h-[90vh] bg-white rounded-3xl flex flex-col justify-between py-6">
+      <div className="w-full h-[90vh] bg-transparent rounded-3xl flex flex-col justify-between py-6">
         {/* Top section: main product info */}
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
