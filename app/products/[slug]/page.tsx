@@ -14,9 +14,8 @@ export default function ProductPage() {
         {/* Top section: main product info */}
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
-          <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-full lg:w-1/2 h-full relative">
-            <div className="w-[80%] h-[80%] flex items-center justify-center">
-              {/* Carousel for product images */}
+          <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-full lg:w-1/2 h-full p-4 sm:p-8">
+            <div className="w-full h-80 aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
               {/* Prepare images for SwiperCarousel */}
               {(() => {
                 const images = (product?.images || ["https://via.placeholder.com/400x400?text=Product+Image"]).map((src, idx) => ({
@@ -24,9 +23,7 @@ export default function ProductPage() {
                   alt: product?.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}`
                 }));
                 return (
-                  <div className="w-full h-full relative overflow-hidden">
-                    <SwiperCarousel images={images} />
-                  </div>
+                  <SwiperCarousel images={images} className="w-full h-full rounded-2xl" />
                 );
               })()}
             </div>
