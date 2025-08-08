@@ -95,7 +95,7 @@ export default function Home() {
 
     // 🚨 REMOVE: User rating filtering (move to backend)
     if (filters.sellerRating !== null && filters.sellerRating > 0) {
-      filtered = filtered.filter((item) => item.rating >= filters.sellerRating!);
+      filtered = filtered.filter((item) => item.user.rating >= filters.sellerRating!);
     }
 
     // 🚨 REMOVE: Price range filtering (move to backend)
@@ -193,9 +193,9 @@ export default function Home() {
       {/* Results count */}
       {searchResultsMessage}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0 pb-24">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
         {cardItems.map((item) => (
-          <Card key={item.id} item={item} />
+          <Card key={item.id} item={{ ...item, rating: item.user.rating }} />
         ))}
       </div>
 
