@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
+import SwiperCarousel from "@/components/SwiperCarousel";
 
 export default function ProductPage() {
   const params = useParams();
@@ -14,13 +15,25 @@ export default function ProductPage() {
         {/* Top section: main product info */}
         <div className="flex flex-row gap-8 h-[70%]">
           {/* Left: Product image area */}
-          <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-2/5 h-full relative">
-            <div className="w-[80%] h-[80%] bg-gray-200 rounded-3xl flex items-center justify-center">
-              <span className="text-gray-400 text-lg">Product Image</span>
+          <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-1/2 h-full relative">
+            <div className="w-[80%] h-[80%] flex items-center justify-center">
+              {/* Carousel for product images */}
+              {/* Prepare images for SwiperCarousel */}
+              {(() => {
+                const images = (product?.images || ["https://via.placeholder.com/400x400?text=Product+Image"]).map((src, idx) => ({
+                  src,
+                  alt: product?.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}`
+                }));
+                return (
+                  <div className="w-full h-full relative overflow-hidden">
+                    <SwiperCarousel images={images} />
+                  </div>
+                );
+              })()}
             </div>
-            </div>
+          </div>
           {/* Right: Product info area */}
-          <div className="flex flex-col justify-center w-3/5 h-full gap-6">
+          <div className="flex flex-col justify-center w-1/2 h-full gap-6">
             <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
             {/* User avatar, name, and rating */}
             <div className="flex items-center gap-4 mb-2">
@@ -51,7 +64,7 @@ export default function ProductPage() {
         {/* Bottom section: suggestions */}
         <div className="flex flex-row gap-8 w-full h-[30%] mt-8">
           {/* Left suggestion */}
-          <div className="bg-white rounded-3xl flex flex-col justify-center p-8 w-2/5 h-full">
+          <div className="bg-white rounded-3xl flex flex-col justify-center p-8 w-1/2 h-full">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full border flex items-center justify-center">
                 {/* Custom icon placeholder */}
@@ -62,7 +75,7 @@ export default function ProductPage() {
             <p className="text-gray-600">Styled a sleek urban look with a denim jacket, black jeans, ankle boots, and a leather crossbody bag — perfect for autumn city adventures</p>
           </div>
           {/* Right suggestion */}
-          <div className="bg-purple-100 rounded-3xl flex items-center gap-8 p-8 w-3/5 h-full">
+          <div className="bg-purple-100 rounded-3xl flex items-center gap-8 p-8 w-1/2 h-full">
             <img src="https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80" alt="Air Force purple" className="w-32 h-32 rounded-full object-cover" />
             <div className="flex flex-col gap-2">
               <h4 className="text-xl font-bold">Air Force purple №3212</h4>

@@ -11,8 +11,7 @@ import "swiper/css/pagination";
 import "../styles/swiper-carousel.css";
 
 interface SwiperCarouselProps {
-  images: string[];
-  alt: string;
+  images: { src: string; alt: string }[];
   className?: string;
   // Navigation style can be 'arrows' or 'counter'
   // 'arrows' shows navigation arrows, 'counter' shows a counter indicator
@@ -25,7 +24,6 @@ interface SwiperCarouselProps {
 const SwiperCarousel = memo(function SwiperCarousel({ 
 
   images,
-  alt,
   className = "",
   navigationStyle = "arrows",
   creativeEffect = "default",
@@ -113,12 +111,12 @@ const SwiperCarousel = memo(function SwiperCarousel({
       } ${className}`}
     >
       <Swiper {...swiperConfig}>
-        {images.map((image, index) => (
-          <SwiperSlide key={index} className="h-full w-full">
+        {images.map((img, idx) => (
+          <SwiperSlide key={idx} className="h-full w-full">
             <div className="w-full h-full relative">
               <img
-                src={image}
-                alt={`${alt} ${index + 1}`}
+                src={img.src}
+                alt={img.alt}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
