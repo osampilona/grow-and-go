@@ -1,8 +1,10 @@
 "use client";
 
+import { Avatar, Button } from "@heroui/react";
 import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
 import SwiperCarousel from "@/components/SwiperCarousel";
+import { IoChatboxOutline } from "react-icons/io5";
 
 export default function ProductPage() {
   const params = useParams();
@@ -32,14 +34,22 @@ export default function ProductPage() {
           <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
             <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
             {/* User avatar, name, and rating */}
-            <div className="flex items-center gap-4 mb-2">
-              <img src={product?.user.avatar} alt="User Avatar" className="w-12 h-12 rounded-full border" />
+          <div className="flex items-center gap-4 justify-between mb-2 w-full">
+            <div className="flex items-center gap-4">
+              <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
               <span className="font-semibold text-lg">{product?.user.name}</span>
               <span className="text-yellow-500 font-semibold flex items-center gap-1">
                 {product?.user.rating?.toFixed(1)}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
               </span>
             </div>
+            <Button radius="sm" size="md" className="bg-lime-400 text-black font-semibold hover:bg-lime-500">
+              <span className="flex items-center gap-2">
+                <IoChatboxOutline className="w-5 h-5" />
+                Chat with {product?.user.name}
+              </span>
+            </Button>
+          </div>
             <p className="text-gray-600 text-lg">{product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}</p>
             {/* Price and actions */}
             <div className="flex items-center gap-6 mt-2">
