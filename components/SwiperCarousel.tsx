@@ -13,6 +13,7 @@ import "../styles/swiper-carousel.css";
 interface SwiperCarouselProps {
   images: { src: string; alt: string }[];
   className?: string;
+  imageClassName?: string;
   // Navigation style can be 'arrows' or 'counter'
   // 'arrows' shows navigation arrows, 'counter' shows a counter indicator
   // 'arrows' is the default style and has arrows only for lg screen
@@ -26,6 +27,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
 
   images,
   className = "",
+  imageClassName = "",
   navigationStyle = "arrows",
   creativeEffect = "default",
   onImageClick,
@@ -114,12 +116,12 @@ const SwiperCarousel = memo(function SwiperCarousel({
     >
       <Swiper {...swiperConfig}>
         {images.map((img, idx) => (
-          <SwiperSlide key={idx} className="h-full w-full">
-            <div className="w-full h-full relative">
+          <SwiperSlide key={idx} className="h-full w-full flex items-center justify-center">
+            <div className="w-full h-full relative flex items-center justify-center">
               <img
                 src={img.src}
                 alt={img.alt}
-                className="w-full h-full object-cover"
+                className={imageClassName || "w-full h-full object-cover"}
                 loading="lazy"
                 onClick={() => onImageClick && onImageClick(idx)}
               />

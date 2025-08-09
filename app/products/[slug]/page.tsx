@@ -24,61 +24,19 @@ export default function ProductPage() {
             <button
               onClick={() => setModalOpen(false)}
               aria-label="Close"
-              className="fixed top-8 right-8 z-[100] text-gray-700 hover:text-black bg-white/80 rounded-full p-2 shadow"
+              className="fixed top-8 right-8 z-[100] text-white hover:text-black hover:bg-white/80 rounded-full p-2 shadow transition-colors"
               style={{transition: 'top 0.2s, right 0.2s'}}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            {/* Custom image viewer for full images */}
-            {(() => {
-              const images = product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }));
-              const [current, setCurrent] = useState(0);
-              return (
-                <div className="relative w-full flex flex-col items-center">
-                  <img
-                    src={images[current].src}
-                    alt={images[current].alt}
-                    className="max-h-[95vh] max-w-[95vw] w-auto h-auto object-contain"
-                  />
-                  {/* Navigation arrows */}
-                  {images.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setCurrent((current - 1 + images.length) % images.length)}
-                        className="fixed left-8 top-1/2 -translate-y-1/2 z-[100] bg-white/80 rounded-full p-2 shadow text-gray-700 hover:text-black"
-                        aria-label="Previous image"
-                        style={{transition: 'left 0.2s'}}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setCurrent((current + 1) % images.length)}
-                        className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] bg-white/80 rounded-full p-2 shadow text-gray-700 hover:text-black"
-                        aria-label="Next image"
-                        style={{transition: 'right 0.2s'}}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    </>
-                  )}
-                  {/* Dots indicator fixed at middle bottom */}
-                  <div className="fixed left-1/2 bottom-8 z-[100] flex gap-2 -translate-x-1/2">
-                    {images.map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`w-2 h-2 rounded-full ${idx === current ? 'bg-gray-800' : 'bg-gray-300'}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
+            {/* SwiperCarousel for modal with swipe support */}
+            <SwiperCarousel
+              images={product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }))}
+              className="flex items-center justify-center w-screen h-screen"
+              imageClassName="max-w-screen max-h-screen object-contain mx-auto"
+            />
           </Dialog.Panel>
         </Dialog>
       )}
