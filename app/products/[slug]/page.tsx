@@ -31,8 +31,15 @@ export default function ProductPage() {
             </div>
           </div>
           {/* Right: Product info area */}
-          <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
+        <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
+          <div className="flex items-center justify-between">
             <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
+            <button className="border border-gray-400 rounded-full p-3 bg-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+              </svg>
+            </button>
+            </div>
             {/* User avatar, name, and rating */}
           <div className="flex items-center gap-4 justify-between mb-2 w-full">
             <div className="flex items-center gap-4">
@@ -59,11 +66,6 @@ export default function ProductPage() {
             <div className="flex items-center gap-4 mt-2">
               <button className="border-2 border-yellow-300 text-yellow-700 px-8 py-3 rounded-full font-bold text-lg bg-white">ADD TO CART</button>
               <button className="bg-yellow-300 text-black px-8 py-3 rounded-full font-bold text-lg">BUY NOW</button>
-              <button className="border border-gray-400 rounded-full p-3 bg-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
-                </svg>
-              </button>
             </div>
           </div>
         </div>
