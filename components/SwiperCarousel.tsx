@@ -19,6 +19,7 @@ interface SwiperCarouselProps {
   // 'counter' is useful for showing the current slide out of total slides
   navigationStyle?: 'arrows' | 'counter';
   creativeEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
+  onImageClick?: (index: number) => void;
 }
 
 const SwiperCarousel = memo(function SwiperCarousel({ 
@@ -27,6 +28,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
   className = "",
   navigationStyle = "arrows",
   creativeEffect = "default",
+  onImageClick,
 }: SwiperCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const imagesLength = useMemo(() => images.length, [images]);
@@ -119,6 +121,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
                 alt={img.alt}
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onClick={() => onImageClick && onImageClick(idx)}
               />
             </div>
           </SwiperSlide>

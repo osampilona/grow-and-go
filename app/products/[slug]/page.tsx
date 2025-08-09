@@ -5,19 +5,89 @@ import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import { IoChatboxOutline } from "react-icons/io5";
+import { useState } from "react";
+import { Dialog } from "@headlessui/react";
 
 export default function ProductPage() {
   const params = useParams();
   const slug = params?.slug;
   const product: FeedItem | undefined = mockFeed.find((item: FeedItem) => item.id === slug);
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
-      <div className="w-full h-[90vh] bg-transparent rounded-3xl flex flex-col justify-between py-6">
+    <>
+      {/* Modal for full-size carousel */}
+      {product && (
+        <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <Dialog.Panel className="bg-transparent shadow-none p-0 max-w-5xl w-full flex flex-col items-center relative">
+            {/* X close icon in top right */}
+            <button
+              onClick={() => setModalOpen(false)}
+              aria-label="Close"
+              className="fixed top-8 right-8 z-[100] text-gray-700 hover:text-black bg-white/80 rounded-full p-2 shadow"
+              style={{transition: 'top 0.2s, right 0.2s'}}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {/* Custom image viewer for full images */}
+            {(() => {
+              const images = product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }));
+              const [current, setCurrent] = useState(0);
+              return (
+                <div className="relative w-full flex flex-col items-center">
+                  <img
+                    src={images[current].src}
+                    alt={images[current].alt}
+                    className="max-h-[95vh] max-w-[95vw] w-auto h-auto object-contain"
+                  />
+                  {/* Navigation arrows */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setCurrent((current - 1 + images.length) % images.length)}
+                        className="fixed left-8 top-1/2 -translate-y-1/2 z-[100] bg-white/80 rounded-full p-2 shadow text-gray-700 hover:text-black"
+                        aria-label="Previous image"
+                        style={{transition: 'left 0.2s'}}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setCurrent((current + 1) % images.length)}
+                        className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] bg-white/80 rounded-full p-2 shadow text-gray-700 hover:text-black"
+                        aria-label="Next image"
+                        style={{transition: 'right 0.2s'}}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                  {/* Dots indicator fixed at middle bottom */}
+                  <div className="fixed left-1/2 bottom-8 z-[100] flex gap-2 -translate-x-1/2">
+                    {images.map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={`w-2 h-2 rounded-full ${idx === current ? 'bg-gray-800' : 'bg-gray-300'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </Dialog.Panel>
+        </Dialog>
+      )}
+      <div className="w-full h-[90vh] bg-white rounded-3xl flex flex-col justify-between py-6">
         {/* Top section: main product info */}
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
           <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-full lg:w-1/2 h-full p-4 sm:p-8">
-            <div className="w-full h-80 lg:h-[27rem] aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
+            <div className="w-full h-80 lg:h-[28rem] aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
               {/* Prepare images for SwiperCarousel */}
               {(() => {
                 const images = (product?.images || ["https://via.placeholder.com/400x400?text=Product+Image"]).map((src, idx) => ({
@@ -25,38 +95,38 @@ export default function ProductPage() {
                   alt: product?.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}`
                 }));
                 return (
-                  <SwiperCarousel images={images} className="w-full h-full rounded-2xl" />
+                  <SwiperCarousel images={images} className="w-full h-full rounded-2xl" onImageClick={() => setModalOpen(true)} />
                 );
               })()}
             </div>
           </div>
           {/* Right: Product info area */}
-        <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
-            <button className="border border-gray-400 rounded-full p-3 bg-white">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
-              </svg>
-            </button>
+          <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
+              <button className="border border-gray-400 rounded-full p-3 bg-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+                </svg>
+              </button>
             </div>
             {/* User avatar, name, and rating */}
-          <div className="flex items-center gap-4 justify-between mb-2 w-full">
-            <div className="flex items-center gap-4">
-              <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
-              <span className="font-semibold text-lg">{product?.user.name}</span>
-              <span className="text-yellow-500 font-semibold flex items-center gap-1">
-                {product?.user.rating?.toFixed(1)}
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
-              </span>
+            <div className="flex items-center gap-4 justify-between mb-2 w-full">
+              <div className="flex items-center gap-4">
+                <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
+                <span className="font-semibold text-lg">{product?.user.name}</span>
+                <span className="text-yellow-500 font-semibold flex items-center gap-1">
+                  {product?.user.rating?.toFixed(1)}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
+                </span>
+              </div>
+              <Button radius="sm" size="md" className="bg-lime-400 text-black font-semibold hover:bg-lime-500">
+                <span className="flex items-center gap-2">
+                  <IoChatboxOutline className="w-5 h-5" />
+                  Chat with {product?.user.name}
+                </span>
+              </Button>
             </div>
-            <Button radius="sm" size="md" className="bg-lime-400 text-black font-semibold hover:bg-lime-500">
-              <span className="flex items-center gap-2">
-                <IoChatboxOutline className="w-5 h-5" />
-                Chat with {product?.user.name}
-              </span>
-            </Button>
-          </div>
             <p className="text-gray-600 text-lg">{product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}</p>
             {/* Price and actions */}
             <div className="flex items-center gap-6 mt-2">
@@ -100,5 +170,6 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+    </>
   );
 }
