@@ -17,7 +17,7 @@ export default function ProductPage() {
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
           <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-full lg:w-1/2 h-full p-4 sm:p-8">
-            <div className="w-full h-80 aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
+            <div className="w-full h-80 lg:h-[27rem] aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
               {/* Prepare images for SwiperCarousel */}
               {(() => {
                 const images = (product?.images || ["https://via.placeholder.com/400x400?text=Product+Image"]).map((src, idx) => ({
