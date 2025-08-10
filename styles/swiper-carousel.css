@@ -1,3 +1,6 @@
+.swiper-slide-shadow {
+  display: none !important;
+}
 /* SwiperCarousel custom styles */
 .swiper-carousel-container .swiper-button-next,
 .swiper-carousel-container .swiper-button-prev {
@@ -75,4 +78,9 @@
 .swiper {
   width: 100% !important;
   height: 100% !important;
+  background: transparent !important;
+}
+
+.swiper-wrapper {
+  background: transparent !important;
 }

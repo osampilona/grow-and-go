@@ -34,8 +34,8 @@ export default function ProductPage() {
             {/* SwiperCarousel for modal with swipe support */}
             <SwiperCarousel
               images={product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }))}
-              className="flex items-center justify-center w-screen h-screen"
-              imageClassName="max-w-screen max-h-screen object-contain mx-auto"
+                  className="flex items-center justify-center w-screen h-screen"
+                  imageClassName="aspect-[4/3] w-[80vw] h-[60vw] max-w-2xl max-h-[80vh] object-cover mx-auto"
             />
           </Dialog.Panel>
         </Dialog>

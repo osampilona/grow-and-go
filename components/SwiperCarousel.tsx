@@ -110,14 +110,15 @@ const SwiperCarousel = memo(function SwiperCarousel({
 
   return (
     <div
-      className={`relative overflow-hidden swiper-carousel-container ${
+      className={`relative overflow-hidden swiper-carousel-container bg-transparent ${
         navigationStyle === "counter" ? "counter-style" : ""
       } ${className}`}
+      style={{background: 'transparent'}}
     >
-      <Swiper {...swiperConfig}>
+      <Swiper {...swiperConfig} style={{background: 'transparent'}}>
         {images.map((img, idx) => (
-          <SwiperSlide key={idx} className="h-full w-full flex items-center justify-center">
-            <div className="w-full h-full relative flex items-center justify-center">
+          <SwiperSlide key={idx} className="h-full w-full flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
+            <div className="w-full h-full relative flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
               <img
                 src={img.src}
                 alt={img.alt}
