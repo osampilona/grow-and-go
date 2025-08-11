@@ -1,6 +1,7 @@
 import { memo, useMemo, useCallback } from "react";
 import { Chip } from "@heroui/chip";
 import { useFilterStore } from "../stores/filterStore";
+import { useDynamicPriceBounds } from "../utils/pricing";
 
 interface ActiveFiltersChipsProps {
   onClearGender: (gendersToKeep?: string[]) => void;
@@ -73,9 +74,10 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
     [tempFilters.ageRange]
   );
 
+  const { maxPrice } = useDynamicPriceBounds();
   const showPriceRange = useMemo(() => 
-    tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500,
-    [tempFilters.priceRange]
+    tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== maxPrice,
+    [tempFilters.priceRange, maxPrice]
   );
 
   const showSortBy = useMemo(() => 
@@ -121,7 +123,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
       {/* 3. Price Range (Tier 1) */}
       {showPriceRange && (
         <Chip size="sm" variant="flat" color="secondary" onClose={onClearPriceRange}>
-          Price: ${tempFilters.priceRange[0]}-{tempFilters.priceRange[1]}
+          Price: DKK {tempFilters.priceRange[0]}-{tempFilters.priceRange[1]}
         </Chip>
       )}
       {/* 4. Sizes (Tier 1) */}

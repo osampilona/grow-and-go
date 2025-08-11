@@ -1,11 +1,13 @@
 "use client";
 
-import { memo, useMemo, useCallback } from "react";
+import { memo, useMemo, useCallback, useEffect } from "react";
 import { Slider } from "@heroui/slider";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
 import { Button } from "@heroui/button";
 import { useFilterStore } from "../stores/filterStore";
+import { useDynamicPriceBounds } from "../utils/pricing";
+import { useFeedStore } from "../stores/feedStore";
 import { useFilterOptimizations } from "../hooks/useFilterOptimizations";
 
 const FiltersList = memo(function FiltersList() {
@@ -98,6 +100,14 @@ const FiltersList = memo(function FiltersList() {
   const handleBrandToggle = useCallback((brand: string) => () => toggleTempBrand(brand), [toggleTempBrand]);
   const handleShippingToggle = useCallback((method: string) => () => toggleTempShippingMethod(method), [toggleTempShippingMethod]);
 
+  // Trigger feed load once (side-effect) for dynamic price bounds
+  const loadFeed = useFeedStore(s => s.loadFeed);
+  useEffect(() => {
+    loadFeed();
+  }, [loadFeed]);
+
+  const { maxPrice } = useDynamicPriceBounds();
+
   // MEMOIZED: Tooltip content to prevent recreating objects
   const ageTooltipContent = useMemo(() => 
     `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`, 
@@ -105,7 +115,7 @@ const FiltersList = memo(function FiltersList() {
   );
 
   const priceTooltipContent = useMemo(() => 
-    `$${optimizedFilters.priceRange[0]} - $${optimizedFilters.priceRange[1]}`, 
+    `DKK ${optimizedFilters.priceRange[0]} - DKK ${optimizedFilters.priceRange[1]}`,
     [optimizedFilters.priceRange]
   );
 
@@ -162,11 +172,15 @@ const FiltersList = memo(function FiltersList() {
           </button>
         </div>
       </div>
-  {/* Age Range Slider */}
+      {/* Age Range Slider */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary tracking-tight">
+            {optimizedFilters.ageRange[0]}–{optimizedFilters.ageRange[1]}m
+          </span>
+        </div>
         <Slider
-          label="Age"
           step={1}
           minValue={0}
           maxValue={60}
@@ -181,14 +195,18 @@ const FiltersList = memo(function FiltersList() {
         />
       </div>
 
-  {/* Price Range Slider */}
+      {/* Price Range Slider */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Price Range</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Price Range</h3>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary/10 text-secondary tracking-tight">
+            DKK {optimizedFilters.priceRange[0]}–{optimizedFilters.priceRange[1]}
+          </span>
+        </div>
         <Slider
-          label="Price Range"
           step={5}
           minValue={0}
-          maxValue={500}
+          maxValue={maxPrice}
           value={optimizedFilters.priceRange}
           onChange={handlePriceRangeChange}
           className="w-full"
@@ -301,7 +319,7 @@ const FiltersList = memo(function FiltersList() {
           <Slider
             size="md"
             step={5}
-            minValue={5}
+            minValue={0}
             maxValue={100}
             value={optimizedFilters.locationRange}
             onChange={handleLocationRangeChange}

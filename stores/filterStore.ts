@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { MAX_PRICE } from '../utils/pricing';
 
 // FilterState grouped by UX priority tiers for readability
 // Tier 1 (Core): gender, ageRange, priceRange, sizes
@@ -116,7 +117,7 @@ export const defaultFilterState: FilterState = Object.freeze({
   // Tier 1
   gender: [],
   ageRange: [0, 60],
-  priceRange: [0, 500],
+  priceRange: [0, MAX_PRICE],
   sizes: [],
   // Tier 2
   itemCondition: "all",
@@ -125,7 +126,7 @@ export const defaultFilterState: FilterState = Object.freeze({
   onSale: false,
   // Tier 3
   shippingMethods: [],
-  locationRange: 25,
+  locationRange: 0,
   isLocationRangeSet: false,
   sellerRating: null,
   // Tier 4
@@ -255,7 +256,7 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, priceRange }
       })),
       setTempLocationRange: (locationRange) => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: true }
+        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: locationRange > 0 }
       })),
       setTempSortBy: (sortBy) => set((state) => ({
         tempFilters: { ...state.tempFilters, sortBy }
@@ -341,10 +342,10 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, ageRange: [0, 60] }
       })),
       clearTempPriceRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, priceRange: [0, 500] }
+        tempFilters: { ...state.tempFilters, priceRange: [0, MAX_PRICE] }
       })),
       clearTempLocationRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange: 25, isLocationRangeSet: false }
+        tempFilters: { ...state.tempFilters, locationRange: 0, isLocationRangeSet: false }
       })),
       clearTempSizes: () => set((state) => ({
         tempFilters: { ...state.tempFilters, sizes: [] }
