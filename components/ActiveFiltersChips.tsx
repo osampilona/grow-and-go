@@ -27,6 +27,14 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
 }: ActiveFiltersChipsProps) {
   // Optimize store subscription - only get what we need
   const tempFilters = useFilterStore((state) => state.tempFilters);
+  // New toggle actions for extended filters
+  const toggleTempSize = useFilterStore((state) => state.toggleTempSize);
+  const toggleTempBrand = useFilterStore((state) => state.toggleTempBrand);
+  const toggleTempPetFree = useFilterStore((state) => state.toggleTempPetFree);
+  const toggleTempSmokeFree = useFilterStore((state) => state.toggleTempSmokeFree);
+  const toggleTempPerfumeFree = useFilterStore((state) => state.toggleTempPerfumeFree);
+  const toggleTempShippingMethod = useFilterStore((state) => state.toggleTempShippingMethod);
+  const toggleTempBundleDeal = useFilterStore((state) => state.toggleTempBundleDeal);
 
   // MEMOIZED: Gender chip handler to prevent recreation
   const createGenderClearHandler = useCallback((gender: string) => {
@@ -85,9 +93,16 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
     [tempFilters.sellerRating]
   );
 
+  // Shipping method label mapper (memoized static)
+  const shippingLabels = useMemo(() => ({
+    'pickup': 'Pickup',
+    'shipping': 'Shipping',
+    'local-delivery': 'Local Delivery'
+  } as Record<string,string>), []);
+
   return (
     <div className="flex flex-wrap gap-1">
-      {/* 1. Gender Chips - Show separate chips for each selected gender */}
+      {/* 1. Gender */}
       {tempFilters.gender.map((gender) => (
         <Chip
           key={gender}
@@ -95,103 +110,70 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           variant="flat"
           color={gender === "Girl" ? "secondary" : "primary"}
           onClose={createGenderClearHandler(gender)}
-        >
-          {gender}
-        </Chip>
+        >{gender}</Chip>
       ))}
-      
-      {/* 2. Age Range Chip - only show if NOT the full range (0-60) */}
+      {/* 2. Age Range */}
       {showAgeRange && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="primary"
-          onClose={onClearAgeRange}
-        >
-          Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]} months
+        <Chip size="sm" variant="flat" color="primary" onClose={onClearAgeRange}>
+          Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]}m
         </Chip>
       )}
-      
-      {/* 3. Price Range Chip - only show if NOT the full range (0-500) */}
+      {/* 3. Price Range */}
       {showPriceRange && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="secondary"
-          onClose={onClearPriceRange}
-        >
-          Price: ${tempFilters.priceRange[0]}-${tempFilters.priceRange[1]}
+        <Chip size="sm" variant="flat" color="secondary" onClose={onClearPriceRange}>
+          Price: ${tempFilters.priceRange[0]}-{tempFilters.priceRange[1]}
         </Chip>
       )}
-      
-      {/* 4. Sort By Chip */}
+      {/* 4. Sort By */}
       {showSortBy && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="primary"
-          onClose={onClearSortBy}
-        >
+        <Chip size="sm" variant="flat" color="primary" onClose={onClearSortBy}>
           Sort: {sortByText}
         </Chip>
       )}
-      
-      {/* 5. Availability & Sales - Include Out of Stock Chip */}
+      {/* 5. Availability & Sales */}
       {!tempFilters.inStock && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="default"
-          onClose={onClearInStock}
-        >
-          Include Out of Stock
+        <Chip size="sm" variant="flat" color="default" onClose={onClearInStock}>
+          Include OOS
         </Chip>
       )}
-      
-      {/* 5. Availability & Sales - On Sale Chip */}
       {tempFilters.onSale && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="warning"
-          onClose={onClearOnSale}
-        >
+        <Chip size="sm" variant="flat" color="warning" onClose={onClearOnSale}>
           On Sale
         </Chip>
       )}
-      
-      {/* 6. Item Condition Chip */}
+      {/* 6. Item Condition */}
       {showItemCondition && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="success"
-          onClose={onClearItemCondition}
-        >
+        <Chip size="sm" variant="flat" color="success" onClose={onClearItemCondition}>
           {itemConditionText}
         </Chip>
       )}
-      
-      {/* 7. Seller Rating Chip */}
+      {/* 7. Sizes */}
+      {tempFilters.sizes?.map(size => (
+        <Chip key={`size-${size}`} size="sm" variant="flat" color="primary" onClose={() => toggleTempSize(size)}>{size}</Chip>
+      ))}
+      {/* 8. Brands */}
+      {tempFilters.brands?.map(brand => (
+        <Chip key={`brand-${brand}`} size="sm" variant="flat" color="secondary" onClose={() => toggleTempBrand(brand)}>{brand}</Chip>
+      ))}
+      {/* 9. Environment & Hygiene */}
+      {tempFilters.petFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPetFree}>Pet Free</Chip>)}
+      {tempFilters.smokeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempSmokeFree}>Smoke Free</Chip>)}
+      {tempFilters.perfumeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPerfumeFree}>Perfume Free</Chip>)}
+      {/* 10. Delivery Methods */}
+      {tempFilters.shippingMethods?.map(method => (
+        <Chip key={`ship-${method}`} size="sm" variant="flat" color="warning" onClose={() => toggleTempShippingMethod(method)}>{shippingLabels[method] || method}</Chip>
+      ))}
+      {/* 11. Deals */}
+      {tempFilters.bundleDeal && (<Chip size="sm" variant="flat" color="secondary" onClose={toggleTempBundleDeal}>Bundle Deal</Chip>)}
+      {/* 12. Seller Rating */}
       {showSellerRating && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="warning"
-          onClose={onClearSellerRating}
-        >
+        <Chip size="sm" variant="flat" color="warning" onClose={onClearSellerRating}>
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
-      
-      {/* 8. Location Range Chip - show if user has actively set it */}
+      {/* 13. Location Range */}
       {tempFilters.isLocationRangeSet && (
-        <Chip
-          size="sm"
-          variant="flat"
-          color="warning"
-          onClose={onClearLocationRange}
-        >
+        <Chip size="sm" variant="flat" color="warning" onClose={onClearLocationRange}>
           Location: {tempFilters.locationRange} km
         </Chip>
       )}

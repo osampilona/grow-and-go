@@ -15,6 +15,13 @@ export const useFilterOptimizations = () => {
   const itemCondition = useFilterStore((state) => state.tempFilters.itemCondition);
   const sellerRating = useFilterStore((state) => state.tempFilters.sellerRating);
   const locationRange = useFilterStore((state) => state.tempFilters.locationRange);
+  const sizes = useFilterStore((state) => state.tempFilters.sizes);
+  const brands = useFilterStore((state) => state.tempFilters.brands);
+  const petFree = useFilterStore((state) => state.tempFilters.petFree);
+  const smokeFree = useFilterStore((state) => state.tempFilters.smokeFree);
+  const perfumeFree = useFilterStore((state) => state.tempFilters.perfumeFree);
+  const shippingMethods = useFilterStore((state) => state.tempFilters.shippingMethods);
+  const bundleDeal = useFilterStore((state) => state.tempFilters.bundleDeal);
 
   // Return memoized optimized selectors
   return useMemo(() => ({
@@ -27,10 +34,17 @@ export const useFilterOptimizations = () => {
     itemCondition,
     sellerRating,
     locationRange,
+    sizes,
+    brands,
+    petFree,
+    smokeFree,
+    perfumeFree,
+    shippingMethods,
+    bundleDeal,
     // Computed values
     genderState: {
       isBoySelected: gender.includes("Boy"),
       isGirlSelected: gender.includes("Girl")
     }
-  }), [gender, ageRange, priceRange, sortBy, inStock, onSale, itemCondition, sellerRating, locationRange]);
+  }), [gender, ageRange, priceRange, sortBy, inStock, onSale, itemCondition, sellerRating, locationRange, sizes, brands, petFree, smokeFree, perfumeFree, shippingMethods, bundleDeal]);
 };

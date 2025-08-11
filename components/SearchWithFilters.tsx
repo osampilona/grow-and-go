@@ -28,8 +28,8 @@ const SearchWithFilters = ({
   const { isOpen: isFilterModalOpen, onOpen: onFilterModalOpen, onOpenChange: onFilterModalOpenChange } = useDisclosure();
 
   // Filter store - Get functions to call in component
-  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters);
-  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters);
+  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters());
+  const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
   const getFilterCount = useFilterStore((state) => state.getFilterCount);
   const getTempFilterCount = useFilterStore((state) => state.getTempFilterCount);
   const tempFilters = useFilterStore((state) => state.tempFilters);
@@ -48,37 +48,7 @@ const SearchWithFilters = ({
   const clearTempLocationRange = useFilterStore((state) => state.clearTempLocationRange);
   const clearAllTempFilters = useFilterStore((state) => state.clearAllTempFilters);
 
-  // Computed value to check if temp filters are active (reactive to tempFilters changes)
-  const hasTempFiltersActive = useMemo(() => {
-    return tempFilters.gender.length > 0 ||
-           tempFilters.onSale || 
-           !tempFilters.inStock ||
-           tempFilters.itemCondition !== "all" ||
-           (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0) ||
-           // Only count age range as active if it's NOT the full range (0-60)
-           (tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ||
-           // Only count price range as active if it's NOT the full range (0-500)
-           (tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ||
-           // Only count location range as active if user has actively set it
-           tempFilters.isLocationRangeSet ||
-           tempFilters.sortBy !== "newest";
-  }, [tempFilters]);
-
-  // Computed value for temp filter count (reactive to tempFilters changes)
-  const tempFilterCount = useMemo(() => {
-    return (tempFilters.gender.length > 0 ? 1 : 0) +
-           (tempFilters.onSale ? 1 : 0) + 
-           (!tempFilters.inStock ? 1 : 0) +
-           (tempFilters.itemCondition !== "all" ? 1 : 0) +
-           (tempFilters.sellerRating !== null && tempFilters.sellerRating > 0 ? 1 : 0) +
-           // Only count age range as active if it's NOT the full range (0-60)
-           ((tempFilters.ageRange[0] !== 0 || tempFilters.ageRange[1] !== 60) ? 1 : 0) +
-           // Only count price range as active if it's NOT the full range (0-500)
-           ((tempFilters.priceRange[0] !== 0 || tempFilters.priceRange[1] !== 500) ? 1 : 0) +
-           // Only count location range as active if user has actively set it
-           (tempFilters.isLocationRangeSet ? 1 : 0) +
-           (tempFilters.sortBy !== "newest" ? 1 : 0);
-  }, [tempFilters]);
+  // NOTE: hasTempActiveFilters now comes directly from the store selector and includes new filters (sizes, brands, etc.).
 
   // Screen size detection
   useEffect(() => {
@@ -324,7 +294,7 @@ const SearchWithFilters = ({
                         whileTap={{ scale: 0.9 }}
                       >
                         <IoOptions size={20} />
-                        {hasActiveFilters() && (
+                        {hasActiveFilters && (
                           <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center">
                             {getFilterCount()}
                           </span>
@@ -380,7 +350,7 @@ const SearchWithFilters = ({
                         whileTap={{ scale: 0.9 }}
                       >
                         <IoOptions size={20} />
-                        {hasActiveFilters() && (
+                        {hasActiveFilters && (
                           <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center">
                             {getFilterCount()}
                           </span>
@@ -440,7 +410,7 @@ const SearchWithFilters = ({
                 <FiltersHeader
                   title="Filters"
                   onClose={onClose}
-                  showResetAll={hasTempFiltersActive}
+                  showResetAll={hasTempActiveFilters}
                   onResetAll={handleResetAllFilters}
                   onClearGender={handleClearGender}
                   onClearOnSale={handleClearOnSale}
