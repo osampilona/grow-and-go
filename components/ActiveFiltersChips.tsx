@@ -102,7 +102,7 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
 
   return (
     <div className="flex flex-wrap gap-1">
-      {/* 1. Gender */}
+      {/* 1. Gender (Tier 1) */}
       {tempFilters.gender.map((gender) => (
         <Chip
           key={gender}
@@ -112,25 +112,33 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           onClose={createGenderClearHandler(gender)}
         >{gender}</Chip>
       ))}
-      {/* 2. Age Range */}
+      {/* 2. Age Range (Tier 1) */}
       {showAgeRange && (
         <Chip size="sm" variant="flat" color="primary" onClose={onClearAgeRange}>
           Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]}m
         </Chip>
       )}
-      {/* 3. Price Range */}
+      {/* 3. Price Range (Tier 1) */}
       {showPriceRange && (
         <Chip size="sm" variant="flat" color="secondary" onClose={onClearPriceRange}>
           Price: ${tempFilters.priceRange[0]}-{tempFilters.priceRange[1]}
         </Chip>
       )}
-      {/* 4. Sort By */}
-      {showSortBy && (
-        <Chip size="sm" variant="flat" color="primary" onClose={onClearSortBy}>
-          Sort: {sortByText}
+      {/* 4. Sizes (Tier 1) */}
+      {tempFilters.sizes?.map(size => (
+        <Chip key={`size-${size}`} size="sm" variant="flat" color="primary" onClose={() => toggleTempSize(size)}>{size}</Chip>
+      ))}
+      {/* 5. Item Condition (Tier 2) */}
+      {showItemCondition && (
+        <Chip size="sm" variant="flat" color="success" onClose={onClearItemCondition}>
+          {itemConditionText}
         </Chip>
       )}
-      {/* 5. Availability & Sales */}
+      {/* 6. Brands (Tier 2) */}
+      {tempFilters.brands?.map(brand => (
+        <Chip key={`brand-${brand}`} size="sm" variant="flat" color="secondary" onClose={() => toggleTempBrand(brand)}>{brand}</Chip>
+      ))}
+      {/* 7. Availability & Sales (Tier 2) */}
       {!tempFilters.inStock && (
         <Chip size="sm" variant="flat" color="default" onClose={onClearInStock}>
           Include OOS
@@ -141,40 +149,32 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
           On Sale
         </Chip>
       )}
-      {/* 6. Item Condition */}
-      {showItemCondition && (
-        <Chip size="sm" variant="flat" color="success" onClose={onClearItemCondition}>
-          {itemConditionText}
-        </Chip>
-      )}
-      {/* 7. Sizes */}
-      {tempFilters.sizes?.map(size => (
-        <Chip key={`size-${size}`} size="sm" variant="flat" color="primary" onClose={() => toggleTempSize(size)}>{size}</Chip>
-      ))}
-      {/* 8. Brands */}
-      {tempFilters.brands?.map(brand => (
-        <Chip key={`brand-${brand}`} size="sm" variant="flat" color="secondary" onClose={() => toggleTempBrand(brand)}>{brand}</Chip>
-      ))}
-      {/* 9. Environment & Hygiene */}
-      {tempFilters.petFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPetFree}>Pet Free</Chip>)}
-      {tempFilters.smokeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempSmokeFree}>Smoke Free</Chip>)}
-      {tempFilters.perfumeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPerfumeFree}>Perfume Free</Chip>)}
-      {/* 10. Delivery Methods */}
+      {/* 8. Delivery Methods (Tier 3) */}
       {tempFilters.shippingMethods?.map(method => (
         <Chip key={`ship-${method}`} size="sm" variant="flat" color="warning" onClose={() => toggleTempShippingMethod(method)}>{shippingLabels[method] || method}</Chip>
       ))}
-      {/* 11. Deals */}
-      {tempFilters.bundleDeal && (<Chip size="sm" variant="flat" color="secondary" onClose={toggleTempBundleDeal}>Bundle Deal</Chip>)}
-      {/* 12. Seller Rating */}
+      {/* 9. Location Range (Tier 3) */}
+      {tempFilters.isLocationRangeSet && (
+        <Chip size="sm" variant="flat" color="warning" onClose={onClearLocationRange}>
+          Location: {tempFilters.locationRange} km
+        </Chip>
+      )}
+      {/* 10. Seller Rating (Tier 3) */}
       {showSellerRating && (
         <Chip size="sm" variant="flat" color="warning" onClose={onClearSellerRating}>
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
-      {/* 13. Location Range */}
-      {tempFilters.isLocationRangeSet && (
-        <Chip size="sm" variant="flat" color="warning" onClose={onClearLocationRange}>
-          Location: {tempFilters.locationRange} km
+      {/* 11. Environment & Hygiene (Tier 4) */}
+      {tempFilters.petFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPetFree}>Pet Free</Chip>)}
+      {tempFilters.smokeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempSmokeFree}>Smoke Free</Chip>)}
+      {tempFilters.perfumeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPerfumeFree}>Perfume Free</Chip>)}
+      {/* 12. Deals (Tier 4) */}
+      {tempFilters.bundleDeal && (<Chip size="sm" variant="flat" color="secondary" onClose={toggleTempBundleDeal}>Bundle Deal</Chip>)}
+      {/* 13. Sort By (Tier 4) */}
+      {showSortBy && (
+        <Chip size="sm" variant="flat" color="primary" onClose={onClearSortBy}>
+          Sort: {sortByText}
         </Chip>
       )}
     </div>

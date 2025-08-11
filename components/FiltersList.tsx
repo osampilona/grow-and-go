@@ -120,6 +120,7 @@ const FiltersList = memo(function FiltersList() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {/* === Tier 1: Core Filters === */}
       {/* Gender Filter */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Gender</h3>
@@ -161,7 +162,7 @@ const FiltersList = memo(function FiltersList() {
           </button>
         </div>
       </div>
-      {/* Age Range Slider */}
+  {/* Age Range Slider */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
         <Slider
@@ -180,7 +181,7 @@ const FiltersList = memo(function FiltersList() {
         />
       </div>
 
-      {/* Price Range Slider */}
+  {/* Price Range Slider */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Price Range</h3>
         <Slider
@@ -199,21 +200,57 @@ const FiltersList = memo(function FiltersList() {
         />
       </div>
 
-      {/* Sort By */}
+      {/* Sizes */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Sort By</h3>
+        <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
+        <div className="flex flex-wrap gap-2">
+          {sizeOptions.map(sz => {
+            const selected = optimizedFilters.sizes?.includes(sz);
+            return (
+              <button
+                key={sz}
+                onClick={handleSizeToggle(sz)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
+              >{sz}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* === Tier 2: Important Secondary === */}
+      {/* Item Condition */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
         <Select
-          placeholder="Sort products by..."
+          placeholder="Select item condition..."
           className="w-full"
-          selectedKeys={[optimizedFilters.sortBy]}
-          onSelectionChange={handleSortByChange}
+          selectedKeys={[optimizedFilters.itemCondition]}
+          onSelectionChange={handleItemConditionChange}
         >
-          <SelectItem key="newest">Newest First</SelectItem>
-          <SelectItem key="oldest">Oldest First</SelectItem>
-          <SelectItem key="price-low">Price: Low to High</SelectItem>
-          <SelectItem key="price-high">Price: High to Low</SelectItem>
-          <SelectItem key="popular">Most Popular</SelectItem>
+          <SelectItem key="all">All Conditions</SelectItem>
+          <SelectItem key="brand-new">Brand New</SelectItem>
+          <SelectItem key="like-new">Like New</SelectItem>
+          <SelectItem key="very-good">Very Good</SelectItem>
+          <SelectItem key="good">Good</SelectItem>
+          <SelectItem key="fair">Fair</SelectItem>
         </Select>
+      </div>
+
+      {/* Brands */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
+        <div className="flex flex-wrap gap-2">
+          {brandOptions.map(brand => {
+            const selected = optimizedFilters.brands?.includes(brand);
+            return (
+              <button
+                key={brand}
+                onClick={handleBrandToggle(brand)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
+              >{brand}</button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Availability & Sales */}
@@ -239,83 +276,7 @@ const FiltersList = memo(function FiltersList() {
         </div>
       </div>
 
-      {/* Item Condition */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
-        <Select
-          placeholder="Select item condition..."
-          className="w-full"
-          selectedKeys={[optimizedFilters.itemCondition]}
-          onSelectionChange={handleItemConditionChange}
-        >
-          <SelectItem key="all">All Conditions</SelectItem>
-          <SelectItem key="brand-new">Brand New</SelectItem>
-          <SelectItem key="like-new">Like New</SelectItem>
-          <SelectItem key="very-good">Very Good</SelectItem>
-          <SelectItem key="good">Good</SelectItem>
-          <SelectItem key="fair">Fair</SelectItem>
-        </Select>
-      </div>
-
-      {/* Sizes */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
-        <div className="flex flex-wrap gap-2">
-          {sizeOptions.map(sz => {
-            const selected = optimizedFilters.sizes?.includes(sz);
-            return (
-              <button
-                key={sz}
-                onClick={handleSizeToggle(sz)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
-              >{sz}</button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Brands */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
-        <div className="flex flex-wrap gap-2">
-          {brandOptions.map(brand => {
-            const selected = optimizedFilters.brands?.includes(brand);
-            return (
-              <button
-                key={brand}
-                onClick={handleBrandToggle(brand)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
-              >{brand}</button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Environment & Hygiene */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">Environment & Hygiene</h3>
-        <div className="flex flex-col gap-3">
-          <Switch
-            color="success"
-            size="sm"
-            isSelected={optimizedFilters.petFree}
-            onValueChange={toggleTempPetFree}
-          >Pet Free Home</Switch>
-          <Switch
-            color="success"
-            size="sm"
-            isSelected={optimizedFilters.smokeFree}
-            onValueChange={toggleTempSmokeFree}
-          >Smoke Free Home</Switch>
-          <Switch
-            color="success"
-            size="sm"
-            isSelected={optimizedFilters.perfumeFree}
-            onValueChange={toggleTempPerfumeFree}
-          >Perfume Free</Switch>
-        </div>
-      </div>
-
+      {/* === Tier 3: Situational / Specific === */}
       {/* Shipping / Delivery Methods */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Delivery Methods</h3>
@@ -331,34 +292,6 @@ const FiltersList = memo(function FiltersList() {
             );
           })}
         </div>
-      </div>
-
-      {/* Bundle Deal */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Deals</h3>
-        <Switch
-          color="secondary"
-          size="sm"
-          isSelected={optimizedFilters.bundleDeal}
-          onValueChange={toggleTempBundleDeal}
-        >Bundle Deal Available</Switch>
-      </div>
-
-      {/* Seller Rating Filter */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
-        <Select
-          placeholder="Select minimum rating"
-          className="w-full"
-          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
-          onSelectionChange={handleSellerRatingChange}
-        >
-          <SelectItem key="4.0">4.0+ stars</SelectItem>
-          <SelectItem key="3.5">3.5+ stars</SelectItem>
-          <SelectItem key="3.0">3.0+ stars</SelectItem>
-          <SelectItem key="2.5">2.5+ stars</SelectItem>
-          <SelectItem key="2.0">2.0+ stars</SelectItem>
-        </Select>
       </div>
 
       {/* Location Range Filter */}
@@ -384,6 +317,77 @@ const FiltersList = memo(function FiltersList() {
         <p className="text-xs text-foreground-500 px-2">
           Show items within {optimizedFilters.locationRange} km
         </p>
+      </div>
+
+      {/* Seller Rating Filter */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
+        <Select
+          placeholder="Select minimum rating"
+          className="w-full"
+          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
+          onSelectionChange={handleSellerRatingChange}
+        >
+          <SelectItem key="4.0">4.0+ stars</SelectItem>
+          <SelectItem key="3.5">3.5+ stars</SelectItem>
+          <SelectItem key="3.0">3.0+ stars</SelectItem>
+          <SelectItem key="2.5">2.5+ stars</SelectItem>
+          <SelectItem key="2.0">2.0+ stars</SelectItem>
+        </Select>
+      </div>
+
+      {/* === Tier 4: Niche / Sorting === */}
+      {/* Environment & Hygiene */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Environment & Hygiene</h3>
+        <div className="flex flex-col gap-3">
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.petFree}
+            onValueChange={toggleTempPetFree}
+          >Pet Free Home</Switch>
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.smokeFree}
+            onValueChange={toggleTempSmokeFree}
+          >Smoke Free Home</Switch>
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.perfumeFree}
+            onValueChange={toggleTempPerfumeFree}
+          >Perfume Free</Switch>
+        </div>
+      </div>
+
+      {/* Bundle Deal */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Deals</h3>
+        <Switch
+          color="secondary"
+          size="sm"
+          isSelected={optimizedFilters.bundleDeal}
+          onValueChange={toggleTempBundleDeal}
+        >Bundle Deal Available</Switch>
+      </div>
+
+      {/* Sort By (bottom) */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Sort By</h3>
+        <Select
+          placeholder="Sort products by..."
+          className="w-full"
+          selectedKeys={[optimizedFilters.sortBy]}
+          onSelectionChange={handleSortByChange}
+        >
+          <SelectItem key="newest">Newest First</SelectItem>
+          <SelectItem key="oldest">Oldest First</SelectItem>
+          <SelectItem key="price-low">Price: Low to High</SelectItem>
+          <SelectItem key="price-high">Price: High to Low</SelectItem>
+          <SelectItem key="popular">Most Popular</SelectItem>
+        </Select>
       </div>
 
     </div>
