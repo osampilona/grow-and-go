@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback, useRef, useMemo } from "react";
+import { memo, useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCreative, Navigation, Pagination } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -11,24 +11,29 @@ import "swiper/css/pagination";
 import "../styles/swiper-carousel.css";
 
 interface SwiperCarouselProps {
-  images: string[];
-  alt: string;
+  images: { src: string; alt: string }[];
   className?: string;
+  imageClassName?: string;
   // Navigation style can be 'arrows' or 'counter'
   // 'arrows' shows navigation arrows, 'counter' shows a counter indicator
   // 'arrows' is the default style and has arrows only for lg screen
   // 'counter' is useful for showing the current slide out of total slides
   navigationStyle?: 'arrows' | 'counter';
   creativeEffect?: 'default' | 'slide-rotate' | 'depth-slide' | 'rotate-3d' | 'scale-rotate' | 'book-flip';
+  onImageClick?: (index: number) => void;
+  // Optional callback to allow parent to trigger manual updates (e.g., after a modal transition)
+  onReady?: (api: { update: () => void; swiper: SwiperType }) => void;
 }
 
 const SwiperCarousel = memo(function SwiperCarousel({ 
 
   images,
-  alt,
   className = "",
+  imageClassName = "",
   navigationStyle = "arrows",
   creativeEffect = "default",
+  onImageClick,
+  onReady,
 }: SwiperCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const imagesLength = useMemo(() => images.length, [images]);
@@ -82,9 +87,26 @@ const SwiperCarousel = memo(function SwiperCarousel({
     grabCursor: true,
     loop: imagesLength > 1,
     speed: 600,
+  observer: true,
+  observeParents: true,
     onSlideChange: handleSlideChange,
     onSwiper: (swiper: SwiperType) => {
       swiperRef.current = swiper;
+      // Defer the first update to ensure correct sizing if initially hidden
+      requestAnimationFrame(() => {
+        swiper.update();
+        swiper.pagination?.render();
+        swiper.pagination?.update();
+        onReady?.({
+          update: () => {
+            if (!swiperRef.current) return;
+            swiperRef.current.update();
+            swiperRef.current.pagination?.render();
+            swiperRef.current.pagination?.update();
+          },
+          swiper,
+        });
+      });
     },
     navigation:
       navigationStyle === "arrows" && imagesLength > 1
@@ -96,7 +118,8 @@ const SwiperCarousel = memo(function SwiperCarousel({
     pagination:
       navigationStyle === "arrows" && imagesLength > 1
         ? {
-            el: ".swiper-pagination",
+      // Use a unique pagination element per instance to avoid collisions / duplication on remounts
+      el: `.${uniqueId.current}-pagination`,
             clickable: true,
             bulletClass: "swiper-pagination-bullet",
             bulletActiveClass: "swiper-pagination-bullet-active",
@@ -106,21 +129,58 @@ const SwiperCarousel = memo(function SwiperCarousel({
         : false,
   }), [creativeEffect, creativeEffects, imagesLength, navigationStyle, handleSlideChange]);
 
+  // ResizeObserver to keep Swiper layout in sync with container size changes (e.g., modal open animations)
+  useEffect(() => {
+    if (!swiperRef.current) return;
+    const el = swiperRef.current.el as HTMLElement | null;
+    if (!el) return;
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        if (!swiperRef.current) return;
+        swiperRef.current.update();
+        swiperRef.current.pagination?.update();
+      });
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+  }, [imagesLength]);
+
+  // Visibility check: if the carousel becomes visible after being hidden (display: none or 0 size), force an update
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const swiper = swiperRef.current;
+      if (!swiper) return;
+      const rect = (swiper.el as HTMLElement)?.getBoundingClientRect();
+      if (rect && rect.width > 0 && rect.height > 0 && swiper.slides?.length) {
+        // If pagination bullets haven't been laid out properly (width collapse), repair once
+        const bullets = (swiper.el as HTMLElement).querySelectorAll('.swiper-pagination-bullet');
+        if (bullets.length && (bullets[0] as HTMLElement).offsetWidth === 0) {
+          swiper.update();
+          swiper.pagination?.render();
+          swiper.pagination?.update();
+        }
+      }
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div
-      className={`relative overflow-hidden swiper-carousel-container ${
+      className={`relative overflow-hidden swiper-carousel-container bg-transparent ${
         navigationStyle === "counter" ? "counter-style" : ""
       } ${className}`}
+      style={{background: 'transparent'}}
     >
-      <Swiper {...swiperConfig}>
-        {images.map((image, index) => (
-          <SwiperSlide key={index} className="h-full w-full">
-            <div className="w-full h-full relative">
+      <Swiper {...swiperConfig} style={{background: 'transparent'}}>
+        {images.map((img, idx) => (
+          <SwiperSlide key={idx} className="h-full w-full flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
+            <div className="w-full h-full relative flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
               <img
-                src={image}
-                alt={`${alt} ${index + 1}`}
-                className="w-full h-full object-cover"
+                src={img.src}
+                alt={img.alt}
+                className={imageClassName || "w-full h-full object-cover"}
                 loading="lazy"
+                onClick={() => onImageClick && onImageClick(idx)}
               />
             </div>
           </SwiperSlide>
@@ -140,7 +200,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
         {/* Pagination for arrows style, only on lg and up screens */}
         {imagesLength > 1 && navigationStyle === "arrows" && (
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 hidden lg:flex">
-            <div className="swiper-pagination" />
+            <div className={`swiper-pagination ${uniqueId.current}-pagination`} />
           </div>
         )}
       </Swiper>

@@ -109,8 +109,7 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
     >
       <div className="relative">
         <SwiperCarousel 
-          images={item.images} 
-          alt={item.title} 
+          images={item.images.map((src, idx) => ({ src, alt: `${item.title} image ${idx + 1}` }))}
           className="w-full h-80 rounded-2xl"
           creativeEffect={swiperEffect}
         />
