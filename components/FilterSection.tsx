@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { Button } from "@heroui/button";
 import CategoriesList from "./CategoriesList";
+import SubcategoryChipsBar from "./SubcategoryChipsBar";
 import FiltersList from "./FiltersList";
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
@@ -60,6 +61,10 @@ export const FilterSection = memo(function FilterSection({
           {categoryResetButton}
         </div>
         <CategoriesList />
+        {/* Subcategories (mobile drawer editing) */}
+        <div className="mt-3">
+          <SubcategoryChipsBar useTemp stickyOffset={0} className="relative px-0 lg:px-3 py-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm" />
+        </div>
       </div>
       <div>
         <div className="flex items-center justify-between mb-3">

@@ -1,4 +1,5 @@
 import { FilterState } from '../stores/filterStore';
+import { MAX_PRICE } from './pricing';
 
 export interface SearchParams {
   query?: string;
@@ -41,7 +42,7 @@ export function buildSearchParams(
       gender: filters.gender.length > 0 ? filters.gender : undefined,
       ageRange: (filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) 
         ? filters.ageRange : undefined,
-      priceRange: (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 500) 
+  priceRange: (filters.priceRange[0] !== 0 || filters.priceRange[1] !== MAX_PRICE) 
         ? filters.priceRange : undefined,
       locationRange: filters.isLocationRangeSet ? filters.locationRange : undefined,
       sortBy: filters.sortBy !== "newest" ? filters.sortBy : undefined,

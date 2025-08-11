@@ -1,11 +1,13 @@
 "use client";
 
-import { memo, useMemo, useCallback } from "react";
+import { memo, useMemo, useCallback, useEffect } from "react";
 import { Slider } from "@heroui/slider";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
 import { Button } from "@heroui/button";
 import { useFilterStore } from "../stores/filterStore";
+import { useDynamicPriceBounds } from "../utils/pricing";
+import { useFeedStore } from "../stores/feedStore";
 import { useFilterOptimizations } from "../hooks/useFilterOptimizations";
 
 const FiltersList = memo(function FiltersList() {
@@ -98,6 +100,14 @@ const FiltersList = memo(function FiltersList() {
   const handleBrandToggle = useCallback((brand: string) => () => toggleTempBrand(brand), [toggleTempBrand]);
   const handleShippingToggle = useCallback((method: string) => () => toggleTempShippingMethod(method), [toggleTempShippingMethod]);
 
+  // Trigger feed load once (side-effect) for dynamic price bounds
+  const loadFeed = useFeedStore(s => s.loadFeed);
+  useEffect(() => {
+    loadFeed();
+  }, [loadFeed]);
+
+  const { maxPrice } = useDynamicPriceBounds();
+
   // MEMOIZED: Tooltip content to prevent recreating objects
   const ageTooltipContent = useMemo(() => 
     `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`, 
@@ -105,7 +115,7 @@ const FiltersList = memo(function FiltersList() {
   );
 
   const priceTooltipContent = useMemo(() => 
-    `$${optimizedFilters.priceRange[0]} - $${optimizedFilters.priceRange[1]}`, 
+    `DKK ${optimizedFilters.priceRange[0]} - DKK ${optimizedFilters.priceRange[1]}`,
     [optimizedFilters.priceRange]
   );
 
@@ -120,6 +130,7 @@ const FiltersList = memo(function FiltersList() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {/* === Tier 1: Core Filters === */}
       {/* Gender Filter */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Gender</h3>
@@ -163,9 +174,13 @@ const FiltersList = memo(function FiltersList() {
       </div>
       {/* Age Range Slider */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Age Range (months)</h3>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary tracking-tight">
+            {optimizedFilters.ageRange[0]}–{optimizedFilters.ageRange[1]}m
+          </span>
+        </div>
         <Slider
-          label="Age"
           step={1}
           minValue={0}
           maxValue={60}
@@ -182,12 +197,16 @@ const FiltersList = memo(function FiltersList() {
 
       {/* Price Range Slider */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Price Range</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Price Range</h3>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary/10 text-secondary tracking-tight">
+            DKK {optimizedFilters.priceRange[0]}–{optimizedFilters.priceRange[1]}
+          </span>
+        </div>
         <Slider
-          label="Price Range"
           step={5}
           minValue={0}
-          maxValue={500}
+          maxValue={maxPrice}
           value={optimizedFilters.priceRange}
           onChange={handlePriceRangeChange}
           className="w-full"
@@ -199,21 +218,57 @@ const FiltersList = memo(function FiltersList() {
         />
       </div>
 
-      {/* Sort By */}
+      {/* Sizes */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Sort By</h3>
+        <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
+        <div className="flex flex-wrap gap-2">
+          {sizeOptions.map(sz => {
+            const selected = optimizedFilters.sizes?.includes(sz);
+            return (
+              <button
+                key={sz}
+                onClick={handleSizeToggle(sz)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
+              >{sz}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* === Tier 2: Important Secondary === */}
+      {/* Item Condition */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
         <Select
-          placeholder="Sort products by..."
+          placeholder="Select item condition..."
           className="w-full"
-          selectedKeys={[optimizedFilters.sortBy]}
-          onSelectionChange={handleSortByChange}
+          selectedKeys={[optimizedFilters.itemCondition]}
+          onSelectionChange={handleItemConditionChange}
         >
-          <SelectItem key="newest">Newest First</SelectItem>
-          <SelectItem key="oldest">Oldest First</SelectItem>
-          <SelectItem key="price-low">Price: Low to High</SelectItem>
-          <SelectItem key="price-high">Price: High to Low</SelectItem>
-          <SelectItem key="popular">Most Popular</SelectItem>
+          <SelectItem key="all">All Conditions</SelectItem>
+          <SelectItem key="brand-new">Brand New</SelectItem>
+          <SelectItem key="like-new">Like New</SelectItem>
+          <SelectItem key="very-good">Very Good</SelectItem>
+          <SelectItem key="good">Good</SelectItem>
+          <SelectItem key="fair">Fair</SelectItem>
         </Select>
+      </div>
+
+      {/* Brands */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
+        <div className="flex flex-wrap gap-2">
+          {brandOptions.map(brand => {
+            const selected = optimizedFilters.brands?.includes(brand);
+            return (
+              <button
+                key={brand}
+                onClick={handleBrandToggle(brand)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
+              >{brand}</button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Availability & Sales */}
@@ -239,58 +294,67 @@ const FiltersList = memo(function FiltersList() {
         </div>
       </div>
 
-      {/* Item Condition */}
+      {/* === Tier 3: Situational / Specific === */}
+      {/* Shipping / Delivery Methods */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
+        <h3 className="text-sm font-semibold text-foreground">Delivery Methods</h3>
+        <div className="flex flex-wrap gap-2">
+          {shippingOptions.map(opt => {
+            const selected = optimizedFilters.shippingMethods?.includes(opt.key);
+            return (
+              <button
+                key={opt.key}
+                onClick={handleShippingToggle(opt.key)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-warning text-black border-warning' : 'border-default-200 hover:bg-default-100'}`}
+              >{opt.label}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Location Range Filter */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Location Range</h3>
+        <div className="px-2">
+          <Slider
+            size="md"
+            step={5}
+            minValue={0}
+            maxValue={100}
+            value={optimizedFilters.locationRange}
+            onChange={handleLocationRangeChange}
+            color="warning"
+            formatOptions={{
+              style: "unit",
+              unit: "kilometer",
+              unitDisplay: "short"
+            }}
+            className="max-w-md"
+          />
+        </div>
+        <p className="text-xs text-foreground-500 px-2">
+          Show items within {optimizedFilters.locationRange} km
+        </p>
+      </div>
+
+      {/* Seller Rating Filter */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
         <Select
-          placeholder="Select item condition..."
+          placeholder="Select minimum rating"
           className="w-full"
-          selectedKeys={[optimizedFilters.itemCondition]}
-          onSelectionChange={handleItemConditionChange}
+          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
+          onSelectionChange={handleSellerRatingChange}
         >
-          <SelectItem key="all">All Conditions</SelectItem>
-          <SelectItem key="brand-new">Brand New</SelectItem>
-          <SelectItem key="like-new">Like New</SelectItem>
-          <SelectItem key="very-good">Very Good</SelectItem>
-          <SelectItem key="good">Good</SelectItem>
-          <SelectItem key="fair">Fair</SelectItem>
+          <SelectItem key="4.0">4.0+ stars</SelectItem>
+          <SelectItem key="3.5">3.5+ stars</SelectItem>
+          <SelectItem key="3.0">3.0+ stars</SelectItem>
+          <SelectItem key="2.5">2.5+ stars</SelectItem>
+          <SelectItem key="2.0">2.0+ stars</SelectItem>
         </Select>
       </div>
 
-      {/* Sizes */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
-        <div className="flex flex-wrap gap-2">
-          {sizeOptions.map(sz => {
-            const selected = optimizedFilters.sizes?.includes(sz);
-            return (
-              <button
-                key={sz}
-                onClick={handleSizeToggle(sz)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
-              >{sz}</button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Brands */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
-        <div className="flex flex-wrap gap-2">
-          {brandOptions.map(brand => {
-            const selected = optimizedFilters.brands?.includes(brand);
-            return (
-              <button
-                key={brand}
-                onClick={handleBrandToggle(brand)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
-              >{brand}</button>
-            );
-          })}
-        </div>
-      </div>
-
+      {/* === Tier 4: Niche / Sorting === */}
       {/* Environment & Hygiene */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-foreground">Environment & Hygiene</h3>
@@ -316,23 +380,6 @@ const FiltersList = memo(function FiltersList() {
         </div>
       </div>
 
-      {/* Shipping / Delivery Methods */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Delivery Methods</h3>
-        <div className="flex flex-wrap gap-2">
-          {shippingOptions.map(opt => {
-            const selected = optimizedFilters.shippingMethods?.includes(opt.key);
-            return (
-              <button
-                key={opt.key}
-                onClick={handleShippingToggle(opt.key)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-warning text-black border-warning' : 'border-default-200 hover:bg-default-100'}`}
-              >{opt.label}</button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Bundle Deal */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Deals</h3>
@@ -344,46 +391,21 @@ const FiltersList = memo(function FiltersList() {
         >Bundle Deal Available</Switch>
       </div>
 
-      {/* Seller Rating Filter */}
+      {/* Sort By (bottom) */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
+        <h3 className="text-sm font-semibold text-foreground">Sort By</h3>
         <Select
-          placeholder="Select minimum rating"
+          placeholder="Sort products by..."
           className="w-full"
-          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
-          onSelectionChange={handleSellerRatingChange}
+          selectedKeys={[optimizedFilters.sortBy]}
+          onSelectionChange={handleSortByChange}
         >
-          <SelectItem key="4.0">4.0+ stars</SelectItem>
-          <SelectItem key="3.5">3.5+ stars</SelectItem>
-          <SelectItem key="3.0">3.0+ stars</SelectItem>
-          <SelectItem key="2.5">2.5+ stars</SelectItem>
-          <SelectItem key="2.0">2.0+ stars</SelectItem>
+          <SelectItem key="newest">Newest First</SelectItem>
+          <SelectItem key="oldest">Oldest First</SelectItem>
+          <SelectItem key="price-low">Price: Low to High</SelectItem>
+          <SelectItem key="price-high">Price: High to Low</SelectItem>
+          <SelectItem key="popular">Most Popular</SelectItem>
         </Select>
-      </div>
-
-      {/* Location Range Filter */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Location Range</h3>
-        <div className="px-2">
-          <Slider
-            size="md"
-            step={5}
-            minValue={5}
-            maxValue={100}
-            value={optimizedFilters.locationRange}
-            onChange={handleLocationRangeChange}
-            color="warning"
-            formatOptions={{
-              style: "unit",
-              unit: "kilometer",
-              unitDisplay: "short"
-            }}
-            className="max-w-md"
-          />
-        </div>
-        <p className="text-xs text-foreground-500 px-2">
-          Show items within {optimizedFilters.locationRange} km
-        </p>
       </div>
 
     </div>

@@ -1,25 +1,34 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { MAX_PRICE } from '../utils/pricing';
 
+// FilterState grouped by UX priority tiers for readability
+// Tier 1 (Core): gender, ageRange, priceRange, sizes
+// Tier 2 (Important Secondary): itemCondition, brands, inStock, onSale
+// Tier 3 (Situational): shippingMethods, locationRange, isLocationRangeSet, sellerRating
+// Tier 4 (Niche / Misc + Sorting): petFree, smokeFree, perfumeFree, bundleDeal, sortBy
 export interface FilterState {
-  gender: string[]; // Changed to array to support multiple gender selection
+  // Tier 1
+  gender: string[];
   ageRange: number[];
   priceRange: number[];
-  locationRange: number; // Single value for maximum distance in km
-  sortBy: string;
+  sizes: string[];
+  // Tier 2
+  itemCondition: string;
+  brands: string[];
   inStock: boolean;
   onSale: boolean;
-  itemCondition: string; // New field for item condition
-  sellerRating: number | null; // New field for minimum seller rating (null = no filter)
-  isLocationRangeSet: boolean; // Track if user has actively set location range
-  // New extended filters
-  sizes: string[]; // clothing sizes
-  brands: string[]; // selected brands
-  petFree: boolean; // pet-free home
-  smokeFree: boolean; // smoke-free home
-  perfumeFree: boolean; // perfume-free (fragrance free) environment
-  shippingMethods: string[]; // e.g., pickup, shipping, local-delivery
-  bundleDeal: boolean; // bundle deals available
+  // Tier 3
+  shippingMethods: string[];
+  locationRange: number;
+  isLocationRangeSet: boolean;
+  sellerRating: number | null;
+  // Tier 4
+  petFree: boolean;
+  smokeFree: boolean;
+  perfumeFree: boolean;
+  bundleDeal: boolean;
+  sortBy: string;
 }
 
 interface FilterStore {
@@ -105,28 +114,33 @@ interface FilterStore {
 
 // Base (frozen) default state object. Never mutate; always clone when assigning to store.
 export const defaultFilterState: FilterState = Object.freeze({
-  gender: [], // Default to empty array (show all genders)
+  // Tier 1
+  gender: [],
   ageRange: [0, 60],
-  priceRange: [0, 500],
-  locationRange: 25, // Default to 25 km maximum distance
-  sortBy: "newest",
-  inStock: true, // Default to show only in-stock items
-  onSale: false,
-  itemCondition: "all",
-  sellerRating: null, // No rating filter by default
-  isLocationRangeSet: false, // Default to false - user hasn't set it yet
+  priceRange: [0, MAX_PRICE],
   sizes: [],
+  // Tier 2
+  itemCondition: "all",
   brands: [],
+  inStock: true,
+  onSale: false,
+  // Tier 3
+  shippingMethods: [],
+  locationRange: 0,
+  isLocationRangeSet: false,
+  sellerRating: null,
+  // Tier 4
   petFree: false,
   smokeFree: false,
   perfumeFree: false,
-  shippingMethods: [],
   bundleDeal: false,
+  sortBy: "newest",
 });
 
 // Creates a fresh, shallow-cloned default state to ensure new object / array references.
 const cloneFilterState = (): FilterState => ({
   ...defaultFilterState,
+  // Deep copy arrays only
   gender: [...defaultFilterState.gender],
   ageRange: [...defaultFilterState.ageRange],
   priceRange: [...defaultFilterState.priceRange],
@@ -137,37 +151,44 @@ const cloneFilterState = (): FilterState => ({
 
 // Helper utilities to keep active / count logic DRY & consistent.
 const isFiltersActive = (fs: FilterState): boolean => {
-  return (fs.gender?.length ?? 0) > 0 ||
-    (fs.sizes?.length ?? 0) > 0 ||
-    (fs.brands?.length ?? 0) > 0 ||
-    (fs.shippingMethods?.length ?? 0) > 0 ||
-    fs.onSale !== defaultFilterState.onSale ||
-    fs.inStock !== defaultFilterState.inStock ||
-    fs.itemCondition !== defaultFilterState.itemCondition ||
-    (fs.sellerRating !== null && fs.sellerRating > 0) ||
+  // Order mirrors tier priority for easier scanning
+  return (
+    (fs.gender?.length ?? 0) > 0 ||
     (fs.ageRange[0] !== defaultFilterState.ageRange[0] || fs.ageRange[1] !== defaultFilterState.ageRange[1]) ||
     (fs.priceRange[0] !== defaultFilterState.priceRange[0] || fs.priceRange[1] !== defaultFilterState.priceRange[1]) ||
+    (fs.sizes?.length ?? 0) > 0 ||
+    fs.itemCondition !== defaultFilterState.itemCondition ||
+    (fs.brands?.length ?? 0) > 0 ||
+    fs.inStock !== defaultFilterState.inStock ||
+    fs.onSale !== defaultFilterState.onSale ||
+    (fs.shippingMethods?.length ?? 0) > 0 ||
     fs.isLocationRangeSet ||
+    (fs.sellerRating !== null && fs.sellerRating > 0) ||
     fs.petFree !== defaultFilterState.petFree ||
     fs.smokeFree !== defaultFilterState.smokeFree ||
     fs.perfumeFree !== defaultFilterState.perfumeFree ||
     fs.bundleDeal !== defaultFilterState.bundleDeal ||
-    fs.sortBy !== defaultFilterState.sortBy;
+    fs.sortBy !== defaultFilterState.sortBy
+  );
 };
 
 const countActiveFilters = (fs: FilterState): number => {
   let count = 0;
+  // Tier 1
   if ((fs.gender?.length ?? 0) > 0) count++;
-  if ((fs.sizes?.length ?? 0) > 0) count++;
-  if ((fs.brands?.length ?? 0) > 0) count++;
-  if ((fs.shippingMethods?.length ?? 0) > 0) count++;
-  if (fs.onSale !== defaultFilterState.onSale) count++;
-  if (fs.inStock !== defaultFilterState.inStock) count++;
-  if (fs.itemCondition !== defaultFilterState.itemCondition) count++;
-  if (fs.sellerRating !== null && fs.sellerRating > 0) count++;
   if (fs.ageRange[0] !== defaultFilterState.ageRange[0] || fs.ageRange[1] !== defaultFilterState.ageRange[1]) count++;
   if (fs.priceRange[0] !== defaultFilterState.priceRange[0] || fs.priceRange[1] !== defaultFilterState.priceRange[1]) count++;
+  if ((fs.sizes?.length ?? 0) > 0) count++;
+  // Tier 2
+  if (fs.itemCondition !== defaultFilterState.itemCondition) count++;
+  if ((fs.brands?.length ?? 0) > 0) count++;
+  if (fs.inStock !== defaultFilterState.inStock) count++;
+  if (fs.onSale !== defaultFilterState.onSale) count++;
+  // Tier 3
+  if ((fs.shippingMethods?.length ?? 0) > 0) count++;
   if (fs.isLocationRangeSet) count++;
+  if (fs.sellerRating !== null && fs.sellerRating > 0) count++;
+  // Tier 4
   if (fs.petFree !== defaultFilterState.petFree) count++;
   if (fs.smokeFree !== defaultFilterState.smokeFree) count++;
   if (fs.perfumeFree !== defaultFilterState.perfumeFree) count++;
@@ -235,7 +256,7 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, priceRange }
       })),
       setTempLocationRange: (locationRange) => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: true }
+        tempFilters: { ...state.tempFilters, locationRange, isLocationRangeSet: locationRange > 0 }
       })),
       setTempSortBy: (sortBy) => set((state) => ({
         tempFilters: { ...state.tempFilters, sortBy }
@@ -321,10 +342,10 @@ export const useFilterStore = create<FilterStore>()(
         tempFilters: { ...state.tempFilters, ageRange: [0, 60] }
       })),
       clearTempPriceRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, priceRange: [0, 500] }
+        tempFilters: { ...state.tempFilters, priceRange: [0, MAX_PRICE] }
       })),
       clearTempLocationRange: () => set((state) => ({
-        tempFilters: { ...state.tempFilters, locationRange: 25, isLocationRangeSet: false }
+        tempFilters: { ...state.tempFilters, locationRange: 0, isLocationRangeSet: false }
       })),
       clearTempSizes: () => set((state) => ({
         tempFilters: { ...state.tempFilters, sizes: [] }
