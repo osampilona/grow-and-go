@@ -35,32 +35,21 @@ export const ActiveCategoryChips = memo(function ActiveCategoryChips({
 
   // Memoize the category chips to prevent unnecessary re-renders
   const categoryChips = useMemo(() => {
-    // Don't show chips if "everything" is selected or no categories are selected
-    if (isTempEverythingSelected || tempSelected.length === 0) {
-      return null;
-    }
-
-    // Filter out "everything" from the selected categories for display
-    const activeCategories = tempSelected.filter(category => category !== "everything");
-    
-    if (activeCategories.length === 0) {
-      return null;
-    }
-
+    if (isTempEverythingSelected || tempSelected.length === 0) return null;
+    const selected = tempSelected.find(c => c !== "everything");
+    if (!selected) return null;
     return (
       <div className="flex flex-wrap gap-2">
-        {activeCategories.map((categoryId) => (
-          <Chip
-            key={categoryId}
-            onClose={() => onClearCategory(categoryId)}
-            variant="flat"
-            color={categoryColors[categoryId] || "secondary"}
-            size="sm"
-            className="text-xs"
-          >
-            {categoryMap[categoryId] || categoryId.charAt(0).toUpperCase() + categoryId.slice(1)}
-          </Chip>
-        ))}
+        <Chip
+          key={selected}
+          onClose={() => onClearCategory(selected)}
+          variant="flat"
+            color={categoryColors[selected] || "secondary"}
+          size="sm"
+          className="text-xs"
+        >
+          {categoryMap[selected] || selected.charAt(0).toUpperCase() + selected.slice(1)}
+        </Chip>
       </div>
     );
   }, [tempSelected, isTempEverythingSelected, onClearCategory, categoryMap, categoryColors]);

@@ -22,8 +22,8 @@ export const categories: Category[] = [
 ];
 
 interface CategoryState {
-  selected: string[]; // array of category ids
-  tempSelected: string[]; // temporary array of category ids
+  selected: string[]; // kept as single-item array for minimal refactor
+  tempSelected: string[]; // kept as single-item array for minimal refactor
   categories: Category[];
   isLoading: boolean;
   hasHydrated: boolean;
@@ -60,55 +60,20 @@ export const useCategoryStore = create<CategoryState>()(
       applyTemp: () => set(state => ({ selected: state.tempSelected })),
       cancelTemp: () => set(state => ({ tempSelected: state.selected })),
 
-      toggleTempCategory: (catId: string) => set((state) => {
-        // If selecting 'everything', unselect all others and select only 'everything'
-        if (catId === "everything") {
-          return { tempSelected: ["everything"] };
-        }
-        // If 'everything' is currently selected and user selects another, unselect 'everything' and select only the new one
-        if (state.tempSelected.includes("everything")) {
-          return { tempSelected: [catId] };
-        }
-        // If the category is already selected, unselect it
-        if (state.tempSelected.includes(catId)) {
-          const newSelected = state.tempSelected.filter((c) => c !== catId);
-          // If nothing left selected, default back to 'everything'
-          return { tempSelected: newSelected.length ? newSelected : ["everything"] };
-        }
-        // Otherwise, select the new category (multi-select allowed except for 'everything')
-        return { tempSelected: [...state.tempSelected, catId] };
-      }),
-      
-      toggleCategory: (catId: string) => set((state) => {
-        // If selecting 'everything', unselect all others and select only 'everything'
-        if (catId === "everything") {
-          return { selected: ["everything"] };
-        }
-        // If 'everything' is currently selected and user selects another, unselect 'everything' and select only the new one
-        if (state.selected.includes("everything")) {
-          return { selected: [catId] };
-        }
-        // If the category is already selected, unselect it
-        if (state.selected.includes(catId)) {
-          const newSelected = state.selected.filter((c) => c !== catId);
-          // If nothing left selected, default back to 'everything'
-          return { selected: newSelected.length ? newSelected : ["everything"] };
-        }
-        // Otherwise, select the new category (multi-select allowed except for 'everything')
-        return { selected: [...state.selected, catId] };
-      }),
-      
-      selectCategory: (catId: string) => set(() => ({
-        selected: [catId]
+      toggleTempCategory: (catId: string) => set(() => ({
+        // Radio behavior: always ends up with exactly one selected value
+        tempSelected: [catId === "everything" ? "everything" : catId]
+      })),
+
+      toggleCategory: (catId: string) => set(() => ({
+        selected: [catId === "everything" ? "everything" : catId]
       })),
       
-      selectMultipleCategories: (catIds: string[]) => set(() => ({
-        selected: catIds.length ? catIds : ["everything"]
-      })),
+  selectCategory: (catId: string) => set(() => ({ selected: [catId] })),
       
-      clearSelections: () => set(() => ({
-        selected: []
-      })),
+  selectMultipleCategories: (catIds: string[]) => set(() => ({ selected: catIds.length ? [catIds[0]] : ["everything"] })), // legacy API safeguard
+      
+  clearSelections: () => set(() => ({ selected: ["everything"] })),
       
       resetToDefault: () => set(() => ({
         selected: ["everything"],

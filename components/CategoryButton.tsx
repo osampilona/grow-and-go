@@ -15,7 +15,7 @@ const CategoryButton = memo(function CategoryButton({
   const isTempSelected = useCategoryStore((state) => state.isTempSelected(category.id));
   const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
   const getIconForCategory = useCategoryStore((state) => state.getIconForCategory);
-  const isEverythingTempSelected = useCategoryStore((state) => state.isTempSelected("everything"));
+  const isEverythingTempSelected = useCategoryStore((state) => state.isTempSelected("everything")); // retained in case styling depends on it
 
   // MEMOIZED: Click handler with stable reference
   const handleClick = useCallback(() => {
@@ -35,10 +35,8 @@ const CategoryButton = memo(function CategoryButton({
   }, [getIconForCategory, category.id, category.img, category.imgColored, isSelectedState]);
   
   // MEMOIZED: Gray out state to prevent recalculation
-  const shouldGrayOut = useMemo(() => 
-    !isEverythingTempSelected && !isSelectedState,
-    [isEverythingTempSelected, isSelectedState]
-  );
+  // In single-select mode, gray out only non-selected items (no special multi-select logic needed)
+  const shouldGrayOut = useMemo(() => !isSelectedState, [isSelectedState]);
 
   // MEMOIZED: Static styles to prevent recreation
   const buttonStyle = useMemo(() => ({ minWidth: 66 }), []);
@@ -79,6 +77,10 @@ const CategoryButton = memo(function CategoryButton({
       onClick={handleClick}
       className={buttonClassName}
       style={buttonStyle}
+      role="radio"
+      aria-checked={isSelectedState}
+      aria-label={category.name}
+      type="button"
     >
       {iconSrc && (
         <img

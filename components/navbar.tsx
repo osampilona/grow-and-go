@@ -187,8 +187,9 @@ export const Navbar = memo(function Navbar() {
   }, [clearTempLocationRange]);
 
   const handleClearCategory = useCallback((category: string) => {
-    toggleTempCategory(category);
-  }, [toggleTempCategory]);
+    // In single-select mode clearing a category returns to 'everything'
+    useCategoryStore.setState({ tempSelected: ["everything"] });
+  }, []);
 
   const handleClearAllFilters = useCallback(() => {
     clearAllTempFilters();
