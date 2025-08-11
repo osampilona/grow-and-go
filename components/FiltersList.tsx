@@ -22,6 +22,14 @@ const FiltersList = memo(function FiltersList() {
   const setTempSellerRating = useFilterStore((state) => state.setTempSellerRating);
   const setTempLocationRange = useFilterStore((state) => state.setTempLocationRange);
   const toggleTempGender = useFilterStore((state) => state.toggleTempGender);
+  // New filter actions
+  const toggleTempSize = useFilterStore((state) => state.toggleTempSize);
+  const toggleTempBrand = useFilterStore((state) => state.toggleTempBrand);
+  const toggleTempPetFree = useFilterStore((state) => state.toggleTempPetFree);
+  const toggleTempSmokeFree = useFilterStore((state) => state.toggleTempSmokeFree);
+  const toggleTempPerfumeFree = useFilterStore((state) => state.toggleTempPerfumeFree);
+  const toggleTempShippingMethod = useFilterStore((state) => state.toggleTempShippingMethod);
+  const toggleTempBundleDeal = useFilterStore((state) => state.toggleTempBundleDeal);
 
   // MEMOIZED: Button click handlers with stable references
   const handleBoyClick = useCallback(() => toggleTempGender("Boy"), [toggleTempGender]);
@@ -85,6 +93,11 @@ const FiltersList = memo(function FiltersList() {
     setTempLocationRange(Array.isArray(value) ? value[0] : value);
   }, [setTempLocationRange]);
 
+  // New handlers
+  const handleSizeToggle = useCallback((size: string) => () => toggleTempSize(size), [toggleTempSize]);
+  const handleBrandToggle = useCallback((brand: string) => () => toggleTempBrand(brand), [toggleTempBrand]);
+  const handleShippingToggle = useCallback((method: string) => () => toggleTempShippingMethod(method), [toggleTempShippingMethod]);
+
   // MEMOIZED: Tooltip content to prevent recreating objects
   const ageTooltipContent = useMemo(() => 
     `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`, 
@@ -95,6 +108,15 @@ const FiltersList = memo(function FiltersList() {
     `$${optimizedFilters.priceRange[0]} - $${optimizedFilters.priceRange[1]}`, 
     [optimizedFilters.priceRange]
   );
+
+  // Data lists (memoized)
+  const sizeOptions = useMemo(() => ["0-3M","3-6M","6-9M","9-12M","12-18M","18-24M","2T","3T","4T","5T"], []);
+  const brandOptions = useMemo(() => ["Carter's","H&M","Nike","Adidas","Zara","GAP","Next","Old Navy"], []);
+  const shippingOptions = useMemo(() => [
+    { key: 'pickup', label: 'Pickup' },
+    { key: 'shipping', label: 'Shipping' },
+    { key: 'local-delivery', label: 'Local Delivery' },
+  ], []);
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -233,6 +255,93 @@ const FiltersList = memo(function FiltersList() {
           <SelectItem key="good">Good</SelectItem>
           <SelectItem key="fair">Fair</SelectItem>
         </Select>
+      </div>
+
+      {/* Sizes */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
+        <div className="flex flex-wrap gap-2">
+          {sizeOptions.map(sz => {
+            const selected = optimizedFilters.sizes?.includes(sz);
+            return (
+              <button
+                key={sz}
+                onClick={handleSizeToggle(sz)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
+              >{sz}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Brands */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Brands</h3>
+        <div className="flex flex-wrap gap-2">
+          {brandOptions.map(brand => {
+            const selected = optimizedFilters.brands?.includes(brand);
+            return (
+              <button
+                key={brand}
+                onClick={handleBrandToggle(brand)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
+              >{brand}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Environment & Hygiene */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Environment & Hygiene</h3>
+        <div className="flex flex-col gap-3">
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.petFree}
+            onValueChange={toggleTempPetFree}
+          >Pet Free Home</Switch>
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.smokeFree}
+            onValueChange={toggleTempSmokeFree}
+          >Smoke Free Home</Switch>
+          <Switch
+            color="success"
+            size="sm"
+            isSelected={optimizedFilters.perfumeFree}
+            onValueChange={toggleTempPerfumeFree}
+          >Perfume Free</Switch>
+        </div>
+      </div>
+
+      {/* Shipping / Delivery Methods */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Delivery Methods</h3>
+        <div className="flex flex-wrap gap-2">
+          {shippingOptions.map(opt => {
+            const selected = optimizedFilters.shippingMethods?.includes(opt.key);
+            return (
+              <button
+                key={opt.key}
+                onClick={handleShippingToggle(opt.key)}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-warning text-black border-warning' : 'border-default-200 hover:bg-default-100'}`}
+              >{opt.label}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Bundle Deal */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-foreground">Deals</h3>
+        <Switch
+          color="secondary"
+          size="sm"
+          isSelected={optimizedFilters.bundleDeal}
+          onValueChange={toggleTempBundleDeal}
+        >Bundle Deal Available</Switch>
       </div>
 
       {/* Seller Rating Filter */}
