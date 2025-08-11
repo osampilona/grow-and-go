@@ -43,6 +43,7 @@
   width: auto !important;
   display: flex !important;
   justify-content: center !important;
+  gap: 6px !important; /* ensure bullets keep spacing after dynamic updates */
 }
 
 .swiper-carousel-container .swiper-pagination-bullet {

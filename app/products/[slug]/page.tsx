@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import { IoChatboxOutline } from "react-icons/io5";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 
 export default function ProductPage() {
@@ -13,30 +13,48 @@ export default function ProductPage() {
   const slug = params?.slug;
   const product: FeedItem | undefined = mockFeed.find((item: FeedItem) => item.id === slug);
   const [modalOpen, setModalOpen] = useState(false);
+  const modalSwiperApi = useRef<{ update: () => void } | null>(null);
+
+  // When modal opens, defer an update to ensure correct sizing & pagination
+  useEffect(() => {
+    if (modalOpen) {
+      const t1 = setTimeout(() => modalSwiperApi.current?.update(), 120);
+      const t2 = setTimeout(() => modalSwiperApi.current?.update(), 350); // second pass after potential transitions
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [modalOpen]);
 
   return (
     <>
       {/* Modal for full-size carousel */}
       {product && (
-        <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <Dialog.Panel className="bg-transparent shadow-none p-0 max-w-5xl w-full flex flex-col items-center relative">
-            {/* X close icon in top right */}
+        <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed inset-0 z-50">
+          {/* Backdrop (click to close) */}
+          <div
+            className="absolute inset-0 bg-black/70"
+            aria-hidden="true"
+            onClick={() => setModalOpen(false)}
+          />
+          <Dialog.Panel className="relative w-full h-full flex items-center justify-center bg-transparent">
+            {/* Close button fixed top-right */}
             <button
               onClick={() => setModalOpen(false)}
               aria-label="Close"
-              className="fixed top-8 right-8 z-[100] text-white hover:text-black hover:bg-white/80 rounded-full p-2 shadow transition-colors"
-              style={{transition: 'top 0.2s, right 0.2s'}}
+              className="fixed top-6 right-8 z-[100] text-white hover:text-black hover:bg-white/80 rounded-full p-2 shadow transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            {/* SwiperCarousel for modal with swipe support */}
-            <SwiperCarousel
-              images={product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }))}
-                  className="flex items-center justify-center w-screen h-screen"
-                  imageClassName="aspect-[4/3] w-[80vw] h-[60vw] max-w-2xl max-h-[80vh] object-cover mx-auto"
-            />
+            {/* Full-screen style carousel */}
+            <div className="w-full h-full" onClick={(e) => e.stopPropagation()}>
+              <SwiperCarousel
+                images={product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }))}
+                className="flex items-center justify-center w-screen h-screen bg-blue-500/30 dark:bg-slate-900/40 backdrop-blur-sm p-4 md:p-8"
+                imageClassName="aspect-[4/3] w-[80vw] h-auto max-w-3xl max-h-[80vh] object-cover mx-auto"
+                onReady={(api) => { modalSwiperApi.current = { update: api.update }; }}
+              />
+            </div>
           </Dialog.Panel>
         </Dialog>
       )}
