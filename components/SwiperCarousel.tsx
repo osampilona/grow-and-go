@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useState, useCallback, useRef, useMemo, useEffect } from "react";
+import { memo, useState, useCallback, useRef, useMemo, useEffect, useId } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCreative, Navigation, Pagination } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -23,6 +24,12 @@ interface SwiperCarouselProps {
   onImageClick?: (index: number) => void;
   // Optional callback to allow parent to trigger manual updates (e.g., after a modal transition)
   onReady?: (api: { update: () => void; swiper: SwiperType }) => void;
+  /** Disable visibility observer / bullet repair logic (mostly for testing) */
+  disableVisibilityOptimization?: boolean;
+  ariaLabel?: string;
+  aspectRatio?: string; // e.g. "16/9"
+  keyboard?: boolean;
+  showPlaceholder?: boolean;
 }
 
 const SwiperCarousel = memo(function SwiperCarousel({ 
@@ -34,11 +41,20 @@ const SwiperCarousel = memo(function SwiperCarousel({
   creativeEffect = "default",
   onImageClick,
   onReady,
+  disableVisibilityOptimization = false,
+  ariaLabel = "Image carousel",
+  aspectRatio,
+  keyboard = true,
+  showPlaceholder = true,
 }: SwiperCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const imagesLength = useMemo(() => images.length, [images]);
   const swiperRef = useRef<SwiperType | null>(null);
-  const uniqueId = useRef(`swiper-${Math.random().toString(36).substr(2, 9)}`);
+  // Stable, SSR-safe id (same on server & client) avoids hydration mismatches vs Math.random()
+  const reactId = useId();
+  const uniqueId = useMemo(() => `swiper-${reactId.replace(/[:]/g, "-")}`, [reactId]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [firstLoaded, setFirstLoaded] = useState(!showPlaceholder);
 
   // Cleanup swiperRef on unmount (defensive, Swiper handles this but best practice)
   // No event listeners, but clear ref
@@ -81,7 +97,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
 
   // Memoize swiperConfig for stable reference
   const swiperConfig = useMemo(() => ({
-    modules: [EffectCreative, Navigation, Pagination],
+    modules: navigationStyle === "arrows" && imagesLength > 1 ? [EffectCreative, Navigation, Pagination] : [EffectCreative],
     effect: "creative" as const,
     creativeEffect: creativeEffects[creativeEffect],
     grabCursor: true,
@@ -111,15 +127,15 @@ const SwiperCarousel = memo(function SwiperCarousel({
     navigation:
       navigationStyle === "arrows" && imagesLength > 1
         ? {
-            nextEl: `.${uniqueId.current}-next`,
-            prevEl: `.${uniqueId.current}-prev`,
+            nextEl: `.${uniqueId}-next`,
+            prevEl: `.${uniqueId}-prev`,
           }
         : false,
     pagination:
       navigationStyle === "arrows" && imagesLength > 1
         ? {
       // Use a unique pagination element per instance to avoid collisions / duplication on remounts
-      el: `.${uniqueId.current}-pagination`,
+  el: `.${uniqueId}-pagination`,
             clickable: true,
             bulletClass: "swiper-pagination-bullet",
             bulletActiveClass: "swiper-pagination-bullet-active",
@@ -127,7 +143,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
             dynamicMainBullets: 5,
           }
         : false,
-  }), [creativeEffect, creativeEffects, imagesLength, navigationStyle, handleSlideChange]);
+  }), [creativeEffect, creativeEffects, imagesLength, navigationStyle, handleSlideChange, onReady, uniqueId]);
 
   // ResizeObserver to keep Swiper layout in sync with container size changes (e.g., modal open animations)
   useEffect(() => {
@@ -145,43 +161,104 @@ const SwiperCarousel = memo(function SwiperCarousel({
     }
   }, [imagesLength]);
 
-  // Visibility check: if the carousel becomes visible after being hidden (display: none or 0 size), force an update
+  // Visibility + bullet repair logic (replaces former polling interval)
   useEffect(() => {
-    const interval = setInterval(() => {
-      const swiper = swiperRef.current;
-      if (!swiper) return;
-      const rect = (swiper.el as HTMLElement)?.getBoundingClientRect();
-      if (rect && rect.width > 0 && rect.height > 0 && swiper.slides?.length) {
-        // If pagination bullets haven't been laid out properly (width collapse), repair once
-        const bullets = (swiper.el as HTMLElement).querySelectorAll('.swiper-pagination-bullet');
-        if (bullets.length && (bullets[0] as HTMLElement).offsetWidth === 0) {
+    if (disableVisibilityOptimization) return;
+    const swiper = swiperRef.current;
+    if (!swiper) return;
+    const el = swiper.el as HTMLElement | null;
+    if (!el) return;
+
+    let repaired = false;
+    const attemptRepair = () => {
+      if (repaired) return;
+      const bullets = el.querySelectorAll('.swiper-pagination-bullet');
+      if (bullets.length) {
+        const first = bullets[0] as HTMLElement;
+        if (first.offsetWidth === 0) {
           swiper.update();
           swiper.pagination?.render();
           swiper.pagination?.update();
         }
+        repaired = true; // Only attempt once after visible
       }
-    }, 400);
-    return () => clearInterval(interval);
-  }, []);
+    };
+
+    // If already visible run immediately
+    const rect = el.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      attemptRepair();
+      return; // nothing else needed
+    }
+
+    // Otherwise observe becoming visible (IntersectionObserver preferred)
+    if (typeof IntersectionObserver !== 'undefined') {
+      const io = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            attemptRepair();
+            io.disconnect();
+            break;
+          }
+        }
+      }, { threshold: 0.01 });
+      io.observe(el);
+      return () => io.disconnect();
+    }
+  }, [disableVisibilityOptimization]);
 
   return (
     <div
-      className={`relative overflow-hidden swiper-carousel-container bg-transparent ${
-        navigationStyle === "counter" ? "counter-style" : ""
-      } ${className}`}
+      ref={rootRef}
+      className={`relative overflow-hidden swiper-carousel-container bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-sm ${navigationStyle === "counter" ? "counter-style" : ""} ${className}`}
       style={{background: 'transparent'}}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={ariaLabel}
+      aria-live="off"
+      tabIndex={keyboard ? 0 : -1}
+      onKeyDown={(e) => {
+        if (!keyboard) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); swiperRef.current?.slideNext(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); swiperRef.current?.slidePrev(); }
+      }}
     >
+      {aspectRatio && (
+        <div
+          aria-hidden="true"
+          style={{ position: 'relative', width: '100%', paddingTop: (() => { const p=aspectRatio.split('/'); if(p.length===2){ const w=parseFloat(p[0]); const h=parseFloat(p[1]); if(w>0&&h>0) return `${(h/w)*100}%`; } return '56.25%'; })() }}
+        />
+      )}
+      {showPlaceholder && !firstLoaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-200/60 to-gray-300/40 dark:from-slate-700/40 dark:to-slate-600/30 rounded-sm flex items-center justify-center text-xs text-gray-500 dark:text-slate-400">
+          Loading images...
+        </div>
+      )}
       <Swiper {...swiperConfig} style={{background: 'transparent'}}>
         {images.map((img, idx) => (
           <SwiperSlide key={idx} className="h-full w-full flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
             <div className="w-full h-full relative flex items-center justify-center bg-transparent" style={{background: 'transparent'}}>
-              <img
-                src={img.src}
-                alt={img.alt}
-                className={imageClassName || "w-full h-full object-cover"}
-                loading="lazy"
-                onClick={() => onImageClick && onImageClick(idx)}
-              />
+              {img.src.startsWith('/') ? (
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 600px"
+                  className={imageClassName || "object-cover"}
+                  priority={idx === 0}
+                  onLoad={() => { if (idx === 0) setFirstLoaded(true); }}
+                />
+              ) : (
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className={imageClassName || "w-full h-full object-cover"}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  onLoad={() => { if (idx === 0) setFirstLoaded(true); }}
+                  onClick={() => onImageClick && onImageClick(idx)}
+                />
+              )}
             </div>
           </SwiperSlide>
         ))}
@@ -200,7 +277,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
         {/* Pagination for arrows style, only on lg and up screens */}
         {imagesLength > 1 && navigationStyle === "arrows" && (
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 hidden lg:flex">
-            <div className={`swiper-pagination ${uniqueId.current}-pagination`} />
+            <div className={`swiper-pagination ${uniqueId}-pagination`} />
           </div>
         )}
       </Swiper>
@@ -208,7 +285,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
       {imagesLength > 1 && navigationStyle === "arrows" && (
         <div className="hidden lg:flex absolute inset-0 pointer-events-none">
           <button
-            className={`swiper-button-prev ${uniqueId.current}-prev pointer-events-auto`}
+            className={`swiper-button-prev ${uniqueId}-prev pointer-events-auto`}
             aria-label="Previous image"
             onClick={(e) => {
               e.stopPropagation();
@@ -220,7 +297,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
             }}
           />
           <button
-            className={`swiper-button-next ${uniqueId.current}-next pointer-events-auto`}
+            className={`swiper-button-next ${uniqueId}-next pointer-events-auto`}
             aria-label="Next image"
             onClick={(e) => {
               e.stopPropagation();

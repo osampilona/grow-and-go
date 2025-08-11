@@ -4,29 +4,37 @@ import { useCategoryStore } from "../stores/categoryStore";
 interface CategoryButtonProps {
   category: { id: string; name: string; img?: string; imgColored?: string };
   showBorder?: boolean;
+  useTemp?: boolean; // when false, updates committed selection directly (navbar usage)
 }
 
 const CategoryButton = memo(function CategoryButton({ 
   category,
-  showBorder = false
+  showBorder = false,
+  useTemp = true,
 }: CategoryButtonProps) {
   // Optimize store subscriptions - use individual selectors to minimize re-renders
   const hasHydrated = useCategoryStore((state) => state.hasHydrated);
   const isTempSelected = useCategoryStore((state) => state.isTempSelected(category.id));
+  const isCommittedSelected = useCategoryStore((state) => state.isSelected(category.id));
   const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
+  const toggleCategory = useCategoryStore((state) => state.toggleCategory);
   const getIconForCategory = useCategoryStore((state) => state.getIconForCategory);
   const isEverythingTempSelected = useCategoryStore((state) => state.isTempSelected("everything")); // retained in case styling depends on it
 
   // MEMOIZED: Click handler with stable reference
   const handleClick = useCallback(() => {
-    toggleTempCategory(category.id);
-  }, [toggleTempCategory, category.id]);
+    if (useTemp) {
+      toggleTempCategory(category.id);
+    } else {
+      toggleCategory(category.id);
+    }
+  }, [useTemp, toggleTempCategory, toggleCategory, category.id]);
 
   // MEMOIZED: Selection state to prevent recalculation
-  const isSelectedState = useMemo(() => 
-    hasHydrated ? isTempSelected : category.id === "everything",
-    [hasHydrated, isTempSelected, category.id]
-  );
+  const isSelectedState = useMemo(() => {
+    if (!hasHydrated) return category.id === "everything";
+    return useTemp ? isTempSelected : isCommittedSelected;
+  }, [hasHydrated, useTemp, isTempSelected, isCommittedSelected, category.id]);
   
   // MEMOIZED: Icon source to prevent recalculation
   const iconSrc = useMemo(() => {

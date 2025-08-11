@@ -13,7 +13,7 @@ import NextLink from "next/link";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Badge } from "@heroui/badge";
-import { memo, useCallback, useEffect, useState, useMemo } from "react";
+import { memo, useCallback, useEffect, useState, useMemo, useRef } from "react";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import CategoriesList from "./CategoriesList";
@@ -23,6 +23,7 @@ import { FiltersHeader } from "./FiltersHeader";
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
 import { CloseIcon } from "./icons";
+import SubcategoryChipsBar from "./SubcategoryChipsBar";
 
 export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -233,9 +234,39 @@ export const Navbar = memo(function Navbar() {
   // Combined count for mobile
   const totalCount = filterCount + categoryCount;
 
+  // Track navbar height to position subcategory chips directly beneath
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const [navHeight, setNavHeight] = useState<number>(64); // fallback
+
+  useEffect(() => {
+    const measure = () => {
+      if (navRef.current) {
+        const h = navRef.current.offsetHeight;
+        if (h && h !== navHeight) setNavHeight(h);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    // Safe idle / deferred measurements for mobile (polyfill if needed)
+    const ric: typeof requestIdleCallback | undefined = typeof requestIdleCallback === 'function'
+      ? requestIdleCallback
+      : (cb: any) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), 120) as any;
+    const cancelRic: typeof cancelIdleCallback | undefined = typeof cancelIdleCallback === 'function'
+      ? cancelIdleCallback
+      : (id: any) => clearTimeout(id);
+    const idle = ric(measure);
+    // Extra fallback after a short delay (fonts/images late load)
+    const timeout = setTimeout(measure, 400);
+    return () => {
+      window.removeEventListener("resize", measure);
+      if (idle) cancelRic?.(idle as any);
+      clearTimeout(timeout);
+    };
+  }, [navHeight]);
+
   return (
     <>
-      <HeroUINavbar maxWidth="2xl" position="sticky" className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-gray-200/20 dark:border-slate-700/20 pt-2">
+  <HeroUINavbar ref={navRef} maxWidth="2xl" position="sticky" className="z-50 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-gray-200/20 dark:border-slate-700/20 pt-2">
         <NavbarContent className="basis-1/5 sm:basis-full " justify="start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink 
@@ -257,12 +288,12 @@ export const Navbar = memo(function Navbar() {
         {/* Categories for large screens */}
         <NavbarContent className="hidden lg:flex basis-1/5 sm:basis-full justify-center">
           <NavbarItem className="flex items-center gap-3">
-            <CategoriesList />
+            <CategoriesList useTemp={false} />
           </NavbarItem>
         </NavbarContent>
 
         {/* Categories button for smaller screens */}
-        <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center!">
+  <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center">
           <NavbarItem>
             <Badge 
               content={totalCount > 0 ? totalCount : undefined}
@@ -303,6 +334,8 @@ export const Navbar = memo(function Navbar() {
           </NavbarItem>
         </NavbarContent>
       </HeroUINavbar>
+  {/* Subcategory chips bar (hidden on small screens, visible lg+) */}
+  <SubcategoryChipsBar stickyOffset={navHeight} className="hidden lg:block" />
 
       {/* Top Drawer for Categories */}
       <Drawer 
