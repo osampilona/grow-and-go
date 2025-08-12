@@ -22,6 +22,17 @@ export default function ProductPage() {
   const liked = useLikeStore((s) => (product ? !!s.likedIds[product.id] : false));
   const toggleLike = useLikeStore((s) => s.toggleLike);
 
+  // "Read more" states and refs
+  const descRef = useRef<HTMLParagraphElement | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [descTruncatable, setDescTruncatable] = useState(false);
+  const [descClampPx, setDescClampPx] = useState<number | undefined>(undefined);
+
+  const chipsRef = useRef<HTMLDivElement | null>(null);
+  const [chipsExpanded, setChipsExpanded] = useState(false);
+  const [chipsTruncatable, setChipsTruncatable] = useState(false);
+  const [chipsClampPx, setChipsClampPx] = useState<number | undefined>(undefined);
+
   // When modal opens, defer an update to ensure correct sizing & pagination
   useEffect(() => {
     if (modalOpen) {
@@ -30,6 +41,81 @@ export default function ProductPage() {
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [modalOpen]);
+
+  // Measure description lines and chips rows to determine if truncation is needed
+  useEffect(() => {
+  const measure = () => {
+      // Description lines
+      if (descRef.current) {
+        const el = descRef.current;
+        const cs = window.getComputedStyle(el);
+        const lineH = parseFloat(cs.lineHeight || '0');
+        // fallback: approximate from font-size if line-height is 'normal'
+        const lh = isNaN(lineH) || lineH === 0 ? parseFloat(cs.fontSize || '16') * 1.4 : lineH;
+        const lines = Math.round(el.scrollHeight / lh);
+        const needsClamp = lines > 3;
+        setDescTruncatable(needsClamp);
+        setDescClampPx(needsClamp ? lh * 3 : undefined);
+        if (!needsClamp) setDescExpanded(false);
+      }
+
+      // Chips rows by unique top positions relative to the container (with small tolerance)
+      if (chipsRef.current) {
+        const c = chipsRef.current;
+        const children = Array.from(c.children) as HTMLElement[];
+        const tol = 2; // px tolerance for grouping rows
+        const cRect = c.getBoundingClientRect();
+        const items = children.map(ch => {
+          const r = ch.getBoundingClientRect();
+          return { el: ch, top: Math.round(r.top - cRect.top), height: Math.round(r.height) };
+        });
+        // group top values within tolerance to handle sub-pixel/layout quirks
+        const tops: number[] = [];
+        for (const it of items) {
+          const i = tops.findIndex(v => Math.abs(v - it.top) <= tol);
+          if (i === -1) tops.push(it.top);
+        }
+        tops.sort((a, b) => a - b);
+        const rows = tops.length;
+        const needsClamp = rows > 2; // show exactly 2 rows, clamp when there are more than 2 rows
+        setChipsTruncatable(needsClamp);
+        if (needsClamp) {
+          // Clamp to the minimum of (bottom of row 2) and (just before row 3)
+          const secondRowTop = tops[1];
+          const thirdRowTop = tops[2];
+          const secondRowItems = items.filter(it => Math.abs(it.top - secondRowTop) <= tol);
+          const secondRowMaxH = secondRowItems.length ? Math.max(...secondRowItems.map(it => it.height)) : (items[0]?.height || 0);
+          const bottomRow2 = Math.ceil(secondRowTop + secondRowMaxH);
+          const justBeforeRow3 = Math.max(0, thirdRowTop - 2); // subtract a couple of px as a guard
+          const clampTo = Math.min(bottomRow2, justBeforeRow3);
+          setChipsClampPx(clampTo);
+        } else {
+          setChipsClampPx(undefined);
+          setChipsExpanded(false);
+        }
+      }
+    };
+
+    // defer to ensure layout is ready and then re-check after potential reflows
+    const t0 = setTimeout(measure, 0);
+    const t1 = setTimeout(measure, 150);
+    const t2 = setTimeout(measure, 400);
+    window.addEventListener('resize', measure);
+
+    // Observe chips container size changes (wraps due to width changes or fonts)
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined' && chipsRef.current) {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(chipsRef.current);
+    }
+    return () => {
+      clearTimeout(t0);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', measure);
+      if (ro && chipsRef.current) ro.disconnect();
+    };
+  }, [product]);
 
   return (
     <>
@@ -117,82 +203,123 @@ export default function ProductPage() {
             </div>
           </div>
           {/* Right: Product info area */}
-          <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
-            </div>
-            {/* User avatar, name, and rating */}
-            <div className="flex items-center gap-4 justify-between mb-2 w-full">
-              <div className="flex items-center gap-4">
-                <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
-                <span className="font-semibold text-lg">{product?.user.name}</span>
-                <span className="text-yellow-500 font-semibold flex items-center gap-1">
-                  {product?.user.rating?.toFixed(1)}
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
-                </span>
+          <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-3">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
               </div>
-              <Button radius="sm" size="sm" variant="light" color="secondary" className="font-semibold">
-                <span className="flex items-center gap-2">
-                  <IoChatboxOutline className="w-5 h-5" />
-                  Chat with {product?.user.name}
-                </span>
-              </Button>
-            </div>
-            <p className="text-gray-600 text-lg">{product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}</p>
-
-            {/* All Filters / Metadata (dev view) */}
-            {product && (
-              <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Attributes (Dev Preview)</h3>
-                <div className="flex flex-wrap gap-2">
-                  {/* Category */}
-                  {(() => {
-                    const catName = categories.find(c => c.id === product.categoryId)?.name || product.categoryId;
-                    return <Chip size="sm" variant="flat" color="primary">Cat: {catName}</Chip>;
-                  })()}
-                  {/* Subcategories */}
-                  {(product.subcategoryIds || []).map(scId => {
-                    // Flatten subcategoryMap for name lookup
-                    const group = Object.values(subcategoryMap).flat();
-                    const sc = group.find(s => s.id === scId);
-                    return <Chip key={scId} size="sm" variant="flat" color="primary">Sub: {sc?.name || scId}</Chip>;
-                  })}
-                  {/* Gender */}
-                  {(product.gender || []).map(g => (
-                    <Chip key={g} size="sm" variant="flat" color={getFilterGroupColor('gender')}>{g}</Chip>
-                  ))}
-                  {/* Age Range */}
-                  <Chip size="sm" variant="flat" color="success">Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
-                  {/* Sizes */}
-                  {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" color="success">Size {sz}</Chip>)}
-                  {/* Brand */}
-                  {product.brand && <Chip size="sm" variant="flat" color="secondary">Brand: {product.brand}</Chip>}
-                  {/* Condition */}
-                  <Chip size="sm" variant="flat" color="warning">{product.condition.replace('-', ' ')}</Chip>
-                  {/* Stock / Sale */}
-                  {!product.inStock ? <Chip size="sm" variant="flat" color="default">Out of Stock</Chip> : <Chip size="sm" variant="flat" color="success">In Stock</Chip>}
-                  {product.onSale && <Chip size="sm" variant="flat" color="warning">On Sale</Chip>}
-                  {/* Shipping Methods */}
-                  {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" color="secondary">Ship: {m}</Chip>)}
-                  {/* Environment */}
-                  {product.petFree && <Chip size="sm" variant="flat" color="success">Pet Free</Chip>}
-                  {product.smokeFree && <Chip size="sm" variant="flat" color="success">Smoke Free</Chip>}
-                  {product.perfumeFree && <Chip size="sm" variant="flat" color="success">Perfume Free</Chip>}
-                  {/* Deal */}
-                  {product.bundleDeal && <Chip size="sm" variant="flat" color="secondary">Bundle Deal</Chip>}
-                  {/* Seller Rating */}
-                  <Chip size="sm" variant="flat" color="warning">Seller {product.sellerRating.toFixed(1)}</Chip>
+              {/* User avatar, name, and rating */}
+              <div className="flex items-center gap-4 justify-between w-full">
+                <div className="flex items-center gap-4">
+                  <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
+                  <span className="font-semibold text-lg">{product?.user.name}</span>
+                  <span className="text-yellow-500 font-semibold flex items-center gap-1">
+                    {product?.user.rating?.toFixed(1)}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
+                  </span>
                 </div>
+                <Button radius="sm" size="sm" variant="light" color="secondary" className="font-semibold">
+                  <span className="flex items-center gap-2">
+                    <IoChatboxOutline className="w-5 h-5" />
+                    Chat with {product?.user.name}
+                  </span>
+                </Button>
               </div>
-            )}
-            {/* Price and actions */}
-            <div className="flex items-center gap-6 mt-2">
-              <span className="text-2xl font-bold">{product?.price || '123DKK'}</span>
-              <span className="text-lg line-through text-gray-400">{'236DKK'}</span>
             </div>
-            <div className="flex items-center gap-4 mt-2">
-              <button className="border-2 border-yellow-300 text-yellow-700 px-8 py-3 rounded-full font-bold text-lg bg-white">ADD TO CART</button>
-              <button className="bg-yellow-300 text-black px-8 py-3 rounded-full font-bold text-lg">BUY NOW</button>
+            {/* TODO: SHOULD THIS BE SCROLABLE IF THERE IS A LOT OF TEXT */}
+            <div className="flex flex-col gap-3">
+              {/* Description */}
+              <div>
+                <p
+                  ref={descRef}
+                  className="text-gray-600 text-lg"
+                  style={!descExpanded && descTruncatable && descClampPx ? { maxHeight: `${descClampPx}px`, overflow: 'hidden' } : undefined}
+                >
+                  {product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}
+                </p>
+                {descTruncatable && (
+                  <button
+                    className="mt-1 text-sm font-medium text-primary hover:underline"
+                    onClick={() => setDescExpanded(v => !v)}
+                  >
+                    {descExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </div>
+              {/* All Filters / Metadata (dev view) */}
+              {product && (
+                <>
+                <div className="flex flex-col gap-3">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Attributes (Dev Preview)</h3>
+                  <div
+                    ref={chipsRef}
+                    className="flex flex-wrap gap-2"
+                    style={!chipsExpanded && chipsTruncatable && chipsClampPx ? {
+                      maxHeight: `${chipsClampPx}px`,
+                      overflow: 'hidden',
+                    } : undefined}
+                  >
+                    {/* Category */}
+                    {(() => {
+                      const catName = categories.find(c => c.id === product.categoryId)?.name || product.categoryId;
+                      return <Chip size="sm" variant="flat" color="primary">Cat: {catName}</Chip>;
+                    })()}
+                    {/* Subcategories */}
+                    {(product.subcategoryIds || []).map(scId => {
+                      // Flatten subcategoryMap for name lookup
+                      const group = Object.values(subcategoryMap).flat();
+                      const sc = group.find(s => s.id === scId);
+                      return <Chip key={scId} size="sm" variant="flat" color="primary">Sub: {sc?.name || scId}</Chip>;
+                    })}
+                    {/* Gender */}
+                    {(product.gender || []).map(g => (
+                      <Chip key={g} size="sm" variant="flat" color={getFilterGroupColor('gender')}>{g}</Chip>
+                    ))}
+                    {/* Age Range */}
+                    <Chip size="sm" variant="flat" color="success">Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
+                    {/* Sizes */}
+                    {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" color="success">Size {sz}</Chip>)}
+                    {/* Brand */}
+                    {product.brand && <Chip size="sm" variant="flat" color="secondary">Brand: {product.brand}</Chip>}
+                    {/* Condition */}
+                    <Chip size="sm" variant="flat" color="warning">{product.condition.replace('-', ' ')}</Chip>
+                    {/* Stock / Sale */}
+                    {!product.inStock ? <Chip size="sm" variant="flat" color="default">Out of Stock</Chip> : <Chip size="sm" variant="flat" color="success">In Stock</Chip>}
+                    {product.onSale && <Chip size="sm" variant="flat" color="warning">On Sale</Chip>}
+                    {/* Shipping Methods */}
+                    {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" color="secondary">Ship: {m}</Chip>)}
+                    {/* Environment */}
+                    {product.petFree && <Chip size="sm" variant="flat" color="success">Pet Free</Chip>}
+                    {product.smokeFree && <Chip size="sm" variant="flat" color="success">Smoke Free</Chip>}
+                    {product.perfumeFree && <Chip size="sm" variant="flat" color="success">Perfume Free</Chip>}
+                    {/* Deal */}
+                    {product.bundleDeal && <Chip size="sm" variant="flat" color="secondary">Bundle Deal</Chip>}
+                    {/* Seller Rating */}
+                    <Chip size="sm" variant="flat" color="warning">Seller {product.sellerRating.toFixed(1)}</Chip>
+                  </div>
+                </div>
+        {chipsTruncatable && (
+                  <button
+          className="mt-1 self-start text-sm font-medium text-primary hover:underline"
+                    onClick={() => setChipsExpanded(v => !v)}
+                  >
+                    {chipsExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+                </>
+              )}
+            </div>
+            {/* Price and actions */}
+            <div className="flex flex-col gap-3">
+              <h4 className="text-2xl font-bold">{product?.price || '123DKK'}</h4>
+              <div className="flex items-center gap-4 mt-2">
+                <Button radius="full" size="lg" variant="bordered" color="secondary" className="font-bold px-8">
+                  ADD TO CART
+                </Button>
+                <Button radius="full" size="lg" color="secondary" className="font-bold px-8">
+                  BUY NOW
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -34,7 +34,7 @@ export const mockFeed: FeedItem[] = [
   {
     id: '1',
     title: 'Baby clothes (0-24 months)',
-    description: 'A collection of gently used baby clothes for ages 0-24 months. Soft, comfortable, and stylish.',
+    description: 'Curated bundle of baby essentials sized 0–24 months. Carefully laundered and sorted by age, includes onesies, bodysuits, pants, sleepwear, and a few seasonal pieces. Fabrics are soft cotton and breathable blends with no stains or holes—only light wear on a couple of items from normal washing. Comes from a smoke- and pet-free home. Ideal starter set for new parents or as a second wardrobe at grandparents’ place. I can share an exact item list or extra photos on request; pickup preferred, shipping available.',
     user: {
       userId: '1',
       name: 'Anna',
