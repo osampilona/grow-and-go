@@ -1,12 +1,14 @@
 "use client";
 
 import { Avatar, Button } from "@heroui/react";
+import { Chip } from "@heroui/chip";
 import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import { IoChatboxOutline } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
+import { categories, subcategoryMap } from "@/stores/categoryStore";
 
 export default function ProductPage() {
   const params = useParams();
@@ -77,10 +79,10 @@ export default function ProductPage() {
             </div>
           </div>
           {/* Right: Product info area */}
-          <div className="flex flex-col justify-center w-full lg:w-1/2 h-full gap-6">
+          <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-6xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
-              <button className="border border-gray-400 rounded-full p-3 bg-white">
+              <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
+              <button className="border border-gray-400 rounded-full p-2 bg-white">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
                 </svg>
@@ -96,7 +98,7 @@ export default function ProductPage() {
                   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
                 </span>
               </div>
-              <Button radius="sm" size="md" className="bg-lime-400 text-black font-semibold hover:bg-lime-500">
+              <Button radius="sm" size="sm" variant="light" color="secondary" className="font-semibold">
                 <span className="flex items-center gap-2">
                   <IoChatboxOutline className="w-5 h-5" />
                   Chat with {product?.user.name}
@@ -104,6 +106,50 @@ export default function ProductPage() {
               </Button>
             </div>
             <p className="text-gray-600 text-lg">{product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}</p>
+
+            {/* All Filters / Metadata (dev view) */}
+            {product && (
+              <div className="flex flex-col gap-3">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Attributes (Dev Preview)</h3>
+                <div className="flex flex-wrap gap-2">
+                  {/* Category */}
+                  {(() => {
+                    const catName = categories.find(c => c.id === product.categoryId)?.name || product.categoryId;
+                    return <Chip size="sm" variant="flat" color="primary">Cat: {catName}</Chip>;
+                  })()}
+                  {/* Subcategories */}
+                  {(product.subcategoryIds || []).map(scId => {
+                    // Flatten subcategoryMap for name lookup
+                    const group = Object.values(subcategoryMap).flat();
+                    const sc = group.find(s => s.id === scId);
+                    return <Chip key={scId} size="sm" variant="flat" color="primary">Sub: {sc?.name || scId}</Chip>;
+                  })}
+                  {/* Gender */}
+                  {(product.gender || []).map(g => <Chip key={g} size="sm" variant="flat" color={g === 'Girl' ? 'secondary' : 'primary'}>{g}</Chip>)}
+                  {/* Age Range */}
+                  <Chip size="sm" variant="flat" color="success">Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
+                  {/* Sizes */}
+                  {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" color="success">Size {sz}</Chip>)}
+                  {/* Brand */}
+                  {product.brand && <Chip size="sm" variant="flat" color="secondary">Brand: {product.brand}</Chip>}
+                  {/* Condition */}
+                  <Chip size="sm" variant="flat" color="warning">{product.condition.replace('-', ' ')}</Chip>
+                  {/* Stock / Sale */}
+                  {!product.inStock ? <Chip size="sm" variant="flat" color="default">Out of Stock</Chip> : <Chip size="sm" variant="flat" color="success">In Stock</Chip>}
+                  {product.onSale && <Chip size="sm" variant="flat" color="warning">On Sale</Chip>}
+                  {/* Shipping Methods */}
+                  {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" color="secondary">Ship: {m}</Chip>)}
+                  {/* Environment */}
+                  {product.petFree && <Chip size="sm" variant="flat" color="success">Pet Free</Chip>}
+                  {product.smokeFree && <Chip size="sm" variant="flat" color="success">Smoke Free</Chip>}
+                  {product.perfumeFree && <Chip size="sm" variant="flat" color="success">Perfume Free</Chip>}
+                  {/* Deal */}
+                  {product.bundleDeal && <Chip size="sm" variant="flat" color="secondary">Bundle Deal</Chip>}
+                  {/* Seller Rating */}
+                  <Chip size="sm" variant="flat" color="warning">Seller {product.sellerRating.toFixed(1)}</Chip>
+                </div>
+              </div>
+            )}
             {/* Price and actions */}
             <div className="flex items-center gap-6 mt-2">
               <span className="text-2xl font-bold">{product?.price || '123DKK'}</span>
