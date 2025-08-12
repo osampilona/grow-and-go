@@ -9,6 +9,9 @@ import { IoChatboxOutline } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { categories, subcategoryMap } from "@/stores/categoryStore";
+import { getFilterGroupColor } from "@/utils/colors";
+import { useLikeStore } from "@/stores/likeStore";
+import { ENABLE_FAVORITES_SYNC } from "@/utils/featureFlags";
 
 export default function ProductPage() {
   const params = useParams();
@@ -16,6 +19,8 @@ export default function ProductPage() {
   const product: FeedItem | undefined = mockFeed.find((item: FeedItem) => item.id === slug);
   const [modalOpen, setModalOpen] = useState(false);
   const modalSwiperApi = useRef<{ update: () => void } | null>(null);
+  const liked = useLikeStore((s) => (product ? !!s.likedIds[product.id] : false));
+  const toggleLike = useLikeStore((s) => s.toggleLike);
 
   // When modal opens, defer an update to ensure correct sizing & pagination
   useEffect(() => {
@@ -65,7 +70,40 @@ export default function ProductPage() {
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
           <div className="flex items-center justify-center bg-blue-500 rounded-3xl w-full lg:w-1/2 h-full p-4 sm:p-8">
-            <div className="w-full h-80 lg:h-[28rem] aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
+            <div className="relative w-full h-80 lg:h-[28rem] aspect-square rounded-2xl overflow-hidden flex items-center justify-center bg-blue-500">
+              {/* Heart button in top right (same as Card) */}
+              <button
+                className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30"
+                aria-label="Toggle like"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!product) return;
+                  const wasLiked = liked;
+                  toggleLike(product.id); // optimistic
+                  try {
+                    if (ENABLE_FAVORITES_SYNC) {
+                      await fetch('/api/favorites', {
+                        method: wasLiked ? 'DELETE' : 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: product.id }),
+                      });
+                    }
+                  } catch {
+                    // revert
+                    toggleLike(product.id);
+                  }
+                }}
+              >
+                {liked ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-red-500">
+                    <path d="M11.645 20.91l-.007-.003-.022-.01a15.247 15.247 0 01-.383-.173 25.18 25.18 0 01-4.244-2.533C4.688 16.27 2.25 13.614 2.25 10.5 2.25 7.42 4.67 5 7.75 5c1.6 0 3.204.658 4.25 1.856A5.748 5.748 0 0116.25 5c3.08 0 5.5 2.42 5.5 5.5 0 3.114-2.438 5.77-4.739 7.69a25.175 25.175 0 01-4.244 2.533 15.247 15.247 0 01-.383.173l-.022.01-.007.003a.75.75 0 01-.586 0z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+                  </svg>
+                )}
+              </button>
               {/* Prepare images for SwiperCarousel */}
               {(() => {
                 const images = (product?.images || ["https://via.placeholder.com/400x400?text=Product+Image"]).map((src, idx) => ({
@@ -82,11 +120,6 @@ export default function ProductPage() {
           <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-6">
             <div className="flex items-center justify-between">
               <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
-              <button className="border border-gray-400 rounded-full p-2 bg-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
-                </svg>
-              </button>
             </div>
             {/* User avatar, name, and rating */}
             <div className="flex items-center gap-4 justify-between mb-2 w-full">
@@ -125,7 +158,9 @@ export default function ProductPage() {
                     return <Chip key={scId} size="sm" variant="flat" color="primary">Sub: {sc?.name || scId}</Chip>;
                   })}
                   {/* Gender */}
-                  {(product.gender || []).map(g => <Chip key={g} size="sm" variant="flat" color={g === 'Girl' ? 'secondary' : 'primary'}>{g}</Chip>)}
+                  {(product.gender || []).map(g => (
+                    <Chip key={g} size="sm" variant="flat" color={getFilterGroupColor('gender')}>{g}</Chip>
+                  ))}
                   {/* Age Range */}
                   <Chip size="sm" variant="flat" color="success">Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
                   {/* Sizes */}

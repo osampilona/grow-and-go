@@ -9,7 +9,6 @@ import {
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
-import NextLink from "next/link";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Badge } from "@heroui/badge";
@@ -24,6 +23,8 @@ import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
 import { CloseIcon } from "./icons";
 import SubcategoryChipsBar from "./SubcategoryChipsBar";
+import { useLikeStore } from "@/stores/likeStore";
+import NextLink from "next/link";
 
 export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -106,6 +107,9 @@ export const Navbar = memo(function Navbar() {
   const handleMenuOpen = useCallback(() => {
     onMenuOpen();
   }, [onMenuOpen]);
+
+  // Favorites count
+  const favoritesCount = useLikeStore((s) => Object.keys(s.likedIds).length);
 
   // Handler for filters button
   const handleFiltersClick = useCallback(() => {
@@ -431,6 +435,18 @@ export const Navbar = memo(function Navbar() {
                 <span className="text-sm font-medium">Theme</span>
                 <ThemeSwitch />
               </div>
+              <NextLink href="/favorites" onClick={onMenuClose} className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors">
+                <span className="text-sm font-medium flex items-center gap-2">
+                  {/* Heart icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+                  </svg>
+                  Favorites
+                </span>
+                {favoritesCount > 0 && (
+                  <span className="text-xs font-semibold bg-rose-200 text-rose-800 rounded-full px-2 py-0.5">{favoritesCount}</span>
+                )}
+              </NextLink>
             </div>
           </DrawerBody>
           <DrawerFooter>

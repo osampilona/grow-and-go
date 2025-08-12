@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import { Avatar, Skeleton } from "@heroui/react";
 import { memo } from "react";
 import SwiperCarousel from "./SwiperCarousel";
+import { useLikeStore } from "@/stores/likeStore";
+import { ENABLE_FAVORITES_SYNC } from "@/utils/featureFlags";
 
 export type CardItem = {
   id: string;
@@ -30,6 +32,9 @@ type CardProps = {
 const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-rotate', isLoading = false }: CardProps) {
   const router = useRouter();
   const [showSkeleton, setShowSkeleton] = useState(true);
+  // Global like state
+  const liked = useLikeStore((s) => !!s.likedIds[item.id]);
+  const toggleLike = useLikeStore((s) => s.toggleLike);
   useEffect(() => {
     const timer = setTimeout(() => setShowSkeleton(false), 1000);
     return () => clearTimeout(timer);
@@ -118,10 +123,36 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
           {getConditionLabel(item.condition)}
         </div>
         {/* Heart button in top right */}
-        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
-          </svg>
+        <button
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30"
+          onClick={async (e) => {
+            e.stopPropagation();
+            const wasLiked = liked;
+            toggleLike(item.id); // optimistic
+            try {
+              if (ENABLE_FAVORITES_SYNC) {
+                await fetch('/api/favorites', {
+                  method: wasLiked ? 'DELETE' : 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ id: item.id }),
+                });
+              }
+            } catch {
+              // revert on error
+              toggleLike(item.id);
+            }
+          }}
+          aria-label="Toggle like"
+        >
+          {liked ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-red-500">
+              <path d="M11.645 20.91l-.007-.003-.022-.01a15.247 15.247 0 01-.383-.173 25.18 25.18 0 01-4.244-2.533C4.688 16.27 2.25 13.614 2.25 10.5 2.25 7.42 4.67 5 7.75 5c1.6 0 3.204.658 4.25 1.856A5.748 5.748 0 0116.25 5c3.08 0 5.5 2.42 5.5 5.5 0 3.114-2.438 5.77-4.739 7.69a25.175 25.175 0 01-4.244 2.533 15.247 15.247 0 01-.383.173l-.022.01-.007.003a.75.75 0 01-.586 0z" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+            </svg>
+          )}
         </button>
       </div>
       <div className="flex flex-col gap-2 mt-2">

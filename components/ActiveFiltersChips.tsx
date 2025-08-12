@@ -2,6 +2,7 @@ import { memo, useMemo, useCallback } from "react";
 import { Chip } from "@heroui/chip";
 import { useFilterStore } from "../stores/filterStore";
 import { useDynamicPriceBounds } from "../utils/pricing";
+import { getFilterGroupColor } from "@/utils/colors";
 
 interface ActiveFiltersChipsProps {
   onClearGender: (gendersToKeep?: string[]) => void;
@@ -105,77 +106,77 @@ export const ActiveFiltersChips = memo(function ActiveFiltersChips({
   return (
     <div className="flex flex-wrap gap-1">
       {/* 1. Gender (Tier 1) */}
-      {tempFilters.gender.map((gender) => (
+    {tempFilters.gender.map((gender) => (
         <Chip
           key={gender}
           size="sm"
-          variant="flat"
-          color={gender === "Girl" ? "secondary" : "primary"}
+      variant="flat"
+      color={getFilterGroupColor("gender")}
           onClose={createGenderClearHandler(gender)}
         >{gender}</Chip>
       ))}
       {/* 2. Age Range (Tier 1) */}
       {showAgeRange && (
-        <Chip size="sm" variant="flat" color="primary" onClose={onClearAgeRange}>
+  <Chip size="sm" variant="flat" color={getFilterGroupColor("age")} onClose={onClearAgeRange}>
           Age: {tempFilters.ageRange[0]}-{tempFilters.ageRange[1]}m
         </Chip>
       )}
       {/* 3. Price Range (Tier 1) */}
       {showPriceRange && (
-        <Chip size="sm" variant="flat" color="secondary" onClose={onClearPriceRange}>
+  <Chip size="sm" variant="flat" color={getFilterGroupColor("price")} onClose={onClearPriceRange}>
           Price: DKK {tempFilters.priceRange[0]}-{tempFilters.priceRange[1]}
         </Chip>
       )}
       {/* 4. Sizes (Tier 1) */}
       {tempFilters.sizes?.map(size => (
-        <Chip key={`size-${size}`} size="sm" variant="flat" color="primary" onClose={() => toggleTempSize(size)}>{size}</Chip>
+        <Chip key={`size-${size}`} size="sm" variant="flat" color={getFilterGroupColor("size")} onClose={() => toggleTempSize(size)}>{size}</Chip>
       ))}
       {/* 5. Item Condition (Tier 2) */}
       {showItemCondition && (
-        <Chip size="sm" variant="flat" color="success" onClose={onClearItemCondition}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("condition")} onClose={onClearItemCondition}>
           {itemConditionText}
         </Chip>
       )}
       {/* 6. Brands (Tier 2) */}
       {tempFilters.brands?.map(brand => (
-        <Chip key={`brand-${brand}`} size="sm" variant="flat" color="secondary" onClose={() => toggleTempBrand(brand)}>{brand}</Chip>
+        <Chip key={`brand-${brand}`} size="sm" variant="flat" color={getFilterGroupColor("brand")} onClose={() => toggleTempBrand(brand)}>{brand}</Chip>
       ))}
       {/* 7. Availability & Sales (Tier 2) */}
       {!tempFilters.inStock && (
-        <Chip size="sm" variant="flat" color="default" onClose={onClearInStock}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("availability")} onClose={onClearInStock}>
           Include OOS
         </Chip>
       )}
       {tempFilters.onSale && (
-        <Chip size="sm" variant="flat" color="warning" onClose={onClearOnSale}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("sale")} onClose={onClearOnSale}>
           On Sale
         </Chip>
       )}
       {/* 8. Delivery Methods (Tier 3) */}
       {tempFilters.shippingMethods?.map(method => (
-        <Chip key={`ship-${method}`} size="sm" variant="flat" color="warning" onClose={() => toggleTempShippingMethod(method)}>{shippingLabels[method] || method}</Chip>
+        <Chip key={`ship-${method}`} size="sm" variant="flat" color={getFilterGroupColor("shipping")} onClose={() => toggleTempShippingMethod(method)}>{shippingLabels[method] || method}</Chip>
       ))}
       {/* 9. Location Range (Tier 3) */}
       {tempFilters.isLocationRangeSet && (
-        <Chip size="sm" variant="flat" color="warning" onClose={onClearLocationRange}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("location")} onClose={onClearLocationRange}>
           Location: {tempFilters.locationRange} km
         </Chip>
       )}
       {/* 10. Seller Rating (Tier 3) */}
       {showSellerRating && (
-        <Chip size="sm" variant="flat" color="warning" onClose={onClearSellerRating}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("rating")} onClose={onClearSellerRating}>
           {tempFilters.sellerRating}+ Stars
         </Chip>
       )}
       {/* 11. Environment & Hygiene (Tier 4) */}
-      {tempFilters.petFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPetFree}>Pet Free</Chip>)}
-      {tempFilters.smokeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempSmokeFree}>Smoke Free</Chip>)}
-      {tempFilters.perfumeFree && (<Chip size="sm" variant="flat" color="success" onClose={toggleTempPerfumeFree}>Perfume Free</Chip>)}
+  {tempFilters.petFree && (<Chip size="sm" variant="flat" color={getFilterGroupColor("environment")} onClose={toggleTempPetFree}>Pet Free</Chip>)}
+  {tempFilters.smokeFree && (<Chip size="sm" variant="flat" color={getFilterGroupColor("environment")} onClose={toggleTempSmokeFree}>Smoke Free</Chip>)}
+  {tempFilters.perfumeFree && (<Chip size="sm" variant="flat" color={getFilterGroupColor("environment")} onClose={toggleTempPerfumeFree}>Perfume Free</Chip>)}
       {/* 12. Deals (Tier 4) */}
-      {tempFilters.bundleDeal && (<Chip size="sm" variant="flat" color="secondary" onClose={toggleTempBundleDeal}>Bundle Deal</Chip>)}
+  {tempFilters.bundleDeal && (<Chip size="sm" variant="flat" color={getFilterGroupColor("deal")} onClose={toggleTempBundleDeal}>Bundle Deal</Chip>)}
       {/* 13. Sort By (Tier 4) */}
       {showSortBy && (
-        <Chip size="sm" variant="flat" color="primary" onClose={onClearSortBy}>
+        <Chip size="sm" variant="flat" color={getFilterGroupColor("sort")} onClose={onClearSortBy}>
           Sort: {sortByText}
         </Chip>
       )}

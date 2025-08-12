@@ -84,6 +84,48 @@ export async function searchItems(params: SearchParams) {
   };
 }
 
+// Favorites API helpers (client-side)
+export async function getFavorites(): Promise<string[]> {
+  try {
+    const res = await fetch("/api/favorites", { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function addFavorite(id: string): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  const data = await res.json().catch(() => ({}));
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+}
+
+export async function removeFavorite(id: string): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  const data = await res.json().catch(() => ({}));
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+}
+
+export async function setFavorites(ids: string[]): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  const data = await res.json().catch(() => ({}));
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+}
+
 /**
  * Example backend endpoint structure you'll need:
  * 

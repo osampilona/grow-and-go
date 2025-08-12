@@ -166,13 +166,29 @@ export const useCategoryStore = create<CategoryState>()(
       })),
 
       toggleTempCategory: (catId: string) => set((state) => {
+        // Toggle behavior: if clicking the already-selected category (not 'everything'), close by switching to 'everything'
+        const current = state.tempSelected[0];
+        const isTogglingOff = current === catId && catId !== "everything";
+        if (isTogglingOff) {
+          const clone = { ...state.tempSubcategoriesByCategory };
+          delete clone[current];
+          return { tempSelected: ["everything"], tempSubcategoriesByCategory: clone } as any;
+        }
         const nextCat = catId === "everything" ? "everything" : catId;
-        return { tempSelected: [nextCat] };
+        return { tempSelected: [nextCat] } as any;
       }),
 
       toggleCategory: (catId: string) => set((state) => {
+        // Toggle behavior: if clicking the already-selected category (not 'everything'), close by switching to 'everything'
+        const current = state.selected[0];
+        const isTogglingOff = current === catId && catId !== "everything";
+        if (isTogglingOff) {
+          const clone = { ...state.subcategoriesByCategory };
+          delete clone[current];
+          return { selected: ["everything"], subcategoriesByCategory: clone } as any;
+        }
         const nextCat = catId === "everything" ? "everything" : catId;
-        return { selected: [ nextCat ] };
+        return { selected: [ nextCat ] } as any;
       }),
       
   selectCategory: (catId: string) => set(() => ({ selected: [catId] })),

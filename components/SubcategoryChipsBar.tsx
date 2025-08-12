@@ -2,6 +2,7 @@
 import { memo, useMemo, useCallback, useState, useEffect } from "react";
 import { Chip } from "@heroui/chip";
 import { useCategoryStore, subcategoryMap, EMPTY_SUBCATEGORY_ARRAY } from "../stores/categoryStore";
+import { getSubcategoryColor } from "@/utils/colors";
 import { CloseIcon } from "./icons";
 
 interface SubcategoryChipsBarProps {
@@ -37,6 +38,24 @@ export const SubcategoryChipsBar = memo(function SubcategoryChipsBar({ useTemp =
 
   const [visible, setVisible] = useState(true);
 
+  // Close handler: also reset selected category to 'everything' and clear its subcategories
+  const handleHide = useCallback(() => {
+    if (selectedCategoryId && selectedCategoryId !== "everything") {
+      useCategoryStore.setState((state) => {
+        if (useTemp) {
+          const clone = { ...(state.tempSubcategoriesByCategory || {}) } as Record<string, string[]>;
+          delete clone[selectedCategoryId];
+          return { tempSelected: ["everything"], tempSubcategoriesByCategory: clone } as any;
+        } else {
+          const clone = { ...(state.subcategoriesByCategory || {}) } as Record<string, string[]>;
+          delete clone[selectedCategoryId];
+          return { selected: ["everything"], subcategoriesByCategory: clone } as any;
+        }
+      });
+    }
+    setVisible(false);
+  }, [selectedCategoryId, useTemp]);
+
   // When category changes, re-open the bar automatically (so user can see new subcategories)
   useEffect(() => {
     setVisible(true);
@@ -53,12 +72,12 @@ export const SubcategoryChipsBar = memo(function SubcategoryChipsBar({ useTemp =
       <div className="flex flex-wrap gap-2 lg:justify-center">
         {subcategories.map(sc => {
           const isSelected = selectedSet.has(sc.id);
-          return (
+      return (
             <Chip
               key={sc.id}
               size="sm"
               variant={isSelected ? "solid" : "flat"}
-              color={isSelected ? "primary" : "default"}
+        color={isSelected ? getSubcategoryColor(sc.id) : "default"}
               onClick={() => handleToggle(sc.id)}
               className="cursor-pointer"
             >
@@ -82,7 +101,7 @@ export const SubcategoryChipsBar = memo(function SubcategoryChipsBar({ useTemp =
         )}
         <button
           aria-label="Hide subcategories"
-            onClick={() => setVisible(false)}
+            onClick={handleHide}
             className="w-6 h-6 flex items-center justify-center rounded-full bg-default-100 hover:bg-default-200 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm transition-colors"
         >
           <CloseIcon className="w-3.5 h-3.5" />
@@ -103,7 +122,7 @@ export const SubcategoryChipsBar = memo(function SubcategoryChipsBar({ useTemp =
         )}
         <button
           aria-label="Hide subcategories"
-          onClick={() => setVisible(false)}
+          onClick={handleHide}
           className="w-7 h-7 flex items-center justify-center rounded-full bg-default-100 hover:bg-default-200 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm transition-colors"
         >
           <CloseIcon className="w-4 h-4" />
