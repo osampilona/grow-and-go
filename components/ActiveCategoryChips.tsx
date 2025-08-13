@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import { Chip } from "@heroui/chip";
 import { useCategoryStore } from "../stores/categoryStore";
 import { categories } from "../stores/categoryStore";
-import { getCategoryColor } from "@/utils/colors";
+import { getCategoryChipProps } from "@/utils/colors";
 
 interface ActiveCategoryChipsProps {
   onClearCategory: (category: string) => void;
@@ -26,7 +26,7 @@ export const ActiveCategoryChips = memo(function ActiveCategoryChips({
   // Centralized colors for each category
   const categoryColors = useMemo(() => (
     categories.reduce((acc, category) => {
-      acc[category.id] = getCategoryColor(category.id);
+      acc[category.id] = getCategoryChipProps(category.id);
       return acc;
     }, {} as Record<string, any>)
   ), []);
@@ -42,7 +42,7 @@ export const ActiveCategoryChips = memo(function ActiveCategoryChips({
           key={selected}
           onClose={() => onClearCategory(selected)}
           variant="flat"
-            color={categoryColors[selected] || "secondary"}
+          {...(categoryColors[selected] || { color: "secondary" })}
           size="sm"
           className="text-xs"
         >

@@ -2,7 +2,7 @@
 import { memo, useMemo, useCallback, useState, useEffect } from "react";
 import { Chip } from "@heroui/chip";
 import { useCategoryStore, subcategoryMap, EMPTY_SUBCATEGORY_ARRAY } from "../stores/categoryStore";
-import { getSubcategoryColor } from "@/utils/colors";
+import { getSubcategoryChipProps } from "@/utils/colors";
 import { CloseIcon } from "./icons";
 
 interface SubcategoryChipsBarProps {
@@ -77,7 +77,7 @@ export const SubcategoryChipsBar = memo(function SubcategoryChipsBar({ useTemp =
               key={sc.id}
               size="sm"
               variant={isSelected ? "solid" : "flat"}
-        color={isSelected ? getSubcategoryColor(sc.id) : "default"}
+              {...(isSelected ? getSubcategoryChipProps(sc.id) : { color: "default" })}
               onClick={() => handleToggle(sc.id)}
               className="cursor-pointer"
             >

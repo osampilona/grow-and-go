@@ -210,7 +210,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
   return (
     <div
       ref={rootRef}
-      className={`relative overflow-hidden swiper-carousel-container bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-sm ${navigationStyle === "counter" ? "counter-style" : ""} ${className}`}
+      className={`relative overflow-hidden swiper-carousel-container bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 rounded-2xl ${navigationStyle === "counter" ? "counter-style" : ""} ${className}`}
       style={{background: 'transparent'}}
       role="region"
       aria-roledescription="carousel"
@@ -230,7 +230,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
         />
       )}
       {showPlaceholder && !firstLoaded && (
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-200/60 to-gray-300/40 dark:from-slate-700/40 dark:to-slate-600/30 rounded-sm flex items-center justify-center text-xs text-gray-500 dark:text-slate-400">
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-200/60 to-gray-300/40 dark:from-slate-700/40 dark:to-slate-600/30 rounded-2xl flex items-center justify-center text-xs text-gray-500 dark:text-slate-400">
           Loading images...
         </div>
       )}

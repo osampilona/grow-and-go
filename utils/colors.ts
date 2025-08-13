@@ -51,3 +51,34 @@ const FILTER_GROUP_COLOR: Record<string, ChipColor> = {
 export function getFilterGroupColor(group: keyof typeof FILTER_GROUP_COLOR): ChipColor {
   return FILTER_GROUP_COLOR[group];
 }
+
+// Dark theme visibility helpers for Chips
+// Use these to ensure good contrast in dark mode while preserving color coding.
+// Apply by spreading the returned props into <Chip ... /> components.
+const DARK_CHIP_BG: Record<ChipColor, string> = {
+  default: "dark:!bg-slate-600",
+  primary: "dark:!bg-blue-600",
+  secondary: "dark:!bg-purple-600",
+  success: "dark:!bg-emerald-600",
+  warning: "dark:!bg-amber-600",
+  danger: "dark:!bg-rose-600",
+};
+
+function darkChipClass(color: ChipColor): string {
+  return `${DARK_CHIP_BG[color]} dark:!text-white`;
+}
+
+export function getFilterChipProps(group: keyof typeof FILTER_GROUP_COLOR): { color: ChipColor; className: string } {
+  const color = getFilterGroupColor(group);
+  return { color, className: darkChipClass(color) };
+}
+
+export function getCategoryChipProps(categoryId: string | undefined): { color: ChipColor; className: string } {
+  const color = getCategoryColor(categoryId);
+  return { color, className: darkChipClass(color) };
+}
+
+export function getSubcategoryChipProps(subcategoryId: string | undefined): { color: ChipColor; className: string } {
+  const color = getSubcategoryColor(subcategoryId);
+  return { color, className: darkChipClass(color) };
+}

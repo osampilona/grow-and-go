@@ -9,7 +9,7 @@ import { IoChatboxOutline } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { categories, subcategoryMap } from "@/stores/categoryStore";
-import { getFilterGroupColor } from "@/utils/colors";
+import { getFilterChipProps, getCategoryChipProps, getSubcategoryChipProps } from "@/utils/colors";
 import { useLikeStore } from "@/stores/likeStore";
 import { ENABLE_FAVORITES_SYNC } from "@/utils/featureFlags";
 
@@ -151,7 +151,7 @@ export default function ProductPage() {
           </Dialog.Panel>
         </Dialog>
       )}
-      <div className="w-full h-[90vh] bg-white rounded-3xl flex flex-col gap-4 justify-between py-6">
+      <div className="w-full h-[90vh] bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
         {/* Top section: main product info */}
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
@@ -204,10 +204,27 @@ export default function ProductPage() {
           </div>
           {/* Right: Product info area */}
           <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-3">
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
+                </div>
               </div>
+              {/* Price and actions */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-2xl font-bold">{product?.price || '123DKK'}</h4>
+                <div className="flex items-center gap-4 mt-2">
+                  <Button radius="full" size="lg" variant="bordered" color="secondary" className="font-bold px-8">
+                    ADD TO CART
+                  </Button>
+                  <Button radius="full" size="lg" color="secondary" className="font-bold px-8">
+                    BUY NOW
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              {/* Description */}
               {/* User avatar, name, and rating */}
               <div className="flex items-center gap-4 justify-between w-full">
                 <div className="flex items-center gap-4">
@@ -225,14 +242,10 @@ export default function ProductPage() {
                   </span>
                 </Button>
               </div>
-            </div>
-            {/* TODO: SHOULD THIS BE SCROLABLE IF THERE IS A LOT OF TEXT */}
-            <div className="flex flex-col gap-3">
-              {/* Description */}
               <div>
                 <p
                   ref={descRef}
-                  className="text-gray-600 text-lg"
+                  className="text-gray-600 text-lg dark:text-white"
                   style={!descExpanded && descTruncatable && descClampPx ? { maxHeight: `${descClampPx}px`, overflow: 'hidden' } : undefined}
                 >
                   {product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}
@@ -262,40 +275,44 @@ export default function ProductPage() {
                     {/* Category */}
                     {(() => {
                       const catName = categories.find(c => c.id === product.categoryId)?.name || product.categoryId;
-                      return <Chip size="sm" variant="flat" color="primary">Cat: {catName}</Chip>;
+                      return <Chip size="sm" variant="flat" {...getCategoryChipProps(product.categoryId)}>Cat: {catName}</Chip>;
                     })()}
                     {/* Subcategories */}
                     {(product.subcategoryIds || []).map(scId => {
                       // Flatten subcategoryMap for name lookup
                       const group = Object.values(subcategoryMap).flat();
                       const sc = group.find(s => s.id === scId);
-                      return <Chip key={scId} size="sm" variant="flat" color="primary">Sub: {sc?.name || scId}</Chip>;
+                      return <Chip key={scId} size="sm" variant="flat" {...getSubcategoryChipProps(scId)}>Sub: {sc?.name || scId}</Chip>;
                     })}
                     {/* Gender */}
                     {(product.gender || []).map(g => (
-                      <Chip key={g} size="sm" variant="flat" color={getFilterGroupColor('gender')}>{g}</Chip>
+                      <Chip key={g} size="sm" variant="flat" {...getFilterChipProps('gender')}>{g}</Chip>
                     ))}
                     {/* Age Range */}
-                    <Chip size="sm" variant="flat" color="success">Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
+                    <Chip size="sm" variant="flat" {...getFilterChipProps('age')}>Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
                     {/* Sizes */}
-                    {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" color="success">Size {sz}</Chip>)}
+                    {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" {...getFilterChipProps('size')}>Size {sz}</Chip>)}
                     {/* Brand */}
-                    {product.brand && <Chip size="sm" variant="flat" color="secondary">Brand: {product.brand}</Chip>}
+                    {product.brand && <Chip size="sm" variant="flat" {...getFilterChipProps('brand')}>Brand: {product.brand}</Chip>}
                     {/* Condition */}
-                    <Chip size="sm" variant="flat" color="warning">{product.condition.replace('-', ' ')}</Chip>
+                    <Chip size="sm" variant="flat" {...getFilterChipProps('condition')}>{product.condition.replace('-', ' ')}</Chip>
                     {/* Stock / Sale */}
-                    {!product.inStock ? <Chip size="sm" variant="flat" color="default">Out of Stock</Chip> : <Chip size="sm" variant="flat" color="success">In Stock</Chip>}
-                    {product.onSale && <Chip size="sm" variant="flat" color="warning">On Sale</Chip>}
+                    {!product.inStock ? (
+                      <Chip size="sm" variant="flat" {...getFilterChipProps('availability')}>Out of Stock</Chip>
+                    ) : (
+                      <Chip size="sm" variant="flat" {...getFilterChipProps('availability')}>In Stock</Chip>
+                    )}
+                    {product.onSale && <Chip size="sm" variant="flat" {...getFilterChipProps('sale')}>On Sale</Chip>}
                     {/* Shipping Methods */}
-                    {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" color="secondary">Ship: {m}</Chip>)}
+                    {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" {...getFilterChipProps('shipping')}>Ship: {m}</Chip>)}
                     {/* Environment */}
-                    {product.petFree && <Chip size="sm" variant="flat" color="success">Pet Free</Chip>}
-                    {product.smokeFree && <Chip size="sm" variant="flat" color="success">Smoke Free</Chip>}
-                    {product.perfumeFree && <Chip size="sm" variant="flat" color="success">Perfume Free</Chip>}
+                    {product.petFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Pet Free</Chip>}
+                    {product.smokeFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Smoke Free</Chip>}
+                    {product.perfumeFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Perfume Free</Chip>}
                     {/* Deal */}
-                    {product.bundleDeal && <Chip size="sm" variant="flat" color="secondary">Bundle Deal</Chip>}
+                    {product.bundleDeal && <Chip size="sm" variant="flat" {...getFilterChipProps('deal')}>Bundle Deal</Chip>}
                     {/* Seller Rating */}
-                    <Chip size="sm" variant="flat" color="warning">Seller {product.sellerRating.toFixed(1)}</Chip>
+                    <Chip size="sm" variant="flat" {...getFilterChipProps('rating')}>Seller {product.sellerRating.toFixed(1)}</Chip>
                   </div>
                 </div>
         {chipsTruncatable && (
@@ -308,19 +325,7 @@ export default function ProductPage() {
                 )}
                 </>
               )}
-            </div>
-            {/* Price and actions */}
-            <div className="flex flex-col gap-3">
-              <h4 className="text-2xl font-bold">{product?.price || '123DKK'}</h4>
-              <div className="flex items-center gap-4 mt-2">
-                <Button radius="full" size="lg" variant="bordered" color="secondary" className="font-bold px-8">
-                  ADD TO CART
-                </Button>
-                <Button radius="full" size="lg" color="secondary" className="font-bold px-8">
-                  BUY NOW
-                </Button>
               </div>
-            </div>
           </div>
         </div>
         {/* Bottom section: suggestions */}

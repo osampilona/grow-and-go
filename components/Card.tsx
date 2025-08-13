@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, Skeleton } from "@heroui/react";
+import { Avatar, Skeleton, Button } from "@heroui/react";
 import { memo } from "react";
 import SwiperCarousel from "./SwiperCarousel";
 import { useLikeStore } from "@/stores/likeStore";
@@ -109,7 +109,7 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
 
   return (
     <div
-      className="w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent cursor-pointer"
+      className="group w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="relative">
@@ -159,11 +159,26 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
         {/* Title */}
         <h3 className="text-base font-semibold text-foreground truncate">{item.title}</h3>
         {/* User info */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
           <span onClick={handleUserClick} className="flex items-center gap-2 cursor-pointer">
             <Avatar size="sm" src={item.user.avatar} />
             <p className="text-foreground/70 text-sm font-medium">{item.user.name}</p>
           </span>
+              <Button
+                color="default"
+                size="sm"
+                radius="full"
+                aria-label="Add to cart"
+                disableAnimation
+                disableRipple
+                className="inline-flex font-semibold transition-none border-2 bg-transparent border-[#208A80] text-[#208A80] hover:bg-[#208A80] hover:text-white dark:border-[#2EC4B6] dark:text-[#2EC4B6] dark:hover:bg-[#2EC4B6] dark:hover:text-[#0E172B]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // TODO: wire to cart store/action when available
+                }}
+              >
+                + Add to cart
+              </Button>
         </div>
         {/* Price - moved to bottom */}
         <div className="text-xl font-bold text-foreground">
