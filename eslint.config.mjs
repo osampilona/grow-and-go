@@ -27,6 +27,7 @@ export default defineConfig([
     "**/*.css",
     "**/.changeset",
     "**/dist",
+    "**/pre-pull-backup_*",
     "esm/*",
     "public/*",
     "tests/*",

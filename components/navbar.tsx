@@ -30,11 +30,7 @@ export const Navbar = memo(function Navbar() {
     onOpen: onMenuOpen,
     onOpenChange: onMenuOpenChange,
   } = useDisclosure();
-  const {
-    isOpen: isFiltersModalOpen,
-    onOpen: onFiltersModalOpen,
-    onOpenChange: onFiltersModalOpenChange,
-  } = useDisclosure();
+  const { isOpen: isFiltersModalOpen, onOpenChange: onFiltersModalOpenChange } = useDisclosure();
 
   // Optimized category store subscriptions (individual but grouped)
   // const _selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
@@ -460,7 +456,7 @@ export const Navbar = memo(function Navbar() {
                 <ThemeSwitch />
               </div>
               <NextLink
-                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors"
+                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
                 href="/favorites"
                 onClick={onMenuClose}
               >

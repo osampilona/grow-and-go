@@ -58,3 +58,14 @@
 .dark .cta-solid:hover {
   opacity: 0.9;
 }
+
+/* Reusable heart button utility: pointer cursor + visible focus ring */
+.heart-button {
+  cursor: pointer;
+  border-radius: 9999px; /* rounded-full */
+}
+
+.heart-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

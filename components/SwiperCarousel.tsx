@@ -282,7 +282,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
             style={{ background: "transparent" }}
           >
             <div
-              className="w-full h-full relative flex items-center justify-center bg-transparent"
+              className="w-full h-full relative flex items-center justify-center bg-transparent cursor-grab active:cursor-grabbing"
               style={{ background: "transparent" }}
             >
               {img.src.startsWith("/") ? (
@@ -300,7 +300,7 @@ const SwiperCarousel = memo(function SwiperCarousel({
               ) : onImageClick ? (
                 <button
                   aria-label={`Open image ${idx + 1}`}
-                  className="w-full h-full"
+                  className="w-full h-full cursor-grab active:cursor-grabbing"
                   type="button"
                   onClick={() => onImageClick(idx)}
                 >

@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run ESLint and Prettier checks",
+      "type": "shell",
+      "command": "npm run lint --silent && npm run format:check --silent",
+      "isBackground": false
+    },
+    {
+      "label": "Run ESLint and Prettier checks",
+      "type": "shell",
+      "command": "npm run lint --silent && npm run format:check --silent",
+      "isBackground": false
+    },
+    {
+      "label": "Run ESLint and Prettier checks",
+      "type": "shell",
+      "command": "npm run lint --silent && npm run format:check --silent",
+      "isBackground": false
+    }
+  ]
+}
