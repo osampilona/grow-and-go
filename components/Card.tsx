@@ -94,7 +94,7 @@ const Card = memo(function Card({
 
   // Handler for user click removed (Link handles navigation)
 
-  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleCardClick();
@@ -124,10 +124,11 @@ const Card = memo(function Card({
   }
 
   return (
-    <button
+    <div
       aria-label={`Open ${item.title}`}
       className="group w-full mx-auto rounded-t-2xl overflow-hidden bg-transparent cursor-pointer text-left"
-      type="button"
+      role="button"
+      tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
     >
@@ -185,7 +186,7 @@ const Card = memo(function Card({
         {/* Price - moved to bottom */}
         <div className="text-xl font-bold text-foreground">{item.price}</div>
       </div>
-    </button>
+    </div>
   );
 });
 
