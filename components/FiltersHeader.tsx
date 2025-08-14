@@ -1,10 +1,12 @@
 import { memo } from "react";
 import { Button } from "@heroui/button";
+
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
+
 import { CloseIcon } from "./icons";
 import { ActiveFiltersChips } from "./ActiveFiltersChips";
 import { ActiveCategoryChips } from "./ActiveCategoryChips";
-import { useCategoryStore } from "../stores/categoryStore";
-import { useFilterStore } from "../stores/filterStore";
 
 interface FiltersHeaderProps {
   title: string;
@@ -41,14 +43,16 @@ export const FiltersHeader = memo(function FiltersHeader({
   onClearSortBy,
   onClearAgeRange,
   onClearPriceRange,
-  onClearLocationRange
+  onClearLocationRange,
 }: FiltersHeaderProps) {
   // Check if there are active categories (excluding "everything")
   const tempSelected = useCategoryStore((state) => state.tempSelected);
   const isTempEverythingSelected = useCategoryStore((state) => state.isTempSelected("everything"));
-  const hasActiveCategories = showCategoryChips && !isTempEverythingSelected && 
-    tempSelected.length > 0 && 
-    tempSelected.filter(cat => cat !== "everything").length > 0;
+  const hasActiveCategories =
+    showCategoryChips &&
+    !isTempEverythingSelected &&
+    tempSelected.length > 0 &&
+    tempSelected.filter((cat) => cat !== "everything").length > 0;
 
   // Check if there are active filters
   const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters());
@@ -60,11 +64,11 @@ export const FiltersHeader = memo(function FiltersHeader({
         <div className="flex items-center gap-2">
           {showResetAll && onResetAll && (
             <Button
+              className="text-xs"
+              color="warning"
               size="sm"
               variant="flat"
-              color="warning"
               onPress={onResetAll}
-              className="text-xs"
             >
               Reset All
             </Button>
@@ -88,21 +92,21 @@ export const FiltersHeader = memo(function FiltersHeader({
             <ActiveCategoryChips onClearCategory={onClearCategory} />
           </div>
         )}
-        
+
         {/* Filter Chips */}
         {hasTempActiveFilters && (
           <div>
             <h4 className="text-xs font-medium text-foreground-500 mb-2">Selected Filters</h4>
             <ActiveFiltersChips
+              onClearAgeRange={onClearAgeRange}
               onClearGender={onClearGender}
-              onClearOnSale={onClearOnSale}
               onClearInStock={onClearInStock}
               onClearItemCondition={onClearItemCondition}
+              onClearLocationRange={onClearLocationRange}
+              onClearOnSale={onClearOnSale}
+              onClearPriceRange={onClearPriceRange}
               onClearSellerRating={onClearSellerRating}
               onClearSortBy={onClearSortBy}
-              onClearAgeRange={onClearAgeRange}
-              onClearPriceRange={onClearPriceRange}
-              onClearLocationRange={onClearLocationRange}
             />
           </div>
         )}

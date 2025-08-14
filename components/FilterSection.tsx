@@ -1,10 +1,12 @@
 import { memo, useMemo } from "react";
 import { Button } from "@heroui/button";
+
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
+
 import CategoriesList from "./CategoriesList";
 import SubcategoryChipsBar from "./SubcategoryChipsBar";
 import FiltersList from "./FiltersList";
-import { useCategoryStore } from "../stores/categoryStore";
-import { useFilterStore } from "../stores/filterStore";
 
 interface FilterSectionProps {
   onResetCategories: () => void;
@@ -13,7 +15,7 @@ interface FilterSectionProps {
 
 export const FilterSection = memo(function FilterSection({
   onResetCategories,
-  onResetFilters
+  onResetFilters,
 }: FilterSectionProps) {
   const categoryCount = useCategoryStore((state) => state.getTempSelectedCount());
   const filterCount = useFilterStore((state) => state.getFilterCount());
@@ -22,14 +24,14 @@ export const FilterSection = memo(function FilterSection({
   // MEMOIZED: Category reset button to prevent unnecessary re-renders
   const categoryResetButton = useMemo(() => {
     if (categoryCount <= 0) return null;
-    
+
     return (
       <Button
+        className="text-xs"
+        color="secondary"
         size="sm"
         variant="flat"
-        color="secondary"
         onPress={onResetCategories}
-        className="text-xs"
       >
         Reset Categories
       </Button>
@@ -39,14 +41,14 @@ export const FilterSection = memo(function FilterSection({
   // MEMOIZED: Filter reset button to prevent unnecessary re-renders
   const filterResetButton = useMemo(() => {
     if (!(filterCount > 0 || hasTempActiveFilters)) return null;
-    
+
     return (
       <Button
+        className="text-xs"
+        color="secondary"
         size="sm"
         variant="flat"
-        color="secondary"
         onPress={onResetFilters}
-        className="text-xs"
       >
         Reset Filters
       </Button>
@@ -63,7 +65,11 @@ export const FilterSection = memo(function FilterSection({
         <CategoriesList />
         {/* Subcategories (mobile drawer editing) */}
         <div className="mt-3">
-          <SubcategoryChipsBar useTemp stickyOffset={0} className="relative px-0 lg:px-3 py-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm" />
+          <SubcategoryChipsBar
+            useTemp
+            className="relative px-0 lg:px-3 py-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm"
+            stickyOffset={0}
+          />
         </div>
       </div>
       <div>

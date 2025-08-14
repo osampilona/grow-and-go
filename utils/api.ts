@@ -1,5 +1,6 @@
-import { FilterState } from '../stores/filterStore';
-import { MAX_PRICE } from './pricing';
+import { FilterState } from "../stores/filterStore";
+
+import { MAX_PRICE } from "./pricing";
 
 export interface SearchParams {
   query?: string;
@@ -33,32 +34,36 @@ export function buildSearchParams(
   limit: number = 20
 ): SearchParams {
   // Filter out "everything" from categories
-  const validCategories = selectedCategories.filter(cat => cat !== "everything");
-  
+  const validCategories = selectedCategories.filter((cat) => cat !== "everything");
+
   return {
     query: searchQuery.trim() || undefined,
     categories: validCategories.length > 0 ? validCategories : undefined,
     filters: {
       gender: filters.gender.length > 0 ? filters.gender : undefined,
-      ageRange: (filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60) 
-        ? filters.ageRange : undefined,
-  priceRange: (filters.priceRange[0] !== 0 || filters.priceRange[1] !== MAX_PRICE) 
-        ? filters.priceRange : undefined,
+      ageRange:
+        filters.ageRange[0] !== 0 || filters.ageRange[1] !== 60 ? filters.ageRange : undefined,
+      priceRange:
+        filters.priceRange[0] !== 0 || filters.priceRange[1] !== MAX_PRICE
+          ? filters.priceRange
+          : undefined,
       locationRange: filters.isLocationRangeSet ? filters.locationRange : undefined,
       sortBy: filters.sortBy !== "newest" ? filters.sortBy : undefined,
       inStock: filters.inStock !== true ? filters.inStock : undefined,
       onSale: filters.onSale !== false ? filters.onSale : undefined,
       itemCondition: filters.itemCondition !== "all" ? filters.itemCondition : undefined,
-      sellerRating: (filters.sellerRating !== null && filters.sellerRating > 0) 
-        ? filters.sellerRating : undefined,
+      sellerRating:
+        filters.sellerRating !== null && filters.sellerRating > 0
+          ? filters.sellerRating
+          : undefined,
     },
-    pagination: { page, limit }
+    pagination: { page, limit },
   };
 }
 
 /**
  * Mock API function - replace with actual backend call
- * 
+ *
  * 🚨 REMOVE WHEN BACKEND IS READY:
  * - This entire function is temporary
  * - Replace with real API endpoint call
@@ -71,22 +76,69 @@ export async function searchItems(params: SearchParams) {
   //   headers: { 'Content-Type': 'application/json' },
   //   body: JSON.stringify(params)
   // }).then(res => res.json());
-  
+
   // 🚨 REMOVE: Mock logging (temporary for development)
-  console.log('Backend search params:', params);
-  
+  console.log("Backend search params:", params);
+
   // 🚨 REMOVE: Mock response (temporary for development)
   return {
     items: [],
     total: 0,
     page: params.pagination?.page || 1,
-    hasMore: false
+    hasMore: false,
   };
+}
+
+// Favorites API helpers (client-side)
+export async function getFavorites(): Promise<string[]> {
+  try {
+    const res = await fetch("/api/favorites", { cache: "no-store" });
+
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function addFavorite(id: string): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  const data = await res.json().catch(() => ({}));
+
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+}
+
+export async function removeFavorite(id: string): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  const data = await res.json().catch(() => ({}));
+
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
+}
+
+export async function setFavorites(ids: string[]): Promise<string[]> {
+  const res = await fetch("/api/favorites", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  const data = await res.json().catch(() => ({}));
+
+  return Array.isArray(data?.ids) ? data.ids.map(String) : [];
 }
 
 /**
  * Example backend endpoint structure you'll need:
- * 
+ *
  * POST /api/search
  * {
  *   "query": "baby shoes",

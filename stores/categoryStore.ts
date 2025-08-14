@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -36,7 +35,11 @@ export const subcategoryMap: Record<string, Subcategory[]> = {
     { id: "clothing-hats-gloves", name: "Hats & Gloves", categoryId: "clothing" },
   ],
   "baby-clothes": [
-    { id: "baby-clothes-onesies-bodysuits", name: "Onesies & Bodysuits", categoryId: "baby-clothes" },
+    {
+      id: "baby-clothes-onesies-bodysuits",
+      name: "Onesies & Bodysuits",
+      categoryId: "baby-clothes",
+    },
     { id: "baby-clothes-tops-tshirts", name: "Tops & T-shirts", categoryId: "baby-clothes" },
     { id: "baby-clothes-bottoms-pants", name: "Bottoms & Pants", categoryId: "baby-clothes" },
     { id: "baby-clothes-dresses-skirts", name: "Dresses & Skirts", categoryId: "baby-clothes" },
@@ -109,7 +112,7 @@ interface CategoryState {
   isLoading: boolean;
   hasHydrated: boolean;
   isEditing: boolean;
-  
+
   // Actions
   initializeTemp: () => void;
   applyTemp: () => void;
@@ -142,91 +145,134 @@ interface CategoryState {
 export const useCategoryStore = create<CategoryState>()(
   persist(
     (set, get) => ({
-  // Stable empty array reference to prevent new [] on every selector run
-  // (avoid unnecessary re-renders when no subcategories selected)
-  selected: ["everything"],
-  tempSelected: ["everything"],
-  subcategoriesByCategory: {},
-  tempSubcategoriesByCategory: {},
-  isEditing: false,
+      // Stable empty array reference to prevent new [] on every selector run
+      // (avoid unnecessary re-renders when no subcategories selected)
+      selected: ["everything"],
+      tempSelected: ["everything"],
+      subcategoriesByCategory: {},
+      tempSubcategoriesByCategory: {},
+      isEditing: false,
       categories,
       isLoading: false,
       hasHydrated: false,
 
-      initializeTemp: () => set(state => ({ tempSelected: state.selected, isEditing: true })),
-      applyTemp: () => set(state => ({ 
-        selected: state.tempSelected, 
-        subcategoriesByCategory: { ...state.subcategoriesByCategory, ...(state.tempSubcategoriesByCategory || {}) },
-        isEditing: false
-      })),
-      cancelTemp: () => set(state => ({ 
-        tempSelected: state.selected,
-        tempSubcategoriesByCategory: { ...state.subcategoriesByCategory },
-        isEditing: false
-      })),
+      initializeTemp: () => set((state) => ({ tempSelected: state.selected, isEditing: true })),
+      applyTemp: () =>
+        set((state) => ({
+          selected: state.tempSelected,
+          subcategoriesByCategory: {
+            ...state.subcategoriesByCategory,
+            ...(state.tempSubcategoriesByCategory || {}),
+          },
+          isEditing: false,
+        })),
+      cancelTemp: () =>
+        set((state) => ({
+          tempSelected: state.selected,
+          tempSubcategoriesByCategory: { ...state.subcategoriesByCategory },
+          isEditing: false,
+        })),
 
-      toggleTempCategory: (catId: string) => set((state) => {
-        const nextCat = catId === "everything" ? "everything" : catId;
-        return { tempSelected: [nextCat] };
-      }),
+      toggleTempCategory: (catId: string) =>
+        set((state) => {
+          // Toggle behavior: if clicking the already-selected category (not 'everything'), close by switching to 'everything'
+          const current = state.tempSelected[0];
+          const isTogglingOff = current === catId && catId !== "everything";
 
-      toggleCategory: (catId: string) => set((state) => {
-        const nextCat = catId === "everything" ? "everything" : catId;
-        return { selected: [ nextCat ] };
-      }),
-      
-  selectCategory: (catId: string) => set(() => ({ selected: [catId] })),
-      
-  selectMultipleCategories: (catIds: string[]) => set(() => ({ selected: catIds.length ? [catIds[0]] : ["everything"] })), // legacy API safeguard
-      
-  clearSelections: () => set(() => ({ selected: ["everything"] })),
-      
-      resetToDefault: () => set(() => ({
-        selected: ["everything"],
-        tempSelected: ["everything"],
-        subcategoriesByCategory: {},
-        tempSubcategoriesByCategory: {},
-        isEditing: false,
-      })),
-      
+          if (isTogglingOff) {
+            const clone = { ...state.tempSubcategoriesByCategory };
+
+            delete clone[current];
+
+            return { tempSelected: ["everything"], tempSubcategoriesByCategory: clone } as any;
+          }
+          const nextCat = catId === "everything" ? "everything" : catId;
+
+          return { tempSelected: [nextCat] } as any;
+        }),
+
+      toggleCategory: (catId: string) =>
+        set((state) => {
+          // Toggle behavior: if clicking the already-selected category (not 'everything'), close by switching to 'everything'
+          const current = state.selected[0];
+          const isTogglingOff = current === catId && catId !== "everything";
+
+          if (isTogglingOff) {
+            const clone = { ...state.subcategoriesByCategory };
+
+            delete clone[current];
+
+            return { selected: ["everything"], subcategoriesByCategory: clone } as any;
+          }
+          const nextCat = catId === "everything" ? "everything" : catId;
+
+          return { selected: [nextCat] } as any;
+        }),
+
+      selectCategory: (catId: string) => set(() => ({ selected: [catId] })),
+
+      selectMultipleCategories: (catIds: string[]) =>
+        set(() => ({ selected: catIds.length ? [catIds[0]] : ["everything"] })), // legacy API safeguard
+
+      clearSelections: () => set(() => ({ selected: ["everything"] })),
+
+      resetToDefault: () =>
+        set(() => ({
+          selected: ["everything"],
+          tempSelected: ["everything"],
+          subcategoriesByCategory: {},
+          tempSubcategoriesByCategory: {},
+          isEditing: false,
+        })),
+
       isSelected: (catId: string) => {
         const state = get();
+
         // During SSR or before hydration, show default state
         if (!state.hasHydrated) {
           return catId === "everything";
         }
+
         return state.selected.includes(catId);
       },
 
       isTempSelected: (catId: string) => {
         const state = get();
+
         // During SSR or before hydration, show default state
         if (!state.hasHydrated) {
           return catId === "everything";
         }
+
         return state.tempSelected.includes(catId);
       },
-      
+
       getSelectedCategories: () => {
         const { selected, categories } = get();
-        return categories.filter(cat => selected.includes(cat.id));
+
+        return categories.filter((cat) => selected.includes(cat.id));
       },
-      
+
       getSelectedCount: () => {
         const state = get();
+
         if (state.selected.includes("everything")) return 0;
+
         return state.selected.length;
       },
 
       getTempSelectedCount: () => {
         const state = get();
+
         if (state.tempSelected.includes("everything")) return 0;
+
         return state.tempSelected.length;
       },
-      
+
       getIconForCategory: (catId: string) => {
         const { categories, tempSelected, selected, hasHydrated, isEditing } = get();
-        const category = categories.find(cat => cat.id === catId);
+        const category = categories.find((cat) => cat.id === catId);
+
         if (!category) return undefined;
 
         // During SSR or before hydration, show default state
@@ -235,68 +281,94 @@ export const useCategoryStore = create<CategoryState>()(
         }
         const activeArray = isEditing ? tempSelected : selected;
         const isActive = activeArray.includes(catId);
+
         return isActive ? category.imgColored : category.img;
       },
-      
+
       setHasHydrated: (hasHydrated: boolean) => set(() => ({ hasHydrated })),
-      
+
       // Subcategory helpers / actions
       getSubcategoriesForSelected: () => {
         const state = get();
         const catId = state.selected[0];
+
         if (!catId || catId === "everything") return [];
+
         return subcategoryMap[catId] || [];
       },
       getSelectedSubcategoryIds: () => {
         const state = get();
         const catId = state.selected[0];
-  if (!catId) return EMPTY_SUBCATEGORY_ARRAY;
-  return state.subcategoriesByCategory[catId] || EMPTY_SUBCATEGORY_ARRAY;
+
+        if (!catId) return EMPTY_SUBCATEGORY_ARRAY;
+
+        return state.subcategoriesByCategory[catId] || EMPTY_SUBCATEGORY_ARRAY;
       },
       getTempSelectedSubcategoryIds: () => {
         const state = get();
         const catId = state.tempSelected[0];
+
         if (!catId) return EMPTY_SUBCATEGORY_ARRAY;
+
         return state.tempSubcategoriesByCategory[catId] || EMPTY_SUBCATEGORY_ARRAY;
       },
-      toggleSubcategory: (subcategoryId: string) => set((state) => {
-        const catId = state.selected[0];
-        if (!catId || catId === "everything") return {} as any;
-        const current = state.subcategoriesByCategory[catId] || [];
-        const exists = current.includes(subcategoryId);
-        const updated = exists ? current.filter(id => id !== subcategoryId) : [...current, subcategoryId];
-        return {
-          subcategoriesByCategory: { ...state.subcategoriesByCategory, [catId]: updated }
-        };
-      }),
-      toggleTempSubcategory: (subcategoryId: string) => set((state) => {
-        const catId = state.tempSelected[0];
-        if (!catId || catId === "everything") return {} as any;
-        const current = state.tempSubcategoriesByCategory[catId] || [];
-        const exists = current.includes(subcategoryId);
-        const updated = exists ? current.filter(id => id !== subcategoryId) : [...current, subcategoryId];
-        return {
-          tempSubcategoriesByCategory: { ...state.tempSubcategoriesByCategory, [catId]: updated }
-        };
-      }),
-      clearSubcategoriesForSelected: () => set((state) => {
-        const catId = state.selected[0];
-        if (!catId) return {} as any;
-        const clone = { ...state.subcategoriesByCategory };
-        delete clone[catId];
-        return { subcategoriesByCategory: clone };
-      }),
-      clearTempSubcategoriesForSelected: () => set((state) => {
-        const catId = state.tempSelected[0];
-        if (!catId) return {} as any;
-        const clone = { ...state.tempSubcategoriesByCategory };
-        delete clone[catId];
-        return { tempSubcategoriesByCategory: clone };
-      }),
-      clearAllSubcategories: () => set(() => ({ subcategoriesByCategory: {}, tempSubcategoriesByCategory: {} })),
+      toggleSubcategory: (subcategoryId: string) =>
+        set((state) => {
+          const catId = state.selected[0];
+
+          if (!catId || catId === "everything") return {} as any;
+          const current = state.subcategoriesByCategory[catId] || [];
+          const exists = current.includes(subcategoryId);
+          const updated = exists
+            ? current.filter((id) => id !== subcategoryId)
+            : [...current, subcategoryId];
+
+          return {
+            subcategoriesByCategory: { ...state.subcategoriesByCategory, [catId]: updated },
+          };
+        }),
+      toggleTempSubcategory: (subcategoryId: string) =>
+        set((state) => {
+          const catId = state.tempSelected[0];
+
+          if (!catId || catId === "everything") return {} as any;
+          const current = state.tempSubcategoriesByCategory[catId] || [];
+          const exists = current.includes(subcategoryId);
+          const updated = exists
+            ? current.filter((id) => id !== subcategoryId)
+            : [...current, subcategoryId];
+
+          return {
+            tempSubcategoriesByCategory: { ...state.tempSubcategoriesByCategory, [catId]: updated },
+          };
+        }),
+      clearSubcategoriesForSelected: () =>
+        set((state) => {
+          const catId = state.selected[0];
+
+          if (!catId) return {} as any;
+          const clone = { ...state.subcategoriesByCategory };
+
+          delete clone[catId];
+
+          return { subcategoriesByCategory: clone };
+        }),
+      clearTempSubcategoriesForSelected: () =>
+        set((state) => {
+          const catId = state.tempSelected[0];
+
+          if (!catId) return {} as any;
+          const clone = { ...state.tempSubcategoriesByCategory };
+
+          delete clone[catId];
+
+          return { tempSubcategoriesByCategory: clone };
+        }),
+      clearAllSubcategories: () =>
+        set(() => ({ subcategoriesByCategory: {}, tempSubcategoriesByCategory: {} })),
     }),
     {
-      name: 'category-store', // name of the item in the storage (must be unique)
+      name: "category-store", // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
       partialize: (state) => ({}), // Don't persist anything - always start fresh
       onRehydrateStorage: () => (state) => {
@@ -307,4 +379,3 @@ export const useCategoryStore = create<CategoryState>()(
     }
   )
 );
-

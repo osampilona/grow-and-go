@@ -22,28 +22,24 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F2EAFA" },
-    { media: "(prefers-color-scheme: dark)", color: "#1e293b" },
+    { media: "(prefers-color-scheme: dark)", color: "#614051" },
   ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html suppressHydrationWarning lang="en">
       <head />
       <body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable,
+          fontSans.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
             <Navbar />
-            <main className="w-full px-4 py-0 flex-grow bg-fffafa dark:bg-slate-900">
+            <main className="w-full px-4 py-0 flex-grow bg-fffafa dark:bg-[#181245]">
               {children}
             </main>
             {/* <footer className="w-full flex items-center justify-center py-3">

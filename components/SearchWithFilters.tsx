@@ -2,9 +2,19 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { IoSearch, IoClose, IoFilter, IoOptions } from "react-icons/io5";
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
+import { IoSearch, IoClose, IoOptions } from "react-icons/io5";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@heroui/react";
+
 import { useFilterStore } from "../stores/filterStore";
+
 import FiltersList from "./FiltersList";
 import { FiltersHeader } from "./FiltersHeader";
 
@@ -14,10 +24,10 @@ interface SearchWithFiltersProps {
   className?: string;
 }
 
-const SearchWithFilters = ({ 
-  onSearch, 
+const SearchWithFilters = ({
+  onSearch,
   placeholder = "Search...",
-  className = ""
+  className = "",
 }: SearchWithFiltersProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,7 +35,11 @@ const SearchWithFilters = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Filter modal controls
-  const { isOpen: isFilterModalOpen, onOpen: onFilterModalOpen, onOpenChange: onFilterModalOpenChange } = useDisclosure();
+  const {
+    isOpen: isFilterModalOpen,
+    onOpen: onFilterModalOpen,
+    onOpenChange: onFilterModalOpenChange,
+  } = useDisclosure();
 
   // Filter store - Get functions to call in component
   const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters());
@@ -55,10 +69,11 @@ const SearchWithFilters = ({
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint
     };
-    
+
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   // Handle search submission
@@ -91,15 +106,18 @@ const SearchWithFilters = ({
   }, [applyFilters]);
 
   // Clear handlers for active filter chips
-  const handleClearGender = useCallback((gendersToKeep?: string[]) => {
-    if (gendersToKeep !== undefined) {
-      // Partial clear - set to the remaining genders
-      setTempGender(gendersToKeep);
-    } else {
-      // Full clear - clear all genders
-      clearTempGender();
-    }
-  }, [setTempGender, clearTempGender]);
+  const handleClearGender = useCallback(
+    (gendersToKeep?: string[]) => {
+      if (gendersToKeep !== undefined) {
+        // Partial clear - set to the remaining genders
+        setTempGender(gendersToKeep);
+      } else {
+        // Full clear - clear all genders
+        clearTempGender();
+      }
+    },
+    [setTempGender, clearTempGender]
+  );
 
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
@@ -138,17 +156,20 @@ const SearchWithFilters = ({
   }, [clearAllTempFilters]);
 
   // Handle Enter key press
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      if (searchQuery.trim()) {
-        handleSearch();
-        setIsExpanded(false);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        if (searchQuery.trim()) {
+          handleSearch();
+          setIsExpanded(false);
+        }
       }
-    }
-    if (e.key === "Escape") {
-      handleClose();
-    }
-  }, [searchQuery, handleSearch, handleClose]);
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    },
+    [searchQuery, handleSearch, handleClose]
+  );
 
   // Focus input when expanded
   useEffect(() => {
@@ -162,28 +183,36 @@ const SearchWithFilters = ({
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const searchContainer = document.querySelector('.search-with-filters-container');
+      const searchContainer = document.querySelector(".search-with-filters-container");
+
       if (searchContainer && !searchContainer.contains(event.target as Node) && isExpanded) {
         handleClose();
       }
     };
 
     if (isExpanded) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isExpanded, handleClose]);
 
   // Animation variants
-  const widthAnimation = useMemo(() => ({
-    width: isExpanded ? "min(600px, calc(100vw - 2rem))" : isLargeScreen ? "300px" : "140px",
-  }), [isExpanded, isLargeScreen]);
+  const widthAnimation = useMemo(
+    () => ({
+      width: isExpanded ? "min(600px, calc(100vw - 2rem))" : isLargeScreen ? "300px" : "140px",
+    }),
+    [isExpanded, isLargeScreen]
+  );
 
-  const springTransition = useMemo(() => ({
-    type: "spring" as const,
-    stiffness: 400,
-    damping: 30,
-  }), []);
+  const springTransition = useMemo(
+    () => ({
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 30,
+    }),
+    []
+  );
 
   // Event handlers
   const handleContainerClick = useCallback(() => {
@@ -192,57 +221,66 @@ const SearchWithFilters = ({
     }
   }, [isExpanded]);
 
-  const handleIconClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!isExpanded) {
-      setIsExpanded(true);
-    } else if (searchQuery) {
-      handleSearch();
-      setIsExpanded(false);
-    }
-  }, [isExpanded, searchQuery, handleSearch]);
+  const handleIconClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!isExpanded) {
+        setIsExpanded(true);
+      } else if (searchQuery) {
+        handleSearch();
+        setIsExpanded(false);
+      }
+    },
+    [isExpanded, searchQuery, handleSearch]
+  );
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   }, []);
 
   // Handle filter button click
-  const handleFilterClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    handleFilterOpen();
-  }, [handleFilterOpen]);
+  const handleFilterClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      handleFilterOpen();
+    },
+    [handleFilterOpen]
+  );
 
   // Container className
-  const containerClassName = useMemo(() => `
+  const containerClassName = useMemo(
+    () => `
     relative flex items-center h-14
     bg-white/60 dark:bg-slate-800/60 
     backdrop-blur-xl 
-    ${isExpanded ? 'border border-white/50 dark:border-slate-700/50' : 'border-0'}
+    ${isExpanded ? "border border-white/50 dark:border-slate-700/50" : "border-0"}
     rounded-full
     shadow-lg shadow-black/10 dark:shadow-black/20
     hover:shadow-xl hover:shadow-black/15 dark:hover:shadow-black/30
     transition-shadow duration-300
     cursor-pointer
-  `, [isExpanded]);
+  `,
+    [isExpanded]
+  );
 
   return (
     <>
       <div className={`search-with-filters-container ${className}`}>
         <motion.div
+          animate={widthAnimation}
           className="relative"
           initial={false}
-          animate={widthAnimation}
           transition={springTransition}
         >
           <motion.div
             className={containerClassName}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleContainerClick}
             style={{
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
             }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleContainerClick}
           >
             {/* Search Icon / Button */}
             <motion.button
@@ -255,9 +293,9 @@ const SearchWithFilters = ({
                 transition-colors duration-200
                 flex-shrink-0
               "
-              onClick={handleIconClick}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              onClick={handleIconClick}
             >
               <IoSearch size={24} />
             </motion.button>
@@ -269,10 +307,10 @@ const SearchWithFilters = ({
                 {!isExpanded ? (
                   <motion.div
                     key="search-text"
-                    className="pl-1 flex-1 flex items-center justify-between text-gray-800 dark:text-gray-200 text-base font-normal select-none whitespace-nowrap h-[50px]"
-                    initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
+                    className="pl-1 flex-1 flex items-center justify-between text-gray-800 dark:text-gray-200 text-base font-normal select-none whitespace-nowrap h-[50px]"
                     exit={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
                   >
                     <span>Search...</span>
@@ -289,9 +327,9 @@ const SearchWithFilters = ({
                           mr-2
                           relative
                         "
-                        onClick={handleFilterClick}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
+                        onClick={handleFilterClick}
                       >
                         <IoOptions size={20} />
                         {hasActiveFilters && (
@@ -306,20 +344,14 @@ const SearchWithFilters = ({
                   /* Input Field */
                   <motion.div
                     key="search-input"
-                    className="flex-1 flex items-center pr-2"
-                    initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
+                    className="flex-1 flex items-center pr-2"
                     exit={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
                     transition={{ duration: 0.15, delay: 0.1 }}
                   >
                     <input
                       ref={inputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={handleInputChange}
-                      onKeyDown={handleKeyPress}
-                      placeholder={placeholder}
-                      autoFocus
                       className="
                         flex-1 bg-transparent 
                         text-gray-800 dark:text-white
@@ -329,8 +361,13 @@ const SearchWithFilters = ({
                         font-normal
                         px-3
                       "
+                      placeholder={placeholder}
+                      type="text"
+                      value={searchQuery}
+                      onChange={handleInputChange}
+                      onKeyDown={handleKeyPress}
                     />
-                    
+
                     {/* Filter Button - Always visible when expanded on large screens */}
                     {isLargeScreen && (
                       <motion.button
@@ -345,9 +382,9 @@ const SearchWithFilters = ({
                           mr-2
                           relative
                         "
-                        onClick={handleFilterClick}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
+                        onClick={handleFilterClick}
                       >
                         <IoOptions size={20} />
                         {hasActiveFilters && (
@@ -357,10 +394,11 @@ const SearchWithFilters = ({
                         )}
                       </motion.button>
                     )}
-                    
+
                     {/* Close Button */}
                     {searchQuery && (
                       <motion.button
+                        animate={{ opacity: 1, scale: 1 }}
                         className="
                           flex items-center justify-center
                           w-10 h-10 rounded-full
@@ -370,13 +408,12 @@ const SearchWithFilters = ({
                           focus:outline-none
                           transition-colors duration-200
                         "
-                        onClick={handleClose}
+                        exit={{ opacity: 0, scale: 0 }}
+                        initial={{ opacity: 0, scale: 0 }}
+                        transition={{ duration: 0.15 }}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        transition={{ duration: 0.15 }}
+                        onClick={handleClose}
                       >
                         <IoClose size={18} />
                       </motion.button>
@@ -390,8 +427,11 @@ const SearchWithFilters = ({
       </div>
 
       {/* Filter Modal for Large Screens */}
-      <Modal 
-        isOpen={isFilterModalOpen} 
+      <Modal
+        backdrop="opaque"
+        isOpen={isFilterModalOpen}
+        scrollBehavior="inside"
+        size="2xl"
         onOpenChange={(open) => {
           if (!open) {
             // Modal is closing - cancel any unsaved changes
@@ -399,37 +439,34 @@ const SearchWithFilters = ({
           }
           onFilterModalOpenChange();
         }}
-        size="2xl"
-        scrollBehavior="inside"
-        backdrop="opaque"
       >
-        <ModalContent className="hide-close-button">
+        <ModalContent className="bg-white dark:bg-[#24032c] hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
                 <FiltersHeader
-                  title="Filters"
-                  onClose={onClose}
                   showResetAll={hasTempActiveFilters}
-                  onResetAll={handleResetAllFilters}
+                  title="Filters"
+                  onClearAgeRange={handleClearAgeRange}
                   onClearGender={handleClearGender}
-                  onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}
+                  onClearLocationRange={handleClearLocationRange}
+                  onClearOnSale={handleClearOnSale}
+                  onClearPriceRange={handleClearPriceRange}
                   onClearSellerRating={handleClearSellerRating}
                   onClearSortBy={handleClearSortBy}
-                  onClearAgeRange={handleClearAgeRange}
-                  onClearPriceRange={handleClearPriceRange}
-                  onClearLocationRange={handleClearLocationRange}
+                  onClose={onClose}
+                  onResetAll={handleResetAllFilters}
                 />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />
               </ModalBody>
               <ModalFooter>
-                <Button 
-                  color="danger" 
-                  variant="light" 
+                <Button
+                  color="danger"
+                  variant="light"
                   onPress={() => {
                     handleFilterClose();
                     onClose();
@@ -437,8 +474,8 @@ const SearchWithFilters = ({
                 >
                   Cancel
                 </Button>
-                <Button 
-                  color="primary" 
+                <Button
+                  color="primary"
                   onPress={() => {
                     handleApplyFilters();
                     onClose();
