@@ -7,6 +7,7 @@ import { HeroUIProvider } from "@heroui/system";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect } from "react";
+
 import { useLikeStore } from "@/stores/likeStore";
 import { ENABLE_FAVORITES_SYNC } from "@/utils/featureFlags";
 
@@ -17,9 +18,7 @@ export interface ProvidersProps {
 
 declare module "@react-types/shared" {
   interface RouterConfig {
-    routerOptions: NonNullable<
-      Parameters<ReturnType<typeof useRouter>["push"]>[1]
-    >;
+    routerOptions: NonNullable<Parameters<ReturnType<typeof useRouter>["push"]>[1]>;
   }
 }
 
@@ -27,9 +26,12 @@ const Providers = React.memo(function Providers({ children, themeProps }: Provid
   const router = useRouter();
   const syncFromServer = useLikeStore((s) => s.syncFromServer);
 
-  const navigate = React.useCallback((path: string) => {
-    router.push(path);
-  }, [router]);
+  const navigate = React.useCallback(
+    (path: string) => {
+      router.push(path);
+    },
+    [router]
+  );
 
   useEffect(() => {
     if (ENABLE_FAVORITES_SYNC) {
@@ -40,9 +42,7 @@ const Providers = React.memo(function Providers({ children, themeProps }: Provid
 
   return (
     <HeroUIProvider navigate={navigate}>
-      <NextThemesProvider {...themeProps}>
-        {children}
-      </NextThemesProvider>
+      <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
     </HeroUIProvider>
   );
 });

@@ -8,25 +8,29 @@ const PALETTE: ChipColor[] = ["primary", "secondary", "success", "warning", "dan
 // Build a stable map from categoryId -> color
 const CATEGORY_COLOR_MAP: Record<string, ChipColor> = (() => {
   const map: Record<string, ChipColor> = { everything: "default" };
-  const filtered = categories.filter(c => c.id !== "everything");
+  const filtered = categories.filter((c) => c.id !== "everything");
+
   filtered.forEach((cat, idx) => {
     map[cat.id] = PALETTE[idx % PALETTE.length];
   });
+
   return map;
 })();
 
 export function getCategoryColor(categoryId: string | undefined): ChipColor {
   if (!categoryId) return "default";
+
   return CATEGORY_COLOR_MAP[categoryId] ?? "default";
 }
 
 export function getSubcategoryColor(subcategoryId: string | undefined): ChipColor {
   if (!subcategoryId) return "default";
   for (const [catId, subs] of Object.entries(subcategoryMap)) {
-    if (subs.some(s => s.id === subcategoryId)) {
+    if (subs.some((s) => s.id === subcategoryId)) {
       return getCategoryColor(catId);
     }
   }
+
   return "default";
 }
 
@@ -68,17 +72,29 @@ function darkChipClass(color: ChipColor): string {
   return `${DARK_CHIP_BG[color]} dark:!text-white`;
 }
 
-export function getFilterChipProps(group: keyof typeof FILTER_GROUP_COLOR): { color: ChipColor; className: string } {
+export function getFilterChipProps(group: keyof typeof FILTER_GROUP_COLOR): {
+  color: ChipColor;
+  className: string;
+} {
   const color = getFilterGroupColor(group);
+
   return { color, className: darkChipClass(color) };
 }
 
-export function getCategoryChipProps(categoryId: string | undefined): { color: ChipColor; className: string } {
+export function getCategoryChipProps(categoryId: string | undefined): {
+  color: ChipColor;
+  className: string;
+} {
   const color = getCategoryColor(categoryId);
+
   return { color, className: darkChipClass(color) };
 }
 
-export function getSubcategoryChipProps(subcategoryId: string | undefined): { color: ChipColor; className: string } {
+export function getSubcategoryChipProps(subcategoryId: string | undefined): {
+  color: ChipColor;
+  className: string;
+} {
   const color = getSubcategoryColor(subcategoryId);
+
   return { color, className: darkChipClass(color) };
 }

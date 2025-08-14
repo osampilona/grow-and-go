@@ -21,36 +21,47 @@ export const useLikeStore = create<LikeState>()(
     (set, get) => ({
       likedIds: {},
       hasHydrated: false,
-      toggleLike: (id: string) => set((state) => {
-        const next = { ...state.likedIds };
-        if (next[id]) {
-          delete next[id];
-        } else {
-          next[id] = true;
-        }
-        return { likedIds: next };
-      }),
+      toggleLike: (id: string) =>
+        set((state) => {
+          const next = { ...state.likedIds };
+
+          if (next[id]) {
+            delete next[id];
+          } else {
+            next[id] = true;
+          }
+
+          return { likedIds: next };
+        }),
       like: (id: string) => set((state) => ({ likedIds: { ...state.likedIds, [id]: true } })),
-      unlike: (id: string) => set((state) => {
-        const next = { ...state.likedIds };
-        delete next[id];
-        return { likedIds: next };
-      }),
+      unlike: (id: string) =>
+        set((state) => {
+          const next = { ...state.likedIds };
+
+          delete next[id];
+
+          return { likedIds: next };
+        }),
       clearLikes: () => set(() => ({ likedIds: {} })),
       isLiked: (id: string) => {
         const { likedIds } = get();
+
         return !!likedIds[id];
       },
       getLikedIds: () => Object.keys(get().likedIds),
       setHasHydrated: (v: boolean) => set(() => ({ hasHydrated: v })),
       async syncFromServer() {
         try {
-          const res = await fetch('/api/favorites', { cache: 'no-store' });
+          const res = await fetch("/api/favorites", { cache: "no-store" });
+
           if (!res.ok) return;
           const data = await res.json();
           const ids: string[] = Array.isArray(data?.ids) ? data.ids.map(String) : [];
           const map: Record<string, true> = {};
-          ids.forEach(id => { map[id] = true; });
+
+          ids.forEach((id) => {
+            map[id] = true;
+          });
           set({ likedIds: map });
         } catch {
           // noop

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 import { useFilterStore } from "../stores/filterStore";
 
 /**
@@ -24,27 +25,47 @@ export const useFilterOptimizations = () => {
   const bundleDeal = useFilterStore((state) => state.tempFilters.bundleDeal);
 
   // Return memoized optimized selectors
-  return useMemo(() => ({
-    gender,
-    ageRange,
-    priceRange,
-    sortBy,
-    inStock,
-    onSale,
-    itemCondition,
-    sellerRating,
-    locationRange,
-    sizes,
-    brands,
-    petFree,
-    smokeFree,
-    perfumeFree,
-    shippingMethods,
-    bundleDeal,
-    // Computed values
-    genderState: {
-      isBoySelected: gender.includes("Boy"),
-      isGirlSelected: gender.includes("Girl")
-    }
-  }), [gender, ageRange, priceRange, sortBy, inStock, onSale, itemCondition, sellerRating, locationRange, sizes, brands, petFree, smokeFree, perfumeFree, shippingMethods, bundleDeal]);
+  return useMemo(
+    () => ({
+      gender,
+      ageRange,
+      priceRange,
+      sortBy,
+      inStock,
+      onSale,
+      itemCondition,
+      sellerRating,
+      locationRange,
+      sizes,
+      brands,
+      petFree,
+      smokeFree,
+      perfumeFree,
+      shippingMethods,
+      bundleDeal,
+      // Computed values
+      genderState: {
+        isBoySelected: gender.includes("Boy"),
+        isGirlSelected: gender.includes("Girl"),
+      },
+    }),
+    [
+      gender,
+      ageRange,
+      priceRange,
+      sortBy,
+      inStock,
+      onSale,
+      itemCondition,
+      sellerRating,
+      locationRange,
+      sizes,
+      brands,
+      petFree,
+      smokeFree,
+      perfumeFree,
+      shippingMethods,
+      bundleDeal,
+    ]
+  );
 };

@@ -5,12 +5,14 @@
 ### 1. Excessive Zustand Subscriptions in Navbar (HIGH PRIORITY)
 
 **Problem**: The navbar subscribes to 21 different Zustand selectors:
+
 - 8 category store selectors
 - 13 filter store selectors
 
 **Impact**: Every state change triggers navbar re-renders, even when changes don't affect the UI.
 
 **Current Code**:
+
 ```tsx
 // These cause individual subscriptions and re-renders
 const selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
@@ -40,6 +42,7 @@ const categoryState = useCategoryStore(
 ### 2. CategoryButton Performance Issues
 
 **Problem**: Each CategoryButton subscribes to 5 different store selectors:
+
 ```tsx
 const hasHydrated = useCategoryStore((state) => state.hasHydrated);
 const isTempSelected = useCategoryStore((state) => state.isTempSelected(category.id));
@@ -53,13 +56,14 @@ const isEverythingTempSelected = useCategoryStore((state) => state.isTempSelecte
 ### 3. Memory Leak Risk: Window Event Listener
 
 **Problem**: Screen size detection adds resize listener:
+
 ```tsx
 useEffect(() => {
   const checkScreenSize = () => {
     setIsLargeScreen(window.innerWidth >= 1024);
   };
-  window.addEventListener('resize', checkScreenSize);
-  return () => window.removeEventListener('resize', checkScreenSize);
+  window.addEventListener("resize", checkScreenSize);
+  return () => window.removeEventListener("resize", checkScreenSize);
 }, []);
 ```
 
@@ -74,8 +78,9 @@ useEffect(() => {
 ### Priority 1: Optimize Zustand Subscriptions
 
 #### A. Navbar Optimization
+
 ```tsx
-import { shallow } from 'zustand/shallow';
+import { shallow } from "zustand/shallow";
 
 // Replace multiple subscriptions with optimized selectors
 const categoryState = useCategoryStore(
@@ -88,7 +93,7 @@ const categoryState = useCategoryStore(
       initializeTemp: state.initializeTemp,
       applyTemp: state.applyTemp,
       cancelTemp: state.cancelTemp,
-    }
+    },
   }),
   shallow
 );
@@ -111,13 +116,14 @@ const filterState = useFilterStore(
       clearTempInStock: state.clearTempInStock,
       clearAllTempFilters: state.clearAllTempFilters,
       resetFilters: state.resetFilters,
-    }
+    },
   }),
   shallow
 );
 ```
 
 #### B. CategoryButton Optimization
+
 ```tsx
 const CategoryButton = memo(function CategoryButton({ category }: CategoryButtonProps) {
   // Single optimized subscription
@@ -135,7 +141,7 @@ const CategoryButton = memo(function CategoryButton({ category }: CategoryButton
   const handleClick = useCallback(() => {
     categoryButtonState.toggleTempCategory(category.id);
   }, [categoryButtonState.toggleTempCategory, category.id]);
-  
+
   // Rest of component logic...
 });
 ```
@@ -143,9 +149,10 @@ const CategoryButton = memo(function CategoryButton({ category }: CategoryButton
 ### Priority 2: Optimize Store Methods
 
 #### A. Memoize Expensive Calculations
+
 ```tsx
 // In categoryStore.ts
-import { createSelector } from 'reselect';
+import { createSelector } from "reselect";
 
 // Create memoized selectors
 const selectCategories = (state) => state.categories;
@@ -155,13 +162,13 @@ const selectHasHydrated = (state) => state.hasHydrated;
 const selectIconForCategory = createSelector(
   [selectCategories, selectTempSelected, selectHasHydrated, (state, catId) => catId],
   (categories, tempSelected, hasHydrated, catId) => {
-    const category = categories.find(cat => cat.id === catId);
+    const category = categories.find((cat) => cat.id === catId);
     if (!category) return undefined;
-    
+
     if (!hasHydrated) {
       return catId === "everything" ? category.imgColored : category.img;
     }
-    
+
     return tempSelected.includes(catId) ? category.imgColored : category.img;
   }
 );
@@ -170,45 +177,42 @@ const selectIconForCategory = createSelector(
 ### Priority 3: Component-Level Optimizations
 
 #### A. Split Large Components
+
 ```tsx
 // Extract header logic into separate component
 const NavbarHeader = memo(() => {
   const { categoryCount, filterCount, hasTempActiveFilters } = useNavbarCounts();
-  
-  return (
-    <DrawerHeader className="flex flex-col gap-3">
-      {/* Header content */}
-    </DrawerHeader>
-  );
+
+  return <DrawerHeader className="flex flex-col gap-3">{/* Header content */}</DrawerHeader>;
 });
 
-// Extract filter chips into separate component  
+// Extract filter chips into separate component
 const FilterChips = memo(() => {
   const { tempFilters, handlers } = useFilterChips();
-  
-  return (
-    <div className="flex flex-wrap gap-1">
-      {/* Chips content */}
-    </div>
-  );
+
+  return <div className="flex flex-wrap gap-1">{/* Chips content */}</div>;
 });
 ```
 
 #### B. Optimize Event Handlers
+
 ```tsx
 // Use stable references for handlers
-const handlers = useMemo(() => ({
-  handleResetCategories: () => {
-    useCategoryStore.setState({ tempSelected: ["everything"] });
-  },
-  handleResetFilters: () => {
-    useFilterStore.getState().clearAllTempFilters();
-  },
-  handleResetAll: () => {
-    useCategoryStore.setState({ tempSelected: ["everything"] });
-    useFilterStore.getState().clearAllTempFilters();
-  },
-}), []);
+const handlers = useMemo(
+  () => ({
+    handleResetCategories: () => {
+      useCategoryStore.setState({ tempSelected: ["everything"] });
+    },
+    handleResetFilters: () => {
+      useFilterStore.getState().clearAllTempFilters();
+    },
+    handleResetAll: () => {
+      useCategoryStore.setState({ tempSelected: ["everything"] });
+      useFilterStore.getState().clearAllTempFilters();
+    },
+  }),
+  []
+);
 ```
 
 ## 📊 Expected Performance Improvements
@@ -221,7 +225,7 @@ const handlers = useMemo(() => ({
 ## 🔧 Implementation Priority
 
 1. **Phase 1** (Critical): Optimize Zustand subscriptions in navbar
-2. **Phase 2** (High): Optimize CategoryButton subscriptions  
+2. **Phase 2** (High): Optimize CategoryButton subscriptions
 3. **Phase 3** (Medium): Add memoized selectors to stores
 4. **Phase 4** (Low): Split large components
 

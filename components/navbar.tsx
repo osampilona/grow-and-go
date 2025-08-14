@@ -1,53 +1,58 @@
 "use client";
 
-import {
-  Navbar as HeroUINavbar,
-  NavbarContent,
-  NavbarBrand,
-  NavbarItem,
-} from "@heroui/navbar";
+import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@heroui/navbar";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import { Button } from "@heroui/button";
-import { Chip } from "@heroui/chip";
 import { Badge } from "@heroui/badge";
 import { memo, useCallback, useEffect, useState, useMemo, useRef } from "react";
+import NextLink from "next/link";
+import Image from "next/image";
 
-import { ThemeSwitch } from "@/components/theme-switch";
-import CategoriesList from "./CategoriesList";
+import { useCategoryStore } from "../stores/categoryStore";
+import { useFilterStore } from "../stores/filterStore";
+
 import FiltersList from "./FiltersList";
 import { FilterSection } from "./FilterSection";
 import { FiltersHeader } from "./FiltersHeader";
-import { useCategoryStore } from "../stores/categoryStore";
-import { useFilterStore } from "../stores/filterStore";
+import CategoriesList from "./CategoriesList";
 import { CloseIcon } from "./icons";
 import SubcategoryChipsBar from "./SubcategoryChipsBar";
+
+import { ThemeSwitch } from "@/components/theme-switch";
 import { useLikeStore } from "@/stores/likeStore";
-import NextLink from "next/link";
 
 export const Navbar = memo(function Navbar() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onOpenChange: onMenuOpenChange } = useDisclosure();
-  const { isOpen: isFiltersModalOpen, onOpen: onFiltersModalOpen, onOpenChange: onFiltersModalOpenChange } = useDisclosure();
+  const {
+    isOpen: isMenuOpen,
+    onOpen: onMenuOpen,
+    onOpenChange: onMenuOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isFiltersModalOpen,
+    onOpen: onFiltersModalOpen,
+    onOpenChange: onFiltersModalOpenChange,
+  } = useDisclosure();
 
   // Optimized category store subscriptions (individual but grouped)
-  const selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
+  // const _selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
   const tempSelectedCategoriesCount = useCategoryStore((state) => state.getTempSelectedCount());
   const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
   const resetToDefault = useCategoryStore((state) => state.resetToDefault);
   const initializeTemp = useCategoryStore((state) => state.initializeTemp);
   const applyTemp = useCategoryStore((state) => state.applyTemp);
   const cancelTemp = useCategoryStore((state) => state.cancelTemp);
-  const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
+  // const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
 
-    // Get filter state and actions from store
-  const filters = useFilterStore((state) => state.filters);
-  const tempFilters = useFilterStore((state) => state.tempFilters);
+  // Get filter state and actions from store
+  // const _filters = useFilterStore((state) => state.filters);
+  // const _tempFilters = useFilterStore((state) => state.tempFilters);
   const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters);
   const hasTempActiveFilters = useFilterStore((state) => state.hasTempActiveFilters);
   const getFilterCount = useFilterStore((state) => state.getFilterCount);
-  const isFiltersSelected = useFilterStore((state) => state.isFiltersSelected);
+  // const _isFiltersSelected = useFilterStore((state) => state.isFiltersSelected);
   const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
   const initializeTempFilters = useFilterStore((state) => state.initializeTempFilters);
   const applyFilters = useFilterStore((state) => state.applyFilters);
@@ -73,15 +78,15 @@ export const Navbar = memo(function Navbar() {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint is 1024px
     };
-    
+
     // Check on mount
     checkScreenSize();
-    
+
     // Listen for resize events
-    window.addEventListener('resize', checkScreenSize);
-    
+    window.addEventListener("resize", checkScreenSize);
+
     // Cleanup
-    return () => window.removeEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   // Memoized close handlers to prevent unnecessary re-renders
@@ -111,13 +116,7 @@ export const Navbar = memo(function Navbar() {
   // Favorites count
   const favoritesCount = useLikeStore((s) => Object.keys(s.likedIds).length);
 
-  // Handler for filters button
-  const handleFiltersClick = useCallback(() => {
-    setFiltersSelected(true);
-    // Initialize temp state with current state with new object reference
-    initializeTempFilters();
-    onFiltersModalOpen();
-  }, [onFiltersModalOpen, setFiltersSelected, initializeTempFilters]);
+  // Handler for filters button (reserved for future use)
 
   // Handler for when filters modal closes
   const handleFiltersModalClose = useCallback(() => {
@@ -149,15 +148,18 @@ export const Navbar = memo(function Navbar() {
   }, [cancelTemp, cancelFilters]);
 
   // Handler for clearing individual filters (works on temp state in modal)
-  const handleClearGender = useCallback((gendersToKeep?: string[]) => {
-    if (gendersToKeep !== undefined) {
-      // Partial clear - set to the remaining genders
-      setTempGender(gendersToKeep);
-    } else {
-      // Full clear - clear all genders
-      clearTempGender();
-    }
-  }, [setTempGender, clearTempGender]);
+  const handleClearGender = useCallback(
+    (gendersToKeep?: string[]) => {
+      if (gendersToKeep !== undefined) {
+        // Partial clear - set to the remaining genders
+        setTempGender(gendersToKeep);
+      } else {
+        // Full clear - clear all genders
+        clearTempGender();
+      }
+    },
+    [setTempGender, clearTempGender]
+  );
 
   const handleClearOnSale = useCallback(() => {
     clearTempOnSale();
@@ -191,28 +193,31 @@ export const Navbar = memo(function Navbar() {
     clearTempLocationRange();
   }, [clearTempLocationRange]);
 
-  const handleClearCategory = useCallback((category: string) => {
+  const handleClearCategory = useCallback((_category: string) => {
     // In single-select mode clearing a category returns to 'everything'
     useCategoryStore.setState({ tempSelected: ["everything"] });
   }, []);
 
-  const handleClearAllFilters = useCallback(() => {
-    clearAllTempFilters();
-  }, [clearAllTempFilters]);
+  // const handleClearAllFilters = useCallback(() => {
+  //   clearAllTempFilters();
+  // }, [clearAllTempFilters]);
 
   // Optimized reset handlers with stable references
-  const resetHandlers = useMemo(() => ({
-    resetCategories: () => {
-      useCategoryStore.setState({ tempSelected: ["everything"] });
-    },
-    resetFilters: () => {
-      clearAllTempFilters();
-    },
-    resetAll: () => {
-      useCategoryStore.setState({ tempSelected: ["everything"] });
-      clearAllTempFilters();
-    },
-  }), [clearAllTempFilters]);
+  const resetHandlers = useMemo(
+    () => ({
+      resetCategories: () => {
+        useCategoryStore.setState({ tempSelected: ["everything"] });
+      },
+      resetFilters: () => {
+        clearAllTempFilters();
+      },
+      resetAll: () => {
+        useCategoryStore.setState({ tempSelected: ["everything"] });
+        clearAllTempFilters();
+      },
+    }),
+    [clearAllTempFilters]
+  );
 
   // Handler for resetting categories only (only affects temp state)
   const handleResetCategories = useCallback(() => {
@@ -231,10 +236,10 @@ export const Navbar = memo(function Navbar() {
 
   // Calculate category count (exclude "everything" from count)
   const categoryCount = tempSelectedCategoriesCount;
-  
+
   // Get filter count from store
   const filterCount = getFilterCount();
-  
+
   // Combined count for mobile
   const totalCount = filterCount + categoryCount;
 
@@ -246,21 +251,25 @@ export const Navbar = memo(function Navbar() {
     const measure = () => {
       if (navRef.current) {
         const h = navRef.current.offsetHeight;
+
         if (h && h !== navHeight) setNavHeight(h);
       }
     };
+
     measure();
     window.addEventListener("resize", measure);
     // Safe idle / deferred measurements for mobile (polyfill if needed)
-    const ric: typeof requestIdleCallback | undefined = typeof requestIdleCallback === 'function'
-      ? requestIdleCallback
-      : (cb: any) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), 120) as any;
-    const cancelRic: typeof cancelIdleCallback | undefined = typeof cancelIdleCallback === 'function'
-      ? cancelIdleCallback
-      : (id: any) => clearTimeout(id);
+    const ric: typeof requestIdleCallback | undefined =
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback
+        : (cb: any) =>
+            setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), 120) as any;
+    const cancelRic: typeof cancelIdleCallback | undefined =
+      typeof cancelIdleCallback === "function" ? cancelIdleCallback : (id: any) => clearTimeout(id);
     const idle = ric(measure);
     // Extra fallback after a short delay (fonts/images late load)
     const timeout = setTimeout(measure, 400);
+
     return () => {
       window.removeEventListener("resize", measure);
       if (idle) cancelRic?.(idle as any);
@@ -270,11 +279,16 @@ export const Navbar = memo(function Navbar() {
 
   return (
     <>
-  <HeroUINavbar ref={navRef} maxWidth="2xl" position="sticky" className="z-50 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-gray-200/20 dark:border-slate-700/20 pt-2">
+      <HeroUINavbar
+        ref={navRef}
+        className="z-50 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-gray-200/20 dark:border-slate-700/20 pt-2"
+        maxWidth="2xl"
+        position="sticky"
+      >
         <NavbarContent className="basis-1/5 sm:basis-full " justify="start">
           <NavbarBrand as="li" className="gap-3 max-w-fit">
-            <NextLink 
-              className="flex justify-start items-center cursor-pointer" 
+            <NextLink
+              className="flex justify-start items-center cursor-pointer"
               href="/"
               onClick={() => {
                 // Reset categories to default
@@ -283,7 +297,13 @@ export const Navbar = memo(function Navbar() {
                 resetFilters();
               }}
             >
-              <img src="/logo.svg" alt="Canopy Logo" className="h-8 w-8 object-contain" />
+              <Image
+                alt="Canopy Logo"
+                className="h-8 w-8 object-contain"
+                height={32}
+                src="/logo.svg"
+                width={32}
+              />
               <p className="font-bold text-inherit hidden lg:flex">Canopy</p>
             </NextLink>
           </NavbarBrand>
@@ -297,25 +317,27 @@ export const Navbar = memo(function Navbar() {
         </NavbarContent>
 
         {/* Categories button for smaller screens */}
-  <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center">
+        <NavbarContent className="flex lg:hidden basis-1/5 sm:basis-full justify-center">
           <NavbarItem>
-            <Badge 
-              content={totalCount > 0 ? totalCount : undefined}
+            <Badge
               color="primary"
-              size="sm"
+              content={totalCount > 0 ? totalCount : undefined}
               showOutline={false}
+              size="sm"
             >
-              <button 
-                onClick={handleCategoryOpen}
+              <button
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
+                onClick={handleCategoryOpen}
               >
-                <img 
-                  src={(hasActiveFilters() || categoryCount > 0) ? "/cubes.svg" : "/cubes_bw.svg"} 
-                  alt="Categories" 
+                <Image
+                  alt="Categories"
                   className={
                     `w-7 h-7 object-contain transition-all duration-150 ` +
-                    ((hasActiveFilters() || categoryCount > 0) ? "" : "dark:invert")
+                    (hasActiveFilters() || categoryCount > 0 ? "" : "dark:invert")
                   }
+                  height={28}
+                  src={hasActiveFilters() || categoryCount > 0 ? "/cubes.svg" : "/cubes_bw.svg"}
+                  width={28}
                 />
                 <span className="text-sm font-medium">Filters</span>
               </button>
@@ -325,25 +347,28 @@ export const Navbar = memo(function Navbar() {
 
         <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
           <NavbarItem>
-            <button 
-              onClick={handleMenuOpen}
-              className="flex items-center cursor-pointer"
-            >
-              <img 
-                src="/baby-toy.svg" 
-                alt="Menu" 
-                className="w-8 h-8 object-contain" 
+            <button className="flex items-center cursor-pointer" onClick={handleMenuOpen}>
+              <Image
+                alt="Menu"
+                className="w-8 h-8 object-contain"
+                height={32}
+                src="/baby-toy.svg"
+                width={32}
               />
             </button>
           </NavbarItem>
         </NavbarContent>
       </HeroUINavbar>
-  {/* Subcategory chips bar (hidden on small screens, visible lg+) */}
-  <SubcategoryChipsBar stickyOffset={navHeight} className="hidden lg:block" />
+      {/* Subcategory chips bar (hidden on small screens, visible lg+) */}
+      <SubcategoryChipsBar className="hidden lg:block" stickyOffset={navHeight} />
 
       {/* Top Drawer for Categories */}
-      <Drawer 
-        isOpen={isOpen} 
+      <Drawer
+        backdrop="opaque"
+        isDismissable={true}
+        isOpen={isOpen}
+        placement="top"
+        size="xl"
         onOpenChange={(open) => {
           if (!open) {
             // Reset temp state when drawer closes
@@ -352,29 +377,28 @@ export const Navbar = memo(function Navbar() {
           }
           onOpenChange();
         }}
-        placement="top"
-        size="xl"
-        isDismissable={true}
-        backdrop="opaque"
       >
-  <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
+        <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
           <DrawerHeader className="flex flex-col gap-3">
             <FiltersHeader
-              title="Categories & Filters"
-              onClose={onClose}
-              showResetAll={(categoryCount > 0 || !isEverythingSelected) && (filterCount > 0 || hasTempActiveFilters())}
-              onResetAll={handleResetAll}
               showCategoryChips={true}
+              showResetAll={
+                (categoryCount > 0 || !isEverythingSelected) &&
+                (filterCount > 0 || hasTempActiveFilters())
+              }
+              title="Categories & Filters"
+              onClearAgeRange={handleClearAgeRange}
               onClearCategory={handleClearCategory}
               onClearGender={handleClearGender}
-              onClearOnSale={handleClearOnSale}
               onClearInStock={handleClearInStock}
               onClearItemCondition={handleClearItemCondition}
+              onClearLocationRange={handleClearLocationRange}
+              onClearOnSale={handleClearOnSale}
+              onClearPriceRange={handleClearPriceRange}
               onClearSellerRating={handleClearSellerRating}
               onClearSortBy={handleClearSortBy}
-              onClearAgeRange={handleClearAgeRange}
-              onClearPriceRange={handleClearPriceRange}
-              onClearLocationRange={handleClearLocationRange}
+              onClose={onClose}
+              onResetAll={handleResetAll}
             />
           </DrawerHeader>
           <DrawerBody className="pb-6">
@@ -384,39 +408,39 @@ export const Navbar = memo(function Navbar() {
             />
           </DrawerBody>
           <DrawerFooter>
-                <Button 
-                  color="danger" 
-                  variant="light" 
-                  onPress={() => {
-                    handleCancelAll();
-                    onClose();
-                  }}
-                >
-                  Close
-                </Button>
-                <Button 
-                  color="primary" 
-                  onPress={() => {
-                    handleApplyAll();
-                    onClose();
-                  }}
-                >
-                  Apply
-                </Button>
-              </DrawerFooter>
+            <Button
+              color="danger"
+              variant="light"
+              onPress={() => {
+                handleCancelAll();
+                onClose();
+              }}
+            >
+              Close
+            </Button>
+            <Button
+              color="primary"
+              onPress={() => {
+                handleApplyAll();
+                onClose();
+              }}
+            >
+              Apply
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
       {/* Right Drawer for Menu */}
-      <Drawer 
-        isOpen={isMenuOpen} 
-        onOpenChange={onMenuOpenChange}
+      <Drawer
+        backdrop="opaque"
+        isDismissable={true}
+        isOpen={isMenuOpen}
         placement="right"
         size={isLargeScreen ? "sm" : "xs"}
-        isDismissable={true}
-        backdrop="opaque"
+        onOpenChange={onMenuOpenChange}
       >
-  <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
+        <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
           <DrawerHeader className="flex items-center justify-between px-4 py-3">
             <h2 className="text-lg font-semibold">Menu</h2>
             <Button
@@ -435,16 +459,33 @@ export const Navbar = memo(function Navbar() {
                 <span className="text-sm font-medium">Theme</span>
                 <ThemeSwitch />
               </div>
-              <NextLink href="/favorites" onClick={onMenuClose} className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors">
+              <NextLink
+                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors"
+                href="/favorites"
+                onClick={onMenuClose}
+              >
                 <span className="text-sm font-medium flex items-center gap-2">
                   {/* Heart icon */}
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                   Favorites
                 </span>
                 {favoritesCount > 0 && (
-                  <span className="text-xs font-semibold bg-rose-200 text-rose-800 rounded-full px-2 py-0.5">{favoritesCount}</span>
+                  <span className="text-xs font-semibold bg-rose-200 text-rose-800 rounded-full px-2 py-0.5">
+                    {favoritesCount}
+                  </span>
                 )}
               </NextLink>
             </div>
@@ -458,41 +499,41 @@ export const Navbar = memo(function Navbar() {
       </Drawer>
 
       {/* Filters Modal */}
-      <Modal 
-        isOpen={isFiltersModalOpen} 
-        onOpenChange={handleFiltersModalClose}
-        placement="center"
+      <Modal
         backdrop="opaque"
-        size="2xl"
+        isOpen={isFiltersModalOpen}
+        placement="center"
         scrollBehavior="inside"
+        size="2xl"
+        onOpenChange={handleFiltersModalClose}
       >
-  <ModalContent className="bg-white dark:bg-[#24032c] hide-close-button">
+        <ModalContent className="bg-white dark:bg-[#24032c] hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
                 <FiltersHeader
+                  showResetAll={filterCount > 0 || hasTempActiveFilters()}
                   title="Filters"
-                  onClose={handleFiltersModalClose}
-                  showResetAll={(filterCount > 0 || hasTempActiveFilters())}
-                  onResetAll={handleResetFilters}
+                  onClearAgeRange={handleClearAgeRange}
                   onClearGender={handleClearGender}
-                  onClearOnSale={handleClearOnSale}
                   onClearInStock={handleClearInStock}
                   onClearItemCondition={handleClearItemCondition}
+                  onClearLocationRange={handleClearLocationRange}
+                  onClearOnSale={handleClearOnSale}
+                  onClearPriceRange={handleClearPriceRange}
                   onClearSellerRating={handleClearSellerRating}
                   onClearSortBy={handleClearSortBy}
-                  onClearAgeRange={handleClearAgeRange}
-                  onClearPriceRange={handleClearPriceRange}
-                  onClearLocationRange={handleClearLocationRange}
+                  onClose={handleFiltersModalClose}
+                  onResetAll={handleResetFilters}
                 />
               </ModalHeader>
               <ModalBody>
                 <FiltersList />
               </ModalBody>
               <ModalFooter>
-                <Button 
-                  color="danger" 
-                  variant="light" 
+                <Button
+                  color="danger"
+                  variant="light"
                   onPress={() => {
                     handleCancelFilters();
                     onClose();
@@ -500,8 +541,8 @@ export const Navbar = memo(function Navbar() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  color="primary" 
+                <Button
+                  color="primary"
                   onPress={() => {
                     handleApplyFilters();
                     onClose();

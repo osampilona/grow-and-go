@@ -4,7 +4,7 @@ import { memo, useMemo, useCallback, useEffect } from "react";
 import { Slider } from "@heroui/slider";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
-import { Button } from "@heroui/button";
+
 import { useFilterStore } from "../stores/filterStore";
 import { useDynamicPriceBounds } from "../utils/pricing";
 import { useFeedStore } from "../stores/feedStore";
@@ -13,7 +13,7 @@ import { useFilterOptimizations } from "../hooks/useFilterOptimizations";
 const FiltersList = memo(function FiltersList() {
   // Use optimized hook instead of direct store access
   const optimizedFilters = useFilterOptimizations();
-  
+
   // Get only the action functions we need
   const setTempAgeRange = useFilterStore((state) => state.setTempAgeRange);
   const setTempPriceRange = useFilterStore((state) => state.setTempPriceRange);
@@ -38,30 +38,32 @@ const FiltersList = memo(function FiltersList() {
   const handleGirlClick = useCallback(() => toggleTempGender("Girl"), [toggleTempGender]);
 
   // MEMOIZED: Gender button styles to prevent recalculation
-  const boyButtonClass = useMemo(() => 
-    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
-    (optimizedFilters.genderState.isBoySelected 
-      ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm" 
-      : ""),
+  const boyButtonClass = useMemo(
+    () =>
+      `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
+      (optimizedFilters.genderState.isBoySelected
+        ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm"
+        : ""),
     [optimizedFilters.genderState.isBoySelected]
   );
 
-  const girlButtonClass = useMemo(() => 
-    `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
-    (optimizedFilters.genderState.isGirlSelected 
-      ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm" 
-      : ""),
+  const girlButtonClass = useMemo(
+    () =>
+      `flex flex-col items-center px-2 py-1 rounded-lg hover:bg-default-100 focus:outline-none transition-all duration-150 cursor-pointer ` +
+      (optimizedFilters.genderState.isGirlSelected
+        ? "bg-stone-200/80 backdrop-blur-sm dark:bg-white/10 dark:backdrop-blur-sm"
+        : ""),
     [optimizedFilters.genderState.isGirlSelected]
   );
 
   // MEMOIZED: Image sources to prevent recalculation
-  const boyImageSrc = useMemo(() => 
-    optimizedFilters.genderState.isBoySelected ? "/boy.svg" : "/boy_bw.svg",
+  const boyImageSrc = useMemo(
+    () => (optimizedFilters.genderState.isBoySelected ? "/boy.svg" : "/boy_bw.svg"),
     [optimizedFilters.genderState.isBoySelected]
   );
 
-  const girlImageSrc = useMemo(() => 
-    optimizedFilters.genderState.isGirlSelected ? "/girl.svg" : "/girl_bw.svg",
+  const girlImageSrc = useMemo(
+    () => (optimizedFilters.genderState.isGirlSelected ? "/girl.svg" : "/girl_bw.svg"),
     [optimizedFilters.genderState.isGirlSelected]
   );
 
@@ -70,38 +72,67 @@ const FiltersList = memo(function FiltersList() {
   const imageStyle = useMemo(() => ({ minWidth: 28, minHeight: 28 }), []);
 
   // MEMOIZED: Other handlers to prevent unnecessary re-renders
-  const handleAgeRangeChange = useCallback((value: number | number[]) => {
-    setTempAgeRange(Array.isArray(value) ? value : [value]);
-  }, [setTempAgeRange]);
+  const handleAgeRangeChange = useCallback(
+    (value: number | number[]) => {
+      setTempAgeRange(Array.isArray(value) ? value : [value]);
+    },
+    [setTempAgeRange]
+  );
 
-  const handlePriceRangeChange = useCallback((value: number | number[]) => {
-    setTempPriceRange(Array.isArray(value) ? value : [value]);
-  }, [setTempPriceRange]);
+  const handlePriceRangeChange = useCallback(
+    (value: number | number[]) => {
+      setTempPriceRange(Array.isArray(value) ? value : [value]);
+    },
+    [setTempPriceRange]
+  );
 
-  const handleSortByChange = useCallback((keys: any) => {
-    setTempSortBy(Array.from(keys)[0] as string);
-  }, [setTempSortBy]);
+  const handleSortByChange = useCallback(
+    (keys: any) => {
+      setTempSortBy(Array.from(keys)[0] as string);
+    },
+    [setTempSortBy]
+  );
 
-  const handleItemConditionChange = useCallback((keys: any) => {
-    setTempItemCondition(Array.from(keys)[0] as string);
-  }, [setTempItemCondition]);
+  const handleItemConditionChange = useCallback(
+    (keys: any) => {
+      setTempItemCondition(Array.from(keys)[0] as string);
+    },
+    [setTempItemCondition]
+  );
 
-  const handleSellerRatingChange = useCallback((keys: any) => {
-    const rating = Array.from(keys)[0];
-    setTempSellerRating(rating ? parseFloat(rating as string) : null);
-  }, [setTempSellerRating]);
+  const handleSellerRatingChange = useCallback(
+    (keys: any) => {
+      const rating = Array.from(keys)[0];
 
-  const handleLocationRangeChange = useCallback((value: number | number[]) => {
-    setTempLocationRange(Array.isArray(value) ? value[0] : value);
-  }, [setTempLocationRange]);
+      setTempSellerRating(rating ? parseFloat(rating as string) : null);
+    },
+    [setTempSellerRating]
+  );
+
+  const handleLocationRangeChange = useCallback(
+    (value: number | number[]) => {
+      setTempLocationRange(Array.isArray(value) ? value[0] : value);
+    },
+    [setTempLocationRange]
+  );
 
   // New handlers
-  const handleSizeToggle = useCallback((size: string) => () => toggleTempSize(size), [toggleTempSize]);
-  const handleBrandToggle = useCallback((brand: string) => () => toggleTempBrand(brand), [toggleTempBrand]);
-  const handleShippingToggle = useCallback((method: string) => () => toggleTempShippingMethod(method), [toggleTempShippingMethod]);
+  const handleSizeToggle = useCallback(
+    (size: string) => () => toggleTempSize(size),
+    [toggleTempSize]
+  );
+  const handleBrandToggle = useCallback(
+    (brand: string) => () => toggleTempBrand(brand),
+    [toggleTempBrand]
+  );
+  const handleShippingToggle = useCallback(
+    (method: string) => () => toggleTempShippingMethod(method),
+    [toggleTempShippingMethod]
+  );
 
   // Trigger feed load once (side-effect) for dynamic price bounds
-  const loadFeed = useFeedStore(s => s.loadFeed);
+  const loadFeed = useFeedStore((s) => s.loadFeed);
+
   useEffect(() => {
     loadFeed();
   }, [loadFeed]);
@@ -109,24 +140,33 @@ const FiltersList = memo(function FiltersList() {
   const { maxPrice } = useDynamicPriceBounds();
 
   // MEMOIZED: Tooltip content to prevent recreating objects
-  const ageTooltipContent = useMemo(() => 
-    `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`, 
+  const ageTooltipContent = useMemo(
+    () => `${optimizedFilters.ageRange[0]} - ${optimizedFilters.ageRange[1]} months`,
     [optimizedFilters.ageRange]
   );
 
-  const priceTooltipContent = useMemo(() => 
-    `DKK ${optimizedFilters.priceRange[0]} - DKK ${optimizedFilters.priceRange[1]}`,
+  const priceTooltipContent = useMemo(
+    () => `DKK ${optimizedFilters.priceRange[0]} - DKK ${optimizedFilters.priceRange[1]}`,
     [optimizedFilters.priceRange]
   );
 
   // Data lists (memoized)
-  const sizeOptions = useMemo(() => ["0-3M","3-6M","6-9M","9-12M","12-18M","18-24M","2T","3T","4T","5T"], []);
-  const brandOptions = useMemo(() => ["Carter's","H&M","Nike","Adidas","Zara","GAP","Next","Old Navy"], []);
-  const shippingOptions = useMemo(() => [
-    { key: 'pickup', label: 'Pickup' },
-    { key: 'shipping', label: 'Shipping' },
-    { key: 'local-delivery', label: 'Local Delivery' },
-  ], []);
+  const sizeOptions = useMemo(
+    () => ["0-3M", "3-6M", "6-9M", "9-12M", "12-18M", "18-24M", "2T", "3T", "4T", "5T"],
+    []
+  );
+  const brandOptions = useMemo(
+    () => ["Carter's", "H&M", "Nike", "Adidas", "Zara", "GAP", "Next", "Old Navy"],
+    []
+  );
+  const shippingOptions = useMemo(
+    () => [
+      { key: "pickup", label: "Pickup" },
+      { key: "shipping", label: "Shipping" },
+      { key: "local-delivery", label: "Local Delivery" },
+    ],
+    []
+  );
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -135,40 +175,28 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Gender</h3>
         <div className="flex gap-3">
-          <button
-            onClick={handleBoyClick}
-            className={boyButtonClass}
-            style={buttonBaseStyle}
-          >
+          <button className={boyButtonClass} style={buttonBaseStyle} onClick={handleBoyClick}>
             <img
-              src={boyImageSrc}
               alt="Boy"
               className={`w-7 h-7 mb-1 object-contain transition-all duration-150 ${
                 optimizedFilters.genderState.isBoySelected ? "" : "dark:invert"
               }`}
+              src={boyImageSrc}
               style={imageStyle}
             />
-            <span className="text-xs font-semibold text-foreground">
-              Boy
-            </span>
+            <span className="text-xs font-semibold text-foreground">Boy</span>
           </button>
-          
-          <button
-            onClick={handleGirlClick}
-            className={girlButtonClass}
-            style={buttonBaseStyle}
-          >
+
+          <button className={girlButtonClass} style={buttonBaseStyle} onClick={handleGirlClick}>
             <img
-              src={girlImageSrc}
               alt="Girl"
               className={`w-7 h-7 mb-1 object-contain transition-all duration-150 ${
                 optimizedFilters.genderState.isGirlSelected ? "" : "dark:invert"
               }`}
+              src={girlImageSrc}
               style={imageStyle}
             />
-            <span className="text-xs font-semibold text-foreground">
-              Girl
-            </span>
+            <span className="text-xs font-semibold text-foreground">Girl</span>
           </button>
         </div>
       </div>
@@ -181,17 +209,17 @@ const FiltersList = memo(function FiltersList() {
           </span>
         </div>
         <Slider
-          step={1}
-          minValue={0}
-          maxValue={60}
-          value={optimizedFilters.ageRange}
-          onChange={handleAgeRangeChange}
           className="w-full"
           color="primary"
+          maxValue={60}
+          minValue={0}
           showTooltip={true}
+          step={1}
           tooltipProps={{
-            content: ageTooltipContent
+            content: ageTooltipContent,
           }}
+          value={optimizedFilters.ageRange}
+          onChange={handleAgeRangeChange}
         />
       </div>
 
@@ -204,17 +232,17 @@ const FiltersList = memo(function FiltersList() {
           </span>
         </div>
         <Slider
-          step={5}
-          minValue={0}
-          maxValue={maxPrice}
-          value={optimizedFilters.priceRange}
-          onChange={handlePriceRangeChange}
           className="w-full"
           color="secondary"
+          maxValue={maxPrice}
+          minValue={0}
           showTooltip={true}
+          step={5}
           tooltipProps={{
-            content: priceTooltipContent
+            content: priceTooltipContent,
           }}
+          value={optimizedFilters.priceRange}
+          onChange={handlePriceRangeChange}
         />
       </div>
 
@@ -222,14 +250,17 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Sizes</h3>
         <div className="flex flex-wrap gap-2">
-          {sizeOptions.map(sz => {
+          {sizeOptions.map((sz) => {
             const selected = optimizedFilters.sizes?.includes(sz);
+
             return (
               <button
                 key={sz}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? "bg-primary text-white border-primary" : "border-default-200 hover:bg-default-100"}`}
                 onClick={handleSizeToggle(sz)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-primary text-white border-primary' : 'border-default-200 hover:bg-default-100'}`}
-              >{sz}</button>
+              >
+                {sz}
+              </button>
             );
           })}
         </div>
@@ -240,8 +271,8 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Item Condition</h3>
         <Select
-          placeholder="Select item condition..."
           className="w-full"
+          placeholder="Select item condition..."
           selectedKeys={[optimizedFilters.itemCondition]}
           onSelectionChange={handleItemConditionChange}
         >
@@ -258,14 +289,17 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Brands</h3>
         <div className="flex flex-wrap gap-2">
-          {brandOptions.map(brand => {
+          {brandOptions.map((brand) => {
             const selected = optimizedFilters.brands?.includes(brand);
+
             return (
               <button
                 key={brand}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? "bg-secondary text-white border-secondary" : "border-default-200 hover:bg-default-100"}`}
                 onClick={handleBrandToggle(brand)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-secondary text-white border-secondary' : 'border-default-200 hover:bg-default-100'}`}
-              >{brand}</button>
+              >
+                {brand}
+              </button>
             );
           })}
         </div>
@@ -277,16 +311,16 @@ const FiltersList = memo(function FiltersList() {
         <div className="flex flex-col gap-3">
           <Switch
             color="primary"
-            size="sm"
             isSelected={optimizedFilters.inStock}
+            size="sm"
             onValueChange={setTempInStock}
           >
             Only In Stock
           </Switch>
           <Switch
             color="warning"
-            size="sm"
             isSelected={optimizedFilters.onSale}
+            size="sm"
             onValueChange={setTempOnSale}
           >
             On Sale Only
@@ -299,14 +333,17 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Delivery Methods</h3>
         <div className="flex flex-wrap gap-2">
-          {shippingOptions.map(opt => {
+          {shippingOptions.map((opt) => {
             const selected = optimizedFilters.shippingMethods?.includes(opt.key);
+
             return (
               <button
                 key={opt.key}
+                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? "bg-warning text-black border-warning" : "border-default-200 hover:bg-default-100"}`}
                 onClick={handleShippingToggle(opt.key)}
-                className={`px-2 py-1 text-xs rounded-md border transition-colors ${selected ? 'bg-warning text-black border-warning' : 'border-default-200 hover:bg-default-100'}`}
-              >{opt.label}</button>
+              >
+                {opt.label}
+              </button>
             );
           })}
         </div>
@@ -317,19 +354,19 @@ const FiltersList = memo(function FiltersList() {
         <h3 className="text-sm font-semibold text-foreground">Location Range</h3>
         <div className="px-2">
           <Slider
-            size="md"
-            step={5}
-            minValue={0}
-            maxValue={100}
-            value={optimizedFilters.locationRange}
-            onChange={handleLocationRangeChange}
+            className="max-w-md"
             color="warning"
             formatOptions={{
               style: "unit",
               unit: "kilometer",
-              unitDisplay: "short"
+              unitDisplay: "short",
             }}
-            className="max-w-md"
+            maxValue={100}
+            minValue={0}
+            size="md"
+            step={5}
+            value={optimizedFilters.locationRange}
+            onChange={handleLocationRangeChange}
           />
         </div>
         <p className="text-xs text-foreground-500 px-2">
@@ -341,9 +378,11 @@ const FiltersList = memo(function FiltersList() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Seller Rating</h3>
         <Select
-          placeholder="Select minimum rating"
           className="w-full"
-          selectedKeys={optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []}
+          placeholder="Select minimum rating"
+          selectedKeys={
+            optimizedFilters.sellerRating ? [optimizedFilters.sellerRating.toString()] : []
+          }
           onSelectionChange={handleSellerRatingChange}
         >
           <SelectItem key="4.0">4.0+ stars</SelectItem>
@@ -361,22 +400,28 @@ const FiltersList = memo(function FiltersList() {
         <div className="flex flex-col gap-3">
           <Switch
             color="success"
-            size="sm"
             isSelected={optimizedFilters.petFree}
+            size="sm"
             onValueChange={toggleTempPetFree}
-          >Pet Free Home</Switch>
+          >
+            Pet Free Home
+          </Switch>
           <Switch
             color="success"
-            size="sm"
             isSelected={optimizedFilters.smokeFree}
+            size="sm"
             onValueChange={toggleTempSmokeFree}
-          >Smoke Free Home</Switch>
+          >
+            Smoke Free Home
+          </Switch>
           <Switch
             color="success"
-            size="sm"
             isSelected={optimizedFilters.perfumeFree}
+            size="sm"
             onValueChange={toggleTempPerfumeFree}
-          >Perfume Free</Switch>
+          >
+            Perfume Free
+          </Switch>
         </div>
       </div>
 
@@ -385,18 +430,20 @@ const FiltersList = memo(function FiltersList() {
         <h3 className="text-sm font-semibold text-foreground">Deals</h3>
         <Switch
           color="secondary"
-          size="sm"
           isSelected={optimizedFilters.bundleDeal}
+          size="sm"
           onValueChange={toggleTempBundleDeal}
-        >Bundle Deal Available</Switch>
+        >
+          Bundle Deal Available
+        </Switch>
       </div>
 
       {/* Sort By (bottom) */}
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-foreground">Sort By</h3>
         <Select
-          placeholder="Sort products by..."
           className="w-full"
+          placeholder="Sort products by..."
           selectedKeys={[optimizedFilters.sortBy]}
           onSelectionChange={handleSortByChange}
         >
@@ -407,7 +454,6 @@ const FiltersList = memo(function FiltersList() {
           <SelectItem key="popular">Most Popular</SelectItem>
         </Select>
       </div>
-
     </div>
   );
 });

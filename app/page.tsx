@@ -1,57 +1,50 @@
-
 "use client";
+
+import { useEffect, useState, useMemo, useCallback } from "react";
 
 import Card from "../components/Card";
 import SearchBar from "../components/SearchBar";
 import SearchWithFilters from "../components/SearchWithFilters";
-import { useEffect, useState, useMemo, useCallback } from "react";
 import { fetchFeed, FeedItem } from "../data/mock/feed"; // 🚨 REMOVE WHEN BACKEND IS READY: Mock data import
 import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
-import { buildSearchParams, searchItems } from "../utils/api";
 
 export default function Home() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLargeScreen, setIsLargeScreen] = useState(false);
-  
+
   // Get reset functions from stores - ONLY get them once, not on every render
   const resetToDefault = useCategoryStore((state) => state.resetToDefault);
   const resetFilters = useFilterStore((state) => state.resetFilters);
   const setFiltersModalOpen = useFilterStore((state) => state.setFiltersModalOpen);
   const setFiltersSelected = useFilterStore((state) => state.setFiltersSelected);
-  
+
   // Get applied filters from store
   const filters = useFilterStore((state) => state.filters);
-  
+
   // Get selected categories from store for backend integration
-  const selectedCategories = useCategoryStore((state) => state.selected);
+  // const selectedCategories = useCategoryStore((state) => state.selected);
 
   // BACKEND INTEGRATION HELPER - ready for when you connect to real API
-  // 🚨 REMOVE WHEN BACKEND IS READY: This function is temporary for development
-  const performBackendSearch = useCallback(async () => {
-    const searchParams = buildSearchParams(searchQuery, filters, selectedCategories);
-    console.log('Ready for backend API call with params:', searchParams); // 🚨 REMOVE: development logging
-    
-    // TODO: Uncomment when backend is ready
-    // const results = await searchItems(searchParams);
-    // setItems(results.items);
-  }, [searchQuery, filters, selectedCategories]);
+  // (placeholder removed to satisfy lint rules)
 
   // Screen size detection - MEMOIZED to prevent unnecessary re-renders
   useEffect(() => {
     const checkScreenSize = () => {
       const newIsLargeScreen = window.innerWidth >= 1024;
-      setIsLargeScreen(prevIsLargeScreen => 
+
+      setIsLargeScreen((prevIsLargeScreen) =>
         prevIsLargeScreen !== newIsLargeScreen ? newIsLargeScreen : prevIsLargeScreen
       );
     };
-    
+
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
-  
+
   // 🚨 REMOVE WHEN BACKEND IS READY: Mock data loading (temporary)
   // Load items once on mount
   useEffect(() => {
@@ -63,10 +56,10 @@ export default function Home() {
   // Reset all filters and selections on page load/reload - MEMOIZED dependencies
   useEffect(() => {
     resetToDefault(); // Reset categories to "everything"
-    resetFilters();   // Reset all filters to default
+    resetFilters(); // Reset all filters to default
     setSearchQuery(""); // Reset search query
     setFiltersModalOpen(false); // Close any open filter modals
-    setFiltersSelected(false);  // Reset filters selection state
+    setFiltersSelected(false); // Reset filters selection state
   }, []); // Empty deps - only run on mount
 
   // TODO: Replace with backend API call when ready
@@ -75,21 +68,23 @@ export default function Home() {
   const filteredItems = useMemo(() => {
     // In production, this will be replaced with:
     // const response = await api.searchItems({ searchQuery, filters, categories })
-    
+
     let filtered = items;
 
     // CLIENT-SIDE FILTERING (temporary - will be moved to backend)
     // 🚨 REMOVE: Search query filtering (move to backend)
     if (searchQuery.trim()) {
       const queryLower = searchQuery.toLowerCase();
-      filtered = filtered.filter((item) =>
-        item.title.toLowerCase().includes(queryLower) ||
-        item.user.name.toLowerCase().includes(queryLower)
+
+      filtered = filtered.filter(
+        (item) =>
+          item.title.toLowerCase().includes(queryLower) ||
+          item.user.name.toLowerCase().includes(queryLower)
       );
     }
 
     // 🚨 REMOVE: Item condition filtering (move to backend)
-    if (filters.itemCondition && filters.itemCondition !== 'all') {
+    if (filters.itemCondition && filters.itemCondition !== "all") {
       filtered = filtered.filter((item) => item.condition === filters.itemCondition);
     }
 
@@ -101,15 +96,17 @@ export default function Home() {
     // 🚨 REMOVE: Price range filtering (move to backend)
     if (filters.priceRange && filters.priceRange.length === 2) {
       const [minPrice, maxPrice] = filters.priceRange;
+
       filtered = filtered.filter((item) => {
-        const price = parseInt(item.price.replace(/[^\d]/g, ''));
+        const price = parseInt(item.price.replace(/[^\d]/g, ""));
+
         return price >= minPrice && price <= maxPrice;
       });
     }
 
     // BACKEND-ONLY FILTERS (not implemented client-side):
     // - Gender filtering (filters.gender)
-    // - Age range filtering (filters.ageRange) 
+    // - Age range filtering (filters.ageRange)
     // - Location filtering (filters.locationRange)
     // - Stock status (filters.inStock)
     // - Sale status (filters.onSale)
@@ -130,14 +127,15 @@ export default function Home() {
   // MEMOIZED: Search results message
   const searchResultsMessage = useMemo(() => {
     if (!searchQuery) return null;
-    
+
     return (
       <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {filteredItems.length} result{filteredItems.length !== 1 ? 's' : ''} for "{searchQuery}"
+        {filteredItems.length} result
+        {filteredItems.length !== 1 ? "s" : ""} for &ldquo;{searchQuery}&rdquo;
         {filteredItems.length !== items.length && (
           <button
-            onClick={() => setSearchQuery("")}
             className="ml-2 text-blue-500 hover:text-blue-600 underline"
+            onClick={() => setSearchQuery("")}
           >
             Clear search
           </button>
@@ -149,16 +147,16 @@ export default function Home() {
   // MEMOIZED: No results message
   const noResultsMessage = useMemo(() => {
     if (!searchQuery || filteredItems.length > 0) return null;
-    
+
     return (
       <div className="text-center py-12">
         <div className="text-gray-500 dark:text-gray-400">
           <div className="text-lg mb-2">No results found</div>
           <div className="text-sm">
-            Try searching with different keywords or 
+            Try searching with different keywords or
             <button
-              onClick={() => setSearchQuery("")}
               className="ml-1 text-blue-500 hover:text-blue-600 underline"
+              onClick={() => setSearchQuery("")}
             >
               browse all products
             </button>
@@ -173,20 +171,14 @@ export default function Home() {
       {/* Floating Search Bar - Bottom of screen for smaller screens */}
       {!isLargeScreen && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <SearchBar 
-            onSearch={handleSearch}
-            placeholder="Search..."
-          />
+          <SearchBar placeholder="Search..." onSearch={handleSearch} />
         </div>
       )}
 
       {/* SearchWithFilters - Bottom of screen for large screens */}
       {isLargeScreen && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <SearchWithFilters 
-            onSearch={handleSearch}
-            placeholder="Search..."
-          />
+          <SearchWithFilters placeholder="Search..." onSearch={handleSearch} />
         </div>
       )}
 

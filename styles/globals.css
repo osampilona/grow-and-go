@@ -28,11 +28,11 @@
 .cta-outline {
   border-width: 2px;
   background-color: transparent;
-  color: #208A80;
-  border-color: #208A80;
+  color: #208a80;
+  border-color: #208a80;
 }
 .cta-outline:hover {
-  background-color: #208A80;
+  background-color: #208a80;
   color: #ffffff;
 }
 .dark .cta-outline {
@@ -41,11 +41,11 @@
 }
 .dark .cta-outline:hover {
   background-color: #ffe599;
-  color: #0E172B;
+  color: #0e172b;
 }
 
 .cta-solid {
-  background-color: #208A80;
+  background-color: #208a80;
   color: #ffffff;
 }
 .cta-solid:hover {
@@ -53,7 +53,7 @@
 }
 .dark .cta-solid {
   background-color: #ffe599;
-  color: #0E172B;
+  color: #0e172b;
 }
 .dark .cta-solid:hover {
   opacity: 0.9;
