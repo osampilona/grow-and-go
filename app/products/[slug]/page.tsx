@@ -225,7 +225,7 @@ export default function ProductPage() {
               {/* Heart button in top right (same as Card) */}
               <button
                 aria-label="Toggle like"
-                className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30"
+                className="absolute top-3 right-3 p-1.5 rounded-full bg-white/60 backdrop-blur-md shadow-md border border-divider transition hover:bg-white/80 z-30 cursor-pointer heart-button"
                 onClick={async (e) => {
                   e.stopPropagation();
                   if (!product) return;

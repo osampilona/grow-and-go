@@ -21,3 +21,6 @@ package-lock.json
 
 # Misc
 .DS_Store
+
+# Backups
+pre-pull-backup_*/**
