@@ -296,7 +296,7 @@ export default function ProductPage() {
                   <Tab
                     key={t.key}
                     className={({ selected }) =>
-                      `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 ${selected ? "border-foreground text-foreground" : "border-transparent text-foreground/60 hover:text-foreground"}`
+                      `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 cursor-pointer select-none ${selected ? "border-foreground text-foreground" : "border-transparent text-foreground/60 hover:text-foreground"}`
                     }
                   >
                     {t.label}
