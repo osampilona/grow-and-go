@@ -85,3 +85,22 @@
 .swiper-wrapper {
   background: transparent !important;
 }
+
+/* Ensure grab hand cursor across carousel on hover/drag */
+.swiper-carousel-container .swiper,
+.swiper-carousel-container .swiper-wrapper,
+.swiper-carousel-container .swiper-slide,
+.swiper-carousel-container .swiper-slide > div,
+.swiper-carousel-container .swiper-slide button,
+.swiper-carousel-container .swiper-slide img {
+  cursor: grab !important;
+}
+
+.swiper-carousel-container .swiper:active,
+.swiper-carousel-container .swiper-wrapper:active,
+.swiper-carousel-container .swiper-slide:active,
+.swiper-carousel-container .swiper-slide > div:active,
+.swiper-carousel-container .swiper-slide button:active,
+.swiper-carousel-container .swiper-slide img:active {
+  cursor: grabbing !important;
+}
