@@ -1,15 +1,14 @@
 "use client";
 
 import { Avatar, Button } from "@heroui/react";
-import { Chip } from "@heroui/chip";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { mockFeed, FeedItem } from "@/data/mock/feed";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import { IoChatboxOutline } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
-import { Dialog } from "@headlessui/react";
+import { Dialog, Tab } from "@headlessui/react";
 import { categories, subcategoryMap } from "@/stores/categoryStore";
-import { getFilterChipProps, getCategoryChipProps, getSubcategoryChipProps } from "@/utils/colors";
 import { useLikeStore } from "@/stores/likeStore";
 import { ENABLE_FAVORITES_SYNC } from "@/utils/featureFlags";
 
@@ -32,6 +31,37 @@ export default function ProductPage() {
   const [chipsExpanded, setChipsExpanded] = useState(false);
   const [chipsTruncatable, setChipsTruncatable] = useState(false);
   const [chipsClampPx, setChipsClampPx] = useState<number | undefined>(undefined);
+
+  // Seller description clamp
+  const sellerDescRef = useRef<HTMLParagraphElement | null>(null);
+  const [sellerDescExpanded, setSellerDescExpanded] = useState(false);
+  const [sellerDescTruncatable, setSellerDescTruncatable] = useState(false);
+  const [sellerDescClampPx, setSellerDescClampPx] = useState<number | undefined>(undefined);
+
+  // Track selected tab to re-measure when Seller tab becomes visible
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const measureSellerDesc = () => {
+    if (sellerDescRef.current) {
+      const el = sellerDescRef.current;
+      const cs = window.getComputedStyle(el);
+      const lineH = parseFloat(cs.lineHeight || '0');
+      const lh = isNaN(lineH) || lineH === 0 ? parseFloat(cs.fontSize || '16') * 1.4 : lineH;
+      const lines = Math.round(el.scrollHeight / lh);
+      const needsClamp = lines > 3;
+      setSellerDescTruncatable(needsClamp);
+      setSellerDescClampPx(needsClamp ? lh * 3 : undefined);
+      if (!needsClamp) setSellerDescExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTab === 2) {
+      const t0 = setTimeout(measureSellerDesc, 0);
+      const t1 = setTimeout(measureSellerDesc, 150);
+      return () => { clearTimeout(t0); clearTimeout(t1); };
+    }
+  }, [selectedTab]);
 
   // When modal opens, defer an update to ensure correct sizing & pagination
   useEffect(() => {
@@ -93,6 +123,19 @@ export default function ProductPage() {
           setChipsClampPx(undefined);
           setChipsExpanded(false);
         }
+      }
+
+      // Seller description lines
+      if (sellerDescRef.current) {
+        const el = sellerDescRef.current;
+        const cs = window.getComputedStyle(el);
+        const lineH = parseFloat(cs.lineHeight || '0');
+        const lh = isNaN(lineH) || lineH === 0 ? parseFloat(cs.fontSize || '16') * 1.4 : lineH;
+        const lines = Math.round(el.scrollHeight / lh);
+        const needsClamp = lines > 3;
+        setSellerDescTruncatable(needsClamp);
+        setSellerDescClampPx(needsClamp ? lh * 3 : undefined);
+        if (!needsClamp) setSellerDescExpanded(false);
       }
     };
 
@@ -203,129 +246,167 @@ export default function ProductPage() {
             </div>
           </div>
           {/* Right: Product info area */}
-          <div className="flex flex-col justify-between w-full lg:w-1/2 h-full gap-3">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3">
+          <div className="flex flex-col w-full lg:w-1/2 h-full gap-4">
+            <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-4xl font-bold leading-tight">{product?.title || "Product Title"}</h2>
                 </div>
-              </div>
               {/* Price and actions */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 <h4 className="text-2xl font-bold">{product?.price || '123DKK'}</h4>
                 <div className="flex items-center gap-4 mt-2">
-                  <Button radius="full" size="lg" variant="bordered" color="secondary" className="font-bold px-8">
+                  <Button
+                    radius="full"
+                    size="lg"
+                    color="default"
+                    disableAnimation
+                    disableRipple
+                    className="font-bold px-8 border-2 bg-transparent border-[#208A80] text-[#208A80] hover:bg-[#208A80] hover:text-white dark:border-[#2EC4B6] dark:text-[#2EC4B6] dark:hover:bg-[#2EC4B6] dark:hover:text-[#0E172B]"
+                  >
                     ADD TO CART
                   </Button>
-                  <Button radius="full" size="lg" color="secondary" className="font-bold px-8">
+                  <Button
+                    radius="full"
+                    size="lg"
+                    color="default"
+                    disableAnimation
+                    disableRipple
+                    className="font-bold px-8 bg-[#208A80] text-white hover:opacity-90 dark:bg-[#2EC4B6] dark:text-[#0E172B] dark:hover:opacity-90"
+                  >
                     BUY NOW
                   </Button>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-4">
-              {/* Description */}
-              {/* User avatar, name, and rating */}
-              <div className="flex items-center gap-4 justify-between w-full">
-                <div className="flex items-center gap-4">
-                  <Avatar size="md" src={product?.user.avatar} alt={product?.user.name} />
-                  <span className="font-semibold text-lg">{product?.user.name}</span>
-                  <span className="text-yellow-500 font-semibold flex items-center gap-1">
-                    {product?.user.rating?.toFixed(1)}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
-                  </span>
-                </div>
-                <Button radius="sm" size="sm" variant="light" color="secondary" className="font-semibold">
-                  <span className="flex items-center gap-2">
-                    <IoChatboxOutline className="w-5 h-5" />
-                    Chat with {product?.user.name}
-                  </span>
-                </Button>
-              </div>
-              <div>
-                <p
-                  ref={descRef}
-                  className="text-gray-600 text-lg dark:text-white"
-                  style={!descExpanded && descTruncatable && descClampPx ? { maxHeight: `${descClampPx}px`, overflow: 'hidden' } : undefined}
-                >
-                  {product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}
-                </p>
-                {descTruncatable && (
-                  <button
-                    className="mt-1 text-sm font-medium text-primary hover:underline"
-                    onClick={() => setDescExpanded(v => !v)}
-                  >
-                    {descExpanded ? 'Read less' : 'Read more'}
-                  </button>
-                )}
-              </div>
-              {/* All Filters / Metadata (dev view) */}
-              {product && (
-                <>
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Attributes (Dev Preview)</h3>
-                  <div
-                    ref={chipsRef}
-                    className="flex flex-wrap gap-2"
-                    style={!chipsExpanded && chipsTruncatable && chipsClampPx ? {
-                      maxHeight: `${chipsClampPx}px`,
-                      overflow: 'hidden',
-                    } : undefined}
-                  >
-                    {/* Category */}
-                    {(() => {
-                      const catName = categories.find(c => c.id === product.categoryId)?.name || product.categoryId;
-                      return <Chip size="sm" variant="flat" {...getCategoryChipProps(product.categoryId)}>Cat: {catName}</Chip>;
-                    })()}
-                    {/* Subcategories */}
-                    {(product.subcategoryIds || []).map(scId => {
-                      // Flatten subcategoryMap for name lookup
-                      const group = Object.values(subcategoryMap).flat();
-                      const sc = group.find(s => s.id === scId);
-                      return <Chip key={scId} size="sm" variant="flat" {...getSubcategoryChipProps(scId)}>Sub: {sc?.name || scId}</Chip>;
-                    })}
-                    {/* Gender */}
-                    {(product.gender || []).map(g => (
-                      <Chip key={g} size="sm" variant="flat" {...getFilterChipProps('gender')}>{g}</Chip>
-                    ))}
-                    {/* Age Range */}
-                    <Chip size="sm" variant="flat" {...getFilterChipProps('age')}>Age: {product.ageMonthsRange[0]}-{product.ageMonthsRange[1]}m</Chip>
-                    {/* Sizes */}
-                    {(product.sizes || []).map(sz => <Chip key={sz} size="sm" variant="flat" {...getFilterChipProps('size')}>Size {sz}</Chip>)}
-                    {/* Brand */}
-                    {product.brand && <Chip size="sm" variant="flat" {...getFilterChipProps('brand')}>Brand: {product.brand}</Chip>}
-                    {/* Condition */}
-                    <Chip size="sm" variant="flat" {...getFilterChipProps('condition')}>{product.condition.replace('-', ' ')}</Chip>
-                    {/* Stock / Sale */}
-                    {!product.inStock ? (
-                      <Chip size="sm" variant="flat" {...getFilterChipProps('availability')}>Out of Stock</Chip>
-                    ) : (
-                      <Chip size="sm" variant="flat" {...getFilterChipProps('availability')}>In Stock</Chip>
+              {/* Tabs: Description / Attributes (extensible) */}
+              <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
+                <Tab.List className="flex gap-8 border-b border-default-200 dark:border-slate-700">
+                  {[
+                    { key: 'description', label: 'Description' },
+                    { key: 'shipping', label: 'Shipping' },
+                    { key: 'seller', label: 'Seller' },
+                  ].map((t) => (
+                    <Tab key={t.key}
+                      className={({ selected }) =>
+                        `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 ${selected ? 'border-foreground text-foreground' : 'border-transparent text-foreground/60 hover:text-foreground'}`
+                      }
+                    >
+                      {t.label}
+                    </Tab>
+                  ))}
+                </Tab.List>
+                <Tab.Panels className="mt-4">
+                  <Tab.Panel>
+                    <div>
+                      <p
+                        ref={descRef}
+                        className="text-gray-600 text-lg dark:text-white"
+                        style={!descExpanded && descTruncatable && descClampPx ? { maxHeight: `${descClampPx}px`, overflow: 'hidden' } : undefined}
+                      >
+                        {product?.description || "Ideal choice for those who want to combine cozy comfort with urban elegance"}
+                      </p>
+                      {descTruncatable && (
+                        <button
+                          className="mt-1 text-sm font-medium text-primary hover:underline"
+                          onClick={() => setDescExpanded(v => !v)}
+                        >
+                          {descExpanded ? 'Read less' : 'Read more'}
+                        </button>
+                      )}
+                    </div>
+                  </Tab.Panel>
+                  <Tab.Panel>
+                    {product && (
+                      <div className="flex flex-col gap-4">
+                        <ul className="space-y-2">
+                          {product.shippingMethods.map((method) => {
+                            const label = method === 'pickup' ? 'Pickup' : method === 'local-delivery' ? 'Local delivery' : 'Shipping';
+                            const info = method === 'pickup'
+                              ? "Pick up at seller’s location"
+                              : method === 'local-delivery'
+                              ? "Delivered locally by the seller"
+                              : "Ships via courier or postal service";
+                            return (
+                              <li key={method} className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60">
+                                <span className="font-medium">{label}</span>
+                                <span className="text-foreground/70 text-sm">{info}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        {(product.shippingMethods.includes('pickup') || product.shippingMethods.includes('local-delivery')) && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="self-start text-sm font-semibold text-primary hover:underline"
+                          >
+                            See on map
+                          </a>
+                        )}
+                      </div>
                     )}
-                    {product.onSale && <Chip size="sm" variant="flat" {...getFilterChipProps('sale')}>On Sale</Chip>}
-                    {/* Shipping Methods */}
-                    {product.shippingMethods.map(m => <Chip key={m} size="sm" variant="flat" {...getFilterChipProps('shipping')}>Ship: {m}</Chip>)}
-                    {/* Environment */}
-                    {product.petFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Pet Free</Chip>}
-                    {product.smokeFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Smoke Free</Chip>}
-                    {product.perfumeFree && <Chip size="sm" variant="flat" {...getFilterChipProps('environment')}>Perfume Free</Chip>}
-                    {/* Deal */}
-                    {product.bundleDeal && <Chip size="sm" variant="flat" {...getFilterChipProps('deal')}>Bundle Deal</Chip>}
-                    {/* Seller Rating */}
-                    <Chip size="sm" variant="flat" {...getFilterChipProps('rating')}>Seller {product.sellerRating.toFixed(1)}</Chip>
-                  </div>
-                </div>
-        {chipsTruncatable && (
-                  <button
-          className="mt-1 self-start text-sm font-medium text-primary hover:underline"
-                    onClick={() => setChipsExpanded(v => !v)}
-                  >
-                    {chipsExpanded ? 'Read less' : 'Read more'}
-                  </button>
-                )}
-                </>
-              )}
-              </div>
+                  </Tab.Panel>
+                  <Tab.Panel>
+                    {product && (
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-4">
+                          <Avatar size="lg" src={product.user.avatar} alt={product.user.name} />
+                          <div>
+                            <div className="font-semibold text-lg">{product.user.name}</div>
+                            <div className="text-yellow-500 font-semibold flex items-center gap-1">
+                              {product.user.rating?.toFixed(1)}
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" className="w-4 h-4 inline-block"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z"/></svg>
+                            </div>
+                          </div>
+                      </div>
+                        <div className="flex flex-col">
+                          <p
+                            ref={sellerDescRef}
+                            className="text-foreground/80 text-lg"
+                            style={!sellerDescExpanded && sellerDescTruncatable && sellerDescClampPx ? { maxHeight: `${sellerDescClampPx}px`, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as any } : undefined}
+                          >
+                            {product.user.description || `Hi, I’m ${product.user.name}. Reliable seller.`}
+                          </p>
+                          {sellerDescTruncatable && (
+                            <button
+                              className="text-sm font-medium text-primary hover:underline self-start"
+                              onClick={() => setSellerDescExpanded(v => !v)}
+                            >
+                              {sellerDescExpanded ? 'Read less' : 'Read more'}
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Button radius="sm" size="sm" variant="light" color="secondary" className="font-semibold">
+                            <span className="flex items-center gap-2">
+                              <IoChatboxOutline className="w-5 h-5" />
+                              Chat with {product.user.name}
+                            </span>
+                          </Button>
+                          <Link href={`/user/${product.user.userId}`} className="text-sm font-semibold text-primary hover:underline">
+                            See profile
+                          </Link>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {product.smokeFree && (
+                            <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">Smoke-free home</span>
+                          )}
+                          {product.petFree && (
+                            <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">Pet-free home</span>
+                          )}
+                          {product.perfumeFree && (
+                            <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">Perfume-free</span>
+                          )}
+                          {product.bundleDeal && (
+                            <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">Bundle deal available</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </Tab.Panel>
+                </Tab.Panels>
+              </Tab.Group>
           </div>
         </div>
         {/* Bottom section: suggestions */}
