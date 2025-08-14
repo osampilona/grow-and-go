@@ -357,7 +357,7 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
+  <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
           <DrawerHeader className="flex flex-col gap-3">
             <FiltersHeader
               title="Categories & Filters"
@@ -416,7 +416,7 @@ export const Navbar = memo(function Navbar() {
         isDismissable={true}
         backdrop="opaque"
       >
-        <DrawerContent className="bg-white dark:bg-slate-800 hide-close-button">
+  <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
           <DrawerHeader className="flex items-center justify-between px-4 py-3">
             <h2 className="text-lg font-semibold">Menu</h2>
             <Button
@@ -466,7 +466,7 @@ export const Navbar = memo(function Navbar() {
         size="2xl"
         scrollBehavior="inside"
       >
-        <ModalContent className="bg-white dark:bg-slate-800 hide-close-button">
+  <ModalContent className="bg-white dark:bg-[#24032c] hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">

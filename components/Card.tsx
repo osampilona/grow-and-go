@@ -171,7 +171,7 @@ const Card = memo(function Card({ item, useSwiper = true, swiperEffect = 'scale-
                 aria-label="Add to cart"
                 disableAnimation
                 disableRipple
-                className="inline-flex font-semibold transition-none border-2 bg-transparent border-[#208A80] text-[#208A80] hover:bg-[#208A80] hover:text-white dark:border-[#2EC4B6] dark:text-[#2EC4B6] dark:hover:bg-[#2EC4B6] dark:hover:text-[#0E172B]"
+                className="inline-flex font-semibold transition-none cta-outline"
                 onClick={(e) => {
                   e.stopPropagation();
                   // TODO: wire to cart store/action when available

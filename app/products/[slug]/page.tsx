@@ -186,7 +186,7 @@ export default function ProductPage() {
             <div className="w-full h-full" onClick={(e) => e.stopPropagation()}>
               <SwiperCarousel
                 images={product.images.map((src, idx) => ({ src, alt: product.title ? `${product.title} image ${idx + 1}` : `Product image ${idx + 1}` }))}
-                className="flex items-center justify-center w-screen h-screen bg-blue-500/30 dark:bg-slate-900/40 backdrop-blur-sm p-4 md:p-8"
+                className="flex items-center justify-center w-screen h-screen bg-blue-500/30 dark:bg-[#24032c] backdrop-blur-sm p-4 md:p-8"
                 imageClassName="aspect-[4/3] w-[80vw] h-auto max-w-3xl max-h-[80vh] object-cover mx-auto"
                 onReady={(api) => { modalSwiperApi.current = { update: api.update }; }}
               />
@@ -261,7 +261,7 @@ export default function ProductPage() {
                     color="default"
                     disableAnimation
                     disableRipple
-                    className="font-bold px-8 border-2 bg-transparent border-[#208A80] text-[#208A80] hover:bg-[#208A80] hover:text-white dark:border-[#2EC4B6] dark:text-[#2EC4B6] dark:hover:bg-[#2EC4B6] dark:hover:text-[#0E172B]"
+                    className="font-bold px-8 cta-outline"
                   >
                     ADD TO CART
                   </Button>
@@ -271,7 +271,7 @@ export default function ProductPage() {
                     color="default"
                     disableAnimation
                     disableRipple
-                    className="font-bold px-8 bg-[#208A80] text-white hover:opacity-90 dark:bg-[#2EC4B6] dark:text-[#0E172B] dark:hover:opacity-90"
+                    className="font-bold px-8 cta-solid"
                   >
                     BUY NOW
                   </Button>

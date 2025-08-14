@@ -23,3 +23,38 @@
 .hide-close-button button[aria-label="Close"] {
   display: none;
 }
+
+/* CTA button color system (light/dark) */
+.cta-outline {
+  border-width: 2px;
+  background-color: transparent;
+  color: #208A80;
+  border-color: #208A80;
+}
+.cta-outline:hover {
+  background-color: #208A80;
+  color: #ffffff;
+}
+.dark .cta-outline {
+  border-color: #ffe599;
+  color: #ffe599;
+}
+.dark .cta-outline:hover {
+  background-color: #ffe599;
+  color: #0E172B;
+}
+
+.cta-solid {
+  background-color: #208A80;
+  color: #ffffff;
+}
+.cta-solid:hover {
+  opacity: 0.9;
+}
+.dark .cta-solid {
+  background-color: #ffe599;
+  color: #0E172B;
+}
+.dark .cta-solid:hover {
+  opacity: 0.9;
+}

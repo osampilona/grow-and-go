@@ -390,7 +390,7 @@ const SearchWithFilters = ({
       </div>
 
       {/* Filter Modal for Large Screens */}
-      <Modal 
+  <Modal 
         isOpen={isFilterModalOpen} 
         onOpenChange={(open) => {
           if (!open) {
@@ -403,7 +403,7 @@ const SearchWithFilters = ({
         scrollBehavior="inside"
         backdrop="opaque"
       >
-        <ModalContent className="hide-close-button">
+  <ModalContent className="bg-white dark:bg-[#24032c] hide-close-button">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-3">
