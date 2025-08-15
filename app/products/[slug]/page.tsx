@@ -171,8 +171,8 @@ export default function ProductPage() {
               </div>
             </div>
             {/* 3) Left-bottom suggestion */}
-            <div className="order-3 lg:order-none bg-white rounded-3xl flex flex-col justify-center p-8 w-full">
-              <div className="flex items-center gap-4 mb-4">
+            <div className="order-3 lg:order-none bg-white rounded-3xl flex flex-col justify-center w-full">
+              <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full border flex items-center justify-center">
                   <svg fill="none" height="48" viewBox="0 0 48 48" width="48">
                     <circle cx="24" cy="24" fill="#F3F4F6" r="24" />
