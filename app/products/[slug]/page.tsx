@@ -216,7 +216,7 @@ export default function ProductPage() {
           </Dialog.Panel>
         </Dialog>
       )}
-      <div className="w-full h-[90vh] bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
+      <div className="w-full h-auto bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
         {/* Top section: main product info */}
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[70%]">
           {/* Left: Product image area */}
