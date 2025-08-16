@@ -119,14 +119,10 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
                 <div className="min-w-0">
                   <p className="font-semibold leading-tight">Similar items from other sellers</p>
                   <p className="text-xs text-foreground/60 mt-0.5">
-                    Follow {product.user.name.split(" ")[0]} to catch new listings early
+                    Find inspiration in more listings like this one
                   </p>
                 </div>
               </div>
-              <FollowButton
-                label={`Follow ${product.user.name.split(" ")[0]}`}
-                sellerId={product.user.userId}
-              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {similar.map((it) => (
