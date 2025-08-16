@@ -92,7 +92,7 @@ export default function ProductDetailsTabs({ product, className }: Props) {
         </div>
         <div className="flex flex-col gap-3">
           <h4 className="text-2xl font-bold">{product.price}</h4>
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-4 mt-2 mb-4">
             <Button
               disableAnimation
               disableRipple

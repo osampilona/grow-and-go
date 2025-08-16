@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 import ProductDetailsTabs from "@/components/ProductDetailsTabs";
 import ProductMedia from "@/components/ProductMedia";
+import SellerSuggestions from "@/components/SellerSuggestions";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import { FeedItem, mockFeed } from "@/data/mock/feed";
 
@@ -88,25 +89,8 @@ export default function ProductPage() {
               onImageClick={() => setModalOpen(true)}
             />
             {/* 3) Left-bottom suggestion */}
-            <div className="order-3 lg:order-none bg-white rounded-3xl flex flex-col justify-center w-full">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full border flex items-center justify-center">
-                  <svg fill="none" height="48" viewBox="0 0 48 48" width="48">
-                    <circle cx="24" cy="24" fill="#F3F4F6" r="24" />
-                    <path
-                      d="M12 24h24M24 12v24"
-                      stroke="#222"
-                      strokeLinecap="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-3xl font-bold">With this product buy</h3>
-              </div>
-              <p className="text-gray-600">
-                Styled a sleek urban look with a denim jacket, black jeans, ankle boots, and a
-                leather crossbody bag — perfect for autumn city adventures
-              </p>
+            <div className="order-3 lg:order-none bg-white rounded-3xl w-full">
+              <SellerSuggestions product={product} />
             </div>
           </div>
 

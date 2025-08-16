@@ -827,6 +827,74 @@ export const mockFeed: FeedItem[] = [
     bundleDeal: true,
     sellerRating: 4.9,
   },
+  // Additional items for premium seller (userId 1) to demonstrate 'More from this seller'
+  {
+    id: "26",
+    title: "Toddler winter jacket",
+    description:
+      "Warm insulated winter jacket for toddlers 12–24M. Water-resistant outer, fleece lining, minimal wear. Clean and from a smoke- & pet-free home.",
+    user: {
+      userId: "1",
+      name: "Anna",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      rating: 4.9,
+      description:
+        "Hi, I'm Anna. Mom of two, carefully curating baby and toddler items that are clean, gently used, and ready for a second life.",
+    },
+    price: "DKK320",
+    condition: "very-good",
+    images: [
+      "https://images.pexels.com/photos/3933275/pexels-photo-3933275.jpeg?auto=compress&w=1600&q=80",
+      "https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=1600&q=80",
+    ],
+    categoryId: "baby-clothes",
+    subcategoryIds: ["baby-clothes-outerwear"],
+    gender: ["Boy", "Girl"],
+    ageMonthsRange: [12, 24],
+    sizes: ["12-18M", "18-24M"],
+    brand: "Reima",
+    inStock: true,
+    onSale: false,
+    shippingMethods: ["pickup", "shipping"],
+    petFree: true,
+    smokeFree: true,
+    perfumeFree: true,
+    bundleDeal: true,
+    sellerRating: 4.9,
+  },
+  {
+    id: "27",
+    title: "Mixed baby toy bundle",
+    description:
+      "Bundle of 6 sensory and soft toys (rattles, plush, teether ring). All cleaned, no damage. Great starter play set.",
+    user: {
+      userId: "1",
+      name: "Anna",
+      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      rating: 4.9,
+      description:
+        "Hi, I'm Anna. Mom of two, carefully curating baby and toddler items that are clean, gently used, and ready for a second life.",
+    },
+    price: "DKK150",
+    condition: "good",
+    images: [
+      "https://images.pexels.com/photos/459976/pexels-photo-459976.jpeg?auto=compress&w=1600&q=80",
+      "https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=1600&q=80",
+    ],
+    categoryId: "toys",
+    subcategoryIds: ["toys-bundles"],
+    gender: ["Boy", "Girl"],
+    ageMonthsRange: [3, 18],
+    brand: "Fisher-Price",
+    inStock: true,
+    onSale: true,
+    shippingMethods: ["pickup", "shipping"],
+    petFree: true,
+    smokeFree: true,
+    perfumeFree: true,
+    bundleDeal: false,
+    sellerRating: 4.9,
+  },
 ];
 
 export function fetchFeed(): Promise<FeedItem[]> {
