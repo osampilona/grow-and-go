@@ -2,6 +2,7 @@
 
 import type { FeedItem } from "@/data/mock/feed";
 
+import { memo, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@heroui/react";
@@ -38,55 +39,44 @@ function getSimilarItems(item: FeedItem, max = 6) {
 
 // (Legacy) Pill component removed after style-guide redesign.
 
-function FollowButton({
+const FollowButton = memo(function FollowButton({
   sellerId,
   label,
   followingLabel,
 }: {
   sellerId: string;
-  label?: string; // override default label when not following
-  followingLabel?: string; // override label when already following
+  label?: string;
+  followingLabel?: string;
 }) {
   const isFollowing = useFollowingStore((s) => s.isFollowing(sellerId));
   const follow = useFollowingStore((s) => s.follow);
   const unfollow = useFollowingStore((s) => s.unfollow);
 
-  if (isFollowing) {
-    return (
-      <Button
-        disableAnimation
-        disableRipple
-        aria-label={followingLabel || "Unfollow seller"}
-        className="inline-flex font-semibold transition-none cta-outline"
-        color="default"
-        radius="full"
-        size="sm"
-        onClick={() => unfollow(sellerId)}
-      >
-        {followingLabel || "Following"}
-      </Button>
-    );
-  }
+  const commonProps = {
+    disableAnimation: true as const,
+    disableRipple: true as const,
+    className: "inline-flex font-semibold transition-none cta-outline",
+    color: "default" as const,
+    radius: "full" as const,
+    size: "sm" as const,
+  };
 
-  return (
+  return isFollowing ? (
     <Button
-      disableAnimation
-      disableRipple
-      aria-label={label || "Follow seller"}
-      className="inline-flex font-semibold transition-none cta-outline"
-      color="default"
-      radius="full"
-      size="sm"
-      onClick={() => follow(sellerId)}
+      {...commonProps}
+      aria-label={followingLabel || "Unfollow seller"}
+      onClick={() => unfollow(sellerId)}
     >
+      {followingLabel || "Following"}
+    </Button>
+  ) : (
+    <Button {...commonProps} aria-label={label || "Follow seller"} onClick={() => follow(sellerId)}>
       {label || "Follow"}
     </Button>
   );
-}
+});
 
-function GridItem({ item }: { item: FeedItem }) {
-  const price = item.price;
-
+const GridItem = memo(function GridItem({ item }: { item: FeedItem }) {
   return (
     <Link
       className="flex gap-3 items-center rounded-2xl p-2 hover:bg-default-100 dark:hover:bg-slate-800/60"
@@ -101,30 +91,37 @@ function GridItem({ item }: { item: FeedItem }) {
       />
       <div className="min-w-0">
         <div className="truncate font-semibold">{item.title}</div>
-        <div className="text-sm text-foreground/70">{price}</div>
+        <div className="text-sm text-foreground/70">{item.price}</div>
       </div>
     </Link>
   );
-}
+});
 
 export default function SellerSuggestions({ product, className }: SellerSuggestionsProps) {
   // In a real app, these would come from backend/user profile. For now allow overriding via store.
-  const sellerTiers = useSessionStore((s) => s.sellerTiers);
-  const tier = sellerTiers[product.user.userId] ?? "freemium";
+  // Select only the specific slice we need to avoid re-renders when unrelated sellers change
+  const tier = useSessionStore((s) => s.sellerTiers[product.user.userId]) ?? "freemium";
   const sellerProfile = useSessionStore((s) => s.sellerProfiles[product.user.userId]);
 
   // Ensure feed is available if needed later (we can show loaders if we fetch async)
   const loadFeed = useFeedStore((s) => s.loadFeed);
-  const feedItems = useFeedStore((s) => s.items);
+  const feedItemsLength = useFeedStore((s) => s.items.length);
 
-  // naive trigger
-  if (feedItems.length === 0) {
-    void loadFeed();
-  }
+  useEffect(() => {
+    if (feedItemsLength === 0) {
+      void loadFeed();
+    }
+  }, [feedItemsLength, loadFeed]);
 
   // Branching logic
-  const sellerItems = getSellerItems(product.user.userId, product.id, 6);
-  const similar = getSimilarItems(product, 6);
+  const sellerItems = useMemo(
+    () => (tier === "premium" ? getSellerItems(product.user.userId, product.id, 6) : []),
+    [tier, product.user.userId, product.id]
+  );
+  const similar = useMemo(
+    () => (tier === "freemium" ? getSimilarItems(product, 6) : []),
+    [tier, product]
+  );
   const sellerHasMore = sellerItems.length > 0;
 
   return (

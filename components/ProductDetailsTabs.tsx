@@ -2,7 +2,7 @@
 
 import type { FeedItem } from "@/data/mock/feed";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tab } from "@headlessui/react";
 import { Avatar, Button } from "@heroui/react";
 import Link from "next/link";
@@ -12,6 +12,13 @@ type Props = {
   product: FeedItem;
   className?: string;
 };
+
+// Hoisted tab config so the array identity stays stable across renders
+const PRODUCT_TABS: { key: string; label: string }[] = [
+  { key: "description", label: "Description" },
+  { key: "shipping", label: "Shipping" },
+  { key: "seller", label: "Seller" },
+];
 
 export default function ProductDetailsTabs({ product, className }: Props) {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -28,9 +35,11 @@ export default function ProductDetailsTabs({ product, className }: Props) {
   const [sellerDescTruncatable, setSellerDescTruncatable] = useState(false);
   const [sellerDescClampPx, setSellerDescClampPx] = useState<number | undefined>(undefined);
 
-  const measureSellerDesc = () => {
-    if (!sellerDescRef.current) return;
+  const measureSellerDesc = useCallback(() => {
     const el = sellerDescRef.current;
+
+    if (!el) return;
+
     const cs = window.getComputedStyle(el);
     const lineH = parseFloat(cs.lineHeight || "0");
     const lh = isNaN(lineH) || lineH === 0 ? parseFloat(cs.fontSize || "16") * 1.4 : lineH;
@@ -40,49 +49,52 @@ export default function ProductDetailsTabs({ product, className }: Props) {
     setSellerDescTruncatable(needsClamp);
     setSellerDescClampPx(needsClamp ? lh * 3 : undefined);
     if (!needsClamp) setSellerDescExpanded(false);
-  };
+  }, []);
 
+  // Unified measurement using ResizeObserver for both description blocks
   useEffect(() => {
-    const measure = () => {
-      if (descRef.current) {
-        const el = descRef.current;
-        const cs = window.getComputedStyle(el);
-        const lh = parseFloat(cs.lineHeight || "0") || parseFloat(cs.fontSize || "16") * 1.4;
-        const needs = Math.round(el.scrollHeight / lh) > 3;
+    let frame: number | null = null;
+    const measureAll = () => {
+      frame && cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const descEl = descRef.current;
 
-        setDescTruncatable(needs);
-        setDescClampPx(needs ? lh * 3 : undefined);
-        if (!needs) setDescExpanded(false);
-      }
+        if (descEl) {
+          const cs = window.getComputedStyle(descEl);
+          const lh = parseFloat(cs.lineHeight || "0") || parseFloat(cs.fontSize || "16") * 1.4;
+          const needs = Math.round(descEl.scrollHeight / lh) > 3;
 
-      if (sellerDescRef.current) measureSellerDesc();
+          setDescTruncatable(needs);
+          setDescClampPx(needs ? lh * 3 : undefined);
+          if (!needs) setDescExpanded(false);
+        }
+        // Only measure seller description when the tab is active to avoid layout thrash
+        if (selectedTab === 2) {
+          measureSellerDesc();
+        }
+      });
     };
 
-    const t0 = setTimeout(measure, 0);
-    const t1 = setTimeout(measure, 200);
+    // Observe size changes
+    const ro = new ResizeObserver(measureAll);
 
-    window.addEventListener("resize", measure);
+    if (descRef.current) ro.observe(descRef.current);
+
+    if (selectedTab === 2 && sellerDescRef.current) ro.observe(sellerDescRef.current);
+
+    // Initial + delayed measure (delayed handles async content like images/fonts)
+    measureAll();
+    const delayed = setTimeout(measureAll, 160);
+
+    window.addEventListener("resize", measureAll);
 
     return () => {
-      clearTimeout(t0);
-      clearTimeout(t1);
-      window.removeEventListener("resize", measure);
+      if (frame) cancelAnimationFrame(frame);
+      clearTimeout(delayed);
+      ro.disconnect();
+      window.removeEventListener("resize", measureAll);
     };
-  }, [product]);
-
-  useEffect(() => {
-    if (selectedTab === 2) {
-      const t0 = setTimeout(measureSellerDesc, 0);
-      const t1 = setTimeout(measureSellerDesc, 150);
-      const t2 = setTimeout(measureSellerDesc, 350);
-
-      return () => {
-        clearTimeout(t0);
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-  }, [selectedTab]);
+  }, [product, selectedTab, measureSellerDesc]);
 
   return (
     <div className={className}>
@@ -119,11 +131,7 @@ export default function ProductDetailsTabs({ product, className }: Props) {
 
       <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
         <Tab.List className="flex gap-8 border-b border-default-200 dark:border-slate-700">
-          {[
-            { key: "description", label: "Description" },
-            { key: "shipping", label: "Shipping" },
-            { key: "seller", label: "Seller" },
-          ].map((t) => (
+          {PRODUCT_TABS.map((t) => (
             <Tab
               key={t.key}
               className={({ selected }) =>
