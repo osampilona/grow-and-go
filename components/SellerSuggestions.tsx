@@ -3,9 +3,9 @@
 import type { FeedItem } from "@/data/mock/feed";
 
 import { memo, useEffect, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@heroui/react";
+
+import ProductMiniCard from "./ProductMiniCard";
 
 import { mockFeed } from "@/data/mock/feed";
 import { useFeedStore } from "@/stores/feedStore";
@@ -76,26 +76,7 @@ const FollowButton = memo(function FollowButton({
   );
 });
 
-const GridItem = memo(function GridItem({ item }: { item: FeedItem }) {
-  return (
-    <Link
-      className="flex gap-3 items-center rounded-2xl p-2 hover:bg-default-100 dark:hover:bg-slate-800/60"
-      href={`/products/${item.id}`}
-    >
-      <Image
-        alt={item.title}
-        className="w-16 h-16 rounded-xl object-cover"
-        height={64}
-        src={item.images[0]}
-        width={64}
-      />
-      <div className="min-w-0">
-        <div className="truncate font-semibold">{item.title}</div>
-        <div className="text-sm text-foreground/70">{item.price}</div>
-      </div>
-    </Link>
-  );
-});
+// Grid item extracted to `ProductMiniCard` for reuse across pages.
 
 export default function SellerSuggestions({ product, className }: SellerSuggestionsProps) {
   // In a real app, these would come from backend/user profile. For now allow overriding via store.
@@ -149,7 +130,7 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {similar.map((it) => (
-                <GridItem key={it.id} item={it} />
+                <ProductMiniCard key={it.id} item={it} />
               ))}
               {similar.length === 0 && (
                 <div className="text-sm text-foreground/60">No similar items yet.</div>
@@ -191,7 +172,7 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
             {sellerHasMore && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {sellerItems.map((it) => (
-                  <GridItem key={it.id} item={it} />
+                  <ProductMiniCard key={it.id} item={it} />
                 ))}
               </div>
             )}
