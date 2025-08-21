@@ -40,7 +40,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "1",
       name: "Anna",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704d",
       rating: 4.9,
       description:
         "Hi, I'm Anna. Mom of two, carefully curating baby and toddler items that are clean, gently used, and ready for a second life. I describe wear honestly, provide extra photos or measurements on request, and pack everything thoughtfully so it arrives in the same condition you see in the photos. Pickup is available most evenings and weekends around Orestad, and I can hold items for a short time if you're coordinating transport. Everything comes from a smoke-free, pet-free home. I'm happy to bundle, and I offer fair discounts when you take multiple pieces.",
@@ -83,7 +83,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "2",
       name: "Ben",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704e",
       rating: 4.7,
       description: "Hi, I’m Ben. Practical dad listing well-cared-for baby gear for new families.",
     },
@@ -123,7 +123,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "3",
       name: "Clara",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704f",
       rating: 4.8,
       description: "Hi, I’m Clara. I love passing on quality items so they get a second life.",
     },
@@ -155,7 +155,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "4",
       name: "Dina",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267050",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267050",
       rating: 4.6,
       description: "Hi, I’m Dina. Carefully maintained baby items from a tidy, friendly home.",
     },
@@ -186,7 +186,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "5",
       name: "Emily",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267051",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267051",
       rating: 4.8,
       description: "Hi, I’m Emily. Selling babywear our little one quickly outgrew.",
     },
@@ -223,7 +223,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "6",
       name: "Fiona",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267052",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267052",
       rating: 4.9,
       description: "Hi, I’m Fiona. I list clean, high-quality items ready for another family.",
     },
@@ -260,7 +260,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "8",
       name: "Hannah",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267054",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267054",
       rating: 4.8,
       description: "Hi, I’m Hannah. Thoughtfully selected nursery items, gently used.",
     },
@@ -292,7 +292,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "9",
       name: "Ivan",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267055",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267055",
       rating: 4.7,
       description: "Hi, I’m Ivan. Quality gear, fair prices, quick replies.",
     },
@@ -323,7 +323,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "10",
       name: "Julia",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267056",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267056",
       rating: 4.6,
       description: "Hi, I’m Julia. I enjoy finding new homes for well-kept baby items.",
     },
@@ -355,7 +355,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "11",
       name: "Klara",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267057",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267057",
       rating: 4.5,
       description: "Hi, I’m Klara. Happy to answer questions and share extra photos.",
     },
@@ -387,7 +387,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "12",
       name: "Leo",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267058",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267058",
       rating: 4.7,
       description: "Hi, I’m Leo. Honest listings and quick pickup options.",
     },
@@ -418,7 +418,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "13",
       name: "Maja",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267059",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267059",
       rating: 4.6,
       description: "Hi, I’m Maja. Passing on favorites that our kid has outgrown.",
     },
@@ -450,7 +450,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "14",
       name: "Nina",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267060",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267060",
       rating: 4.8,
       description: "Hi, I’m Nina. Clean home and careful packaging for every order.",
     },
@@ -482,7 +482,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "15",
       name: "Oskar",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267061",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267061",
       rating: 4.7,
       description: "Hi, I’m Oskar. Listing baby essentials in great condition.",
     },
@@ -513,7 +513,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "16",
       name: "Petra",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267062",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267062",
       rating: 4.9,
       description: "Hi, I’m Petra. Trusted seller with carefully kept kids’ items.",
     },
@@ -546,7 +546,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "17",
       name: "Quinn",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267063",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267063",
       rating: 4.5,
       description: "Hi, I’m Quinn. Friendly seller, open to bundles and offers.",
     },
@@ -578,7 +578,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "18",
       name: "Rosa",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267064",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267064",
       rating: 4.6,
       description: "Hi, I’m Rosa. Soft, clean items from a smoke-free home.",
     },
@@ -610,7 +610,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "19",
       name: "Sara",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267065",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267065",
       rating: 4.7,
       description: "Hi, I’m Sara. Minimal wear, fast pickup in town.",
     },
@@ -643,7 +643,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "20",
       name: "Tina",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267066",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267066",
       rating: 4.8,
       description: "Hi, I’m Tina. Baby items kept clean and ready to use.",
     },
@@ -675,7 +675,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "21",
       name: "Uma",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267067",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267067",
       rating: 4.6,
       description: "Hi, I’m Uma. Transparent listings and easy communication.",
     },
@@ -708,7 +708,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "22",
       name: "Vera",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267068",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267068",
       rating: 4.7,
       description: "Hi, I’m Vera. Reliable seller with quick responses.",
     },
@@ -739,7 +739,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "23",
       name: "Wendy",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267069",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267069",
       rating: 4.8,
       description: "Hi, I’m Wendy. Happy to bundle and offer discounts.",
     },
@@ -771,7 +771,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "24",
       name: "Xenia",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267070",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267070",
       rating: 4.6,
       description: "Hi, I’m Xenia. Clean home, careful with packaging and pickup times.",
     },
@@ -802,7 +802,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "25",
       name: "Yara",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e290267071",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e290267071",
       rating: 4.9,
       description: "Hi, I’m Yara. Great condition items and friendly communication.",
     },
@@ -836,7 +836,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "1",
       name: "Anna",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704d",
       rating: 4.9,
       description:
         "Hi, I'm Anna. Mom of two, carefully curating baby and toddler items that are clean, gently used, and ready for a second life.",
@@ -870,7 +870,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "1",
       name: "Anna",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704d",
       rating: 4.9,
       description:
         "Hi, I'm Anna. Mom of two, carefully curating baby and toddler items that are clean, gently used, and ready for a second life.",
@@ -904,7 +904,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "2",
       name: "Ben",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704e",
       rating: 4.7,
       description: "Hi, I’m Ben. Practical dad listing well-cared-for baby gear for new families.",
     },
@@ -936,7 +936,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "2",
       name: "Ben",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704e",
       rating: 4.7,
       description: "Hi, I’m Ben. Practical dad listing well-cared-for baby gear for new families.",
     },
@@ -968,7 +968,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "2",
       name: "Ben",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704e",
       rating: 4.7,
       description: "Hi, I’m Ben. Practical dad listing well-cared-for baby gear for new families.",
     },
@@ -1000,7 +1000,7 @@ export const mockFeed: FeedItem[] = [
     user: {
       userId: "2",
       name: "Ben",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+      avatar: "https://i.pravatar.cc/400?u=a042581f4e29026704e",
       rating: 4.7,
       description: "Hi, I’m Ben. Practical dad listing well-cared-for baby gear for new families.",
     },
