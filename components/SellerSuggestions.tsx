@@ -2,79 +2,81 @@
 
 import type { FeedItem } from "@/data/mock/feed";
 
-import { memo, useEffect, useMemo } from "react";
-import { Button } from "@heroui/react";
+import { useEffect, useMemo } from "react";
 
 import ProductMiniCard from "./ProductMiniCard";
+import { CardContainer } from "./CardContainer";
+import { HorizontalScroller } from "./HorizontalScroller";
+import { IconMessage } from "./IconMessage";
 
 import { mockFeed } from "@/data/mock/feed";
 import { useFeedStore } from "@/stores/feedStore";
-import { useFollowingStore, useSessionStore } from "@/stores/userStore";
+import { useSessionStore } from "@/stores/userStore";
 
 export type SellerSuggestionsProps = {
   product: FeedItem;
   className?: string;
 };
 
-// Simple util: get items of a seller (excluding one id)
-function getSellerItems(sellerId: string, excludeId?: string, max = 6) {
-  const list = mockFeed.filter((i) => i.user.userId === sellerId && i.id !== excludeId);
+// --- Indexed lookup (built once per items array identity) ---
+let _lastRef: FeedItem[] | null = null;
+let _sellerIndex: Record<string, FeedItem[]> = {};
+let _categoryIndex: Record<string, FeedItem[]> = {};
+let _categoryBrandIndex: Record<string, FeedItem[]> = {};
 
-  return list.slice(0, max);
+function buildIndexes(items: FeedItem[]) {
+  if (items === _lastRef) return;
+  _sellerIndex = {};
+  _categoryIndex = {};
+  _categoryBrandIndex = {};
+  for (const it of items) {
+    // seller
+    (_sellerIndex[it.user.userId] ||= []).push(it);
+    // category
+    (_categoryIndex[it.categoryId] ||= []).push(it);
+    // category+brand
+    if (it.brand) {
+      const key = it.categoryId + "||" + it.brand.toLowerCase();
+
+      (_categoryBrandIndex[key] ||= []).push(it);
+    }
+  }
+  _lastRef = items;
 }
 
-// Find similar items by category/brand (excluding current seller)
-function getSimilarItems(item: FeedItem, max = 6) {
+function getSellerItemsIndexed(sellerId: string, excludeId?: string, max = 6) {
+  const list = _sellerIndex[sellerId] || [];
+
+  if (!excludeId) return list.slice(0, max);
+  const out: FeedItem[] = [];
+
+  for (const it of list) {
+    if (it.id === excludeId) continue;
+    out.push(it);
+    if (out.length === max) break;
+  }
+
+  return out;
+}
+
+function getSimilarItemsIndexed(item: FeedItem, max = 6) {
   const { categoryId, brand, id, user } = item;
-  const sameCategory = mockFeed.filter(
-    (i) => i.categoryId === categoryId && i.id !== id && i.user.userId !== user.userId
-  );
-  const byBrand = brand
-    ? sameCategory.filter((i) => i.brand && i.brand.toLowerCase() === brand.toLowerCase())
-    : [];
-  const merged = [...byBrand, ...sameCategory].filter((v, idx, arr) => arr.indexOf(v) === idx);
+  const key = brand ? categoryId + "||" + brand.toLowerCase() : undefined;
+  const brandMatches = key ? _categoryBrandIndex[key] || [] : [];
+  const cat = _categoryIndex[categoryId] || [];
+  const merged: FeedItem[] = [];
+  const pushUnique = (it: FeedItem) => {
+    if (it.id === id) return;
+    if (it.user.userId === user.userId) return; // exclude same seller
+    if (merged.indexOf(it) !== -1) return;
+    merged.push(it);
+  };
+
+  for (const it of brandMatches) pushUnique(it);
+  for (const it of cat) pushUnique(it);
 
   return merged.slice(0, max);
 }
-
-// (Legacy) Pill component removed after style-guide redesign.
-
-const FollowButton = memo(function FollowButton({
-  sellerId,
-  label,
-  followingLabel,
-}: {
-  sellerId: string;
-  label?: string;
-  followingLabel?: string;
-}) {
-  const isFollowing = useFollowingStore((s) => s.isFollowing(sellerId));
-  const follow = useFollowingStore((s) => s.follow);
-  const unfollow = useFollowingStore((s) => s.unfollow);
-
-  const commonProps = {
-    disableAnimation: true as const,
-    disableRipple: true as const,
-    className: "inline-flex font-semibold transition-none cta-outline",
-    color: "default" as const,
-    radius: "full" as const,
-    size: "sm" as const,
-  };
-
-  return isFollowing ? (
-    <Button
-      {...commonProps}
-      aria-label={followingLabel || "Unfollow seller"}
-      onClick={() => unfollow(sellerId)}
-    >
-      {followingLabel || "Following"}
-    </Button>
-  ) : (
-    <Button {...commonProps} aria-label={label || "Follow seller"} onClick={() => follow(sellerId)}>
-      {label || "Follow"}
-    </Button>
-  );
-});
 
 // Grid item extracted to `ProductMiniCard` for reuse across pages.
 
@@ -82,155 +84,120 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
   // In a real app, these would come from backend/user profile. For now allow overriding via store.
   // Select only the specific slice we need to avoid re-renders when unrelated sellers change
   const tier = useSessionStore((s) => s.sellerTiers[product.user.userId]) ?? "freemium";
-  const sellerProfile = useSessionStore((s) => s.sellerProfiles[product.user.userId]);
+  // Subscribe only to a boolean to minimize rerenders
+  const feedLoaded = useFeedStore((s) => s.items.length > 0);
+  const feedItems = useFeedStore((s) => s.items); // will update once when loaded
 
-  // Ensure feed is available if needed later (we can show loaders if we fetch async)
-  const loadFeed = useFeedStore((s) => s.loadFeed);
-  const feedItemsLength = useFeedStore((s) => s.items.length);
-
+  // Lazy load feed if not loaded yet (avoid subscribing to loadFeed function)
   useEffect(() => {
-    if (feedItemsLength === 0) {
-      void loadFeed();
-    }
-  }, [feedItemsLength, loadFeed]);
+    if (!feedLoaded) void useFeedStore.getState().loadFeed();
+  }, [feedLoaded]);
 
-  // Branching logic
+  // Choose active dataset & build indexes when dataset reference changes
+  const activeItems = feedLoaded && feedItems.length > 0 ? feedItems : mockFeed;
+
+  buildIndexes(activeItems);
+
+  // New logic (uniform cases)
   const sellerItems = useMemo(
-    () => (tier === "premium" ? getSellerItems(product.user.userId, product.id, 6) : []),
-    [tier, product.user.userId, product.id]
+    () => getSellerItemsIndexed(product.user.userId, product.id, 6),
+    [product.user.userId, product.id, activeItems]
   );
-  const similar = useMemo(
-    () => (tier === "freemium" ? getSimilarItems(product, 6) : []),
-    [tier, product]
-  );
+  const similar = useMemo(() => getSimilarItemsIndexed(product, 6), [product, activeItems]);
   const sellerHasMore = sellerItems.length > 0;
+
+  // Case 2: freemium & has more -> blended list
+  const blended = useMemo(() => {
+    if (tier === "freemium" && sellerHasMore) return [...sellerItems, ...similar];
+
+    return [];
+  }, [tier, sellerHasMore, sellerItems, similar]);
 
   return (
     <div className={className}>
-      {/* Freemium case */}
-      {tier === "freemium" && (
-        <div className="space-y-6">
-          <div className="rounded-xl border border-default-200 bg-default-50 dark:bg-slate-800/40 p-4 space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-top gap-3">
-                <div aria-hidden className="shrink-0 text-2xl">
-                  🛍️
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold leading-tight">Similar items from other sellers</p>
-                  <p className="text-xs text-foreground/60 mt-0.5">
-                    Find inspiration in more listings like this one
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {similar.map((it) => (
-                <ProductMiniCard key={it.id} item={it} />
-              ))}
-              {similar.length === 0 && (
-                <div className="text-sm text-foreground/60">No similar items yet.</div>
-              )}
-            </div>
-          </div>
+      {/* Case 1 (Premium only): No more items from this seller */}
+      {tier === "premium" && !sellerHasMore && (
+        <div className="mb-6">
+          <CardContainer>
+            <p className="font-semibold text-base">No more items from {product.user.name}</p>
+            {similar.length > 0 ? (
+              <HorizontalScroller>
+                {similar.map((it) => (
+                  <div key={it.id} className="snap-start shrink-0 w-56">
+                    <ProductMiniCard item={it} />
+                  </div>
+                ))}
+              </HorizontalScroller>
+            ) : (
+              <IconMessage message="No similar items found." />
+            )}
+          </CardContainer>
         </div>
       )}
 
-      {/* Premium case always shows style guide */}
-      {tier === "premium" && (
-        <div className="space-y-6">
-          {/* Style Guide always shown */}
-          <div className="rounded-xl border border-default-200 bg-default-50 dark:bg-slate-800/40 p-4 space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-top gap-3">
-                <div aria-hidden className="shrink-0 text-2xl">
-                  🧸
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold leading-tight">
-                    {product.user.name}&apos;s Style Guide
-                    <span className="ml-2 align-middle text-[10px] tracking-wide font-semibold bg-amber-400/90 text-black px-2 py-0.5 rounded-full">
-                      PREMIUM
-                    </span>
-                  </p>
-                  <p className="text-xs text-foreground/60 mt-0.5">
-                    Follow {product.user.name.split(" ")[0]} to get inspired by their style
-                  </p>
-                </div>
-              </div>
-              <FollowButton
-                label={`Follow ${product.user.name.split(" ")[0]}`}
-                sellerId={product.user.userId}
-              />
-            </div>
-
-            {/* More from seller (now inside container, above narrative) */}
-            {sellerHasMore && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {sellerItems.map((it) => (
-                  <ProductMiniCard key={it.id} item={it} />
-                ))}
-              </div>
-            )}
-            {sellerProfile ? (
-              <div className="space-y-3">
-                <div className="bg-default-100/60 dark:bg-slate-800/60 rounded-lg p-3">
-                  <div className="font-semibold text-sm mb-1">
-                    Based on {product.user.name}&apos;s style:
-                  </div>
-                  <ul className="list-disc pl-5 text-sm space-y-1">
-                    {sellerProfile.preferences.styleKeywords.length > 0 && (
-                      <li>
-                        Style: {sellerProfile.preferences.styleKeywords.slice(0, 6).join(", ")}
-                      </li>
-                    )}
-                    {sellerProfile.preferences.preferredMaterials.length > 0 && (
-                      <li>
-                        Materials:
-                        {sellerProfile.preferences.preferredMaterials.slice(0, 5).join(", ")}
-                      </li>
-                    )}
-                    {sellerProfile.preferences.favoriteBrands.length > 0 && (
-                      <li>
-                        Brands: {sellerProfile.preferences.favoriteBrands.slice(0, 5).join(", ")}
-                      </li>
-                    )}
-                    {sellerProfile.preferences.designOrientation?.length ? (
-                      <li>
-                        Orientation:
-                        {sellerProfile.preferences.designOrientation.slice(0, 4).join(", ")}
-                      </li>
-                    ) : null}
-                    {sellerProfile.preferences.valueFocus?.length ? (
-                      <li>Focus: {sellerProfile.preferences.valueFocus.slice(0, 4).join(", ")}</li>
-                    ) : null}
-                  </ul>
-                </div>
-                {sellerProfile.preferences.insights?.[0] && (
-                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm flex gap-2">
-                    <span aria-hidden>💡</span>
-                    <span className="leading-snug">{sellerProfile.preferences.insights[0]}</span>
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-2 text-xs text-foreground/70">
-                  {product.smokeFree && (
-                    <span className="px-2 py-1 rounded-md bg-default-100">Smoke-free</span>
-                  )}
-                  {product.petFree && (
-                    <span className="px-2 py-1 rounded-md bg-default-100">Pet-free</span>
-                  )}
-                  {product.perfumeFree && (
-                    <span className="px-2 py-1 rounded-md bg-default-100">Perfume-free</span>
-                  )}
-                  {product.bundleDeal && (
-                    <span className="px-2 py-1 rounded-md bg-default-100">Bundle deal</span>
-                  )}
-                </div>
-              </div>
+      {/* Freemium & no more items: show only similar items list (no blue container) */}
+      {tier === "freemium" && !sellerHasMore && (
+        <div className="mb-6">
+          <CardContainer>
+            {similar.length > 0 ? (
+              <>
+                <p className="font-semibold text-base">You may also like</p>
+                <HorizontalScroller>
+                  {similar.map((it) => (
+                    <div key={it.id} className="snap-start shrink-0 w-56">
+                      <ProductMiniCard item={it} />
+                    </div>
+                  ))}
+                </HorizontalScroller>
+              </>
             ) : (
-              <div className="text-sm text-foreground/60">No style profile available yet.</div>
+              <IconMessage message="No similar items found." />
             )}
-          </div>
+          </CardContainer>
+        </div>
+      )}
+
+      {/* Case 2: Freemium & has more (blended, unlabeled) */}
+      {tier === "freemium" && sellerHasMore && (
+        <CardContainer>
+          <p className="font-semibold text-base">You may also like</p>
+          <HorizontalScroller>
+            {blended.map((it) => (
+              <div key={it.id} className="snap-start shrink-0 w-56">
+                <ProductMiniCard item={it} />
+              </div>
+            ))}
+          </HorizontalScroller>
+        </CardContainer>
+      )}
+
+      {/* Case 3: Premium & has more (separate containers, seller emphasized) */}
+      {tier === "premium" && sellerHasMore && (
+        <div className="flex flex-col gap-6">
+          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
+            <p className="font-semibold text-base">More from {product.user.name}</p>
+            <HorizontalScroller className="gap-4">
+              {sellerItems.map((it) => (
+                <div key={it.id} className="snap-start shrink-0 w-56">
+                  <ProductMiniCard item={it} />
+                </div>
+              ))}
+            </HorizontalScroller>
+          </CardContainer>
+          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
+            <p className="font-semibold text-sm">Similar items from other sellers</p>
+            {similar.length > 0 ? (
+              <HorizontalScroller>
+                {similar.map((it) => (
+                  <div key={it.id} className="snap-start shrink-0 w-56">
+                    <ProductMiniCard item={it} />
+                  </div>
+                ))}
+              </HorizontalScroller>
+            ) : (
+              <IconMessage message="No similar items found." />
+            )}
+          </CardContainer>
         </div>
       )}
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { Dialog } from "@headlessui/react";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -88,59 +87,19 @@ export default function ProductPage() {
               productTitle={product.title}
               onImageClick={() => setModalOpen(true)}
             />
-            {/* 3) Left-bottom suggestion */}
-            <div className="order-3 lg:order-none bg-white rounded-3xl w-full">
-              <SellerSuggestions product={product} />
-            </div>
           </div>
 
           {/* Right column wrapper: contents on small, flex column on lg+ */}
           <div className="contents lg:flex lg:flex-col lg:gap-8">
-            {/* 2) Right upper: min-height matches left image + padding on lg+ (28rem + 4rem) */}
+            {/* 2) Right upper: details */}
             <div className="order-2 lg:order-none flex flex-col gap-4 lg:min-h-[32rem]">
               <ProductDetailsTabs product={product} />
             </div>
+          </div>
 
-            {/* 4) Right bottom suggestion */}
-            <div className="order-4 lg:order-none bg-purple-100 rounded-3xl flex items-center gap-8 p-8 w-full">
-              <Image
-                unoptimized
-                alt="Air Force purple"
-                className="w-32 h-32 rounded-full object-cover"
-                height={128}
-                src="https://images.pexels.com/photos/1556706/pexels-photo-1556706.jpeg?auto=compress&w=400&q=80"
-                width={128}
-              />
-              <div className="flex flex-col gap-2">
-                <h4 className="text-xl font-bold">Air Force purple №3212</h4>
-                <span className="text-gray-700">Size: 32-42</span>
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl font-bold">123$</span>
-                  <span className="text-lg line-through text-gray-400">236$</span>
-                </div>
-                <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-full font-semibold flex items-center gap-2 mt-2">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M16.5 10.5V6.75A2.25 2.25 0 0014.25 4.5h-4.5A2.25 2.25 0 007.5 6.75v13.5A2.25 2.25 0 009.75 22.5h4.5A2.25 2.25 0 0016.5 20.25v-3.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 15.75l3-3m0 0l-3-3m3 3H9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Buy
-                </button>
-              </div>
-            </div>
+          {/* Full-width seller suggestions (spans both columns on lg) */}
+          <div className="order-3 lg:col-span-2 rounded-3xl w-full">
+            <SellerSuggestions product={product} />
           </div>
         </div>
       </div>
