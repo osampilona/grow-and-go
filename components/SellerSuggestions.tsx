@@ -5,6 +5,9 @@ import type { FeedItem } from "@/data/mock/feed";
 import { useEffect, useMemo } from "react";
 
 import ProductMiniCard from "./ProductMiniCard";
+import { CardContainer } from "./CardContainer";
+import { HorizontalScroller } from "./HorizontalScroller";
+import { IconMessage } from "./IconMessage";
 
 import { mockFeed } from "@/data/mock/feed";
 import { useFeedStore } from "@/stores/feedStore";
@@ -15,23 +18,62 @@ export type SellerSuggestionsProps = {
   className?: string;
 };
 
-// Simple util: get items of a seller (excluding one id)
-function getSellerItems(sellerId: string, excludeId?: string, max = 6) {
-  const list = mockFeed.filter((i) => i.user.userId === sellerId && i.id !== excludeId);
+// --- Indexed lookup (built once per items array identity) ---
+let _lastRef: FeedItem[] | null = null;
+let _sellerIndex: Record<string, FeedItem[]> = {};
+let _categoryIndex: Record<string, FeedItem[]> = {};
+let _categoryBrandIndex: Record<string, FeedItem[]> = {};
 
-  return list.slice(0, max);
+function buildIndexes(items: FeedItem[]) {
+  if (items === _lastRef) return;
+  _sellerIndex = {};
+  _categoryIndex = {};
+  _categoryBrandIndex = {};
+  for (const it of items) {
+    // seller
+    (_sellerIndex[it.user.userId] ||= []).push(it);
+    // category
+    (_categoryIndex[it.categoryId] ||= []).push(it);
+    // category+brand
+    if (it.brand) {
+      const key = it.categoryId + "||" + it.brand.toLowerCase();
+
+      (_categoryBrandIndex[key] ||= []).push(it);
+    }
+  }
+  _lastRef = items;
 }
 
-// Find similar items by category/brand (excluding current seller)
-function getSimilarItems(item: FeedItem, max = 6) {
+function getSellerItemsIndexed(sellerId: string, excludeId?: string, max = 6) {
+  const list = _sellerIndex[sellerId] || [];
+
+  if (!excludeId) return list.slice(0, max);
+  const out: FeedItem[] = [];
+
+  for (const it of list) {
+    if (it.id === excludeId) continue;
+    out.push(it);
+    if (out.length === max) break;
+  }
+
+  return out;
+}
+
+function getSimilarItemsIndexed(item: FeedItem, max = 6) {
   const { categoryId, brand, id, user } = item;
-  const sameCategory = mockFeed.filter(
-    (i) => i.categoryId === categoryId && i.id !== id && i.user.userId !== user.userId
-  );
-  const byBrand = brand
-    ? sameCategory.filter((i) => i.brand && i.brand.toLowerCase() === brand.toLowerCase())
-    : [];
-  const merged = [...byBrand, ...sameCategory].filter((v, idx, arr) => arr.indexOf(v) === idx);
+  const key = brand ? categoryId + "||" + brand.toLowerCase() : undefined;
+  const brandMatches = key ? _categoryBrandIndex[key] || [] : [];
+  const cat = _categoryIndex[categoryId] || [];
+  const merged: FeedItem[] = [];
+  const pushUnique = (it: FeedItem) => {
+    if (it.id === id) return;
+    if (it.user.userId === user.userId) return; // exclude same seller
+    if (merged.indexOf(it) !== -1) return;
+    merged.push(it);
+  };
+
+  for (const it of brandMatches) pushUnique(it);
+  for (const it of cat) pushUnique(it);
 
   return merged.slice(0, max);
 }
@@ -42,22 +84,26 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
   // In a real app, these would come from backend/user profile. For now allow overriding via store.
   // Select only the specific slice we need to avoid re-renders when unrelated sellers change
   const tier = useSessionStore((s) => s.sellerTiers[product.user.userId]) ?? "freemium";
-  // We still load feed (mock) once so similar logic has data
-  const loadFeed = useFeedStore((s) => s.loadFeed);
-  const feedItemsLength = useFeedStore((s) => s.items.length);
+  // Subscribe only to a boolean to minimize rerenders
+  const feedLoaded = useFeedStore((s) => s.items.length > 0);
+  const feedItems = useFeedStore((s) => s.items); // will update once when loaded
 
+  // Lazy load feed if not loaded yet (avoid subscribing to loadFeed function)
   useEffect(() => {
-    if (feedItemsLength === 0) {
-      void loadFeed();
-    }
-  }, [feedItemsLength, loadFeed]);
+    if (!feedLoaded) void useFeedStore.getState().loadFeed();
+  }, [feedLoaded]);
+
+  // Choose active dataset & build indexes when dataset reference changes
+  const activeItems = feedLoaded && feedItems.length > 0 ? feedItems : mockFeed;
+
+  buildIndexes(activeItems);
 
   // New logic (uniform cases)
   const sellerItems = useMemo(
-    () => getSellerItems(product.user.userId, product.id, 6),
-    [product.user.userId, product.id]
+    () => getSellerItemsIndexed(product.user.userId, product.id, 6),
+    [product.user.userId, product.id, activeItems]
   );
-  const similar = useMemo(() => getSimilarItems(product, 6), [product]);
+  const similar = useMemo(() => getSimilarItemsIndexed(product, 6), [product, activeItems]);
   const sellerHasMore = sellerItems.length > 0;
 
   // Case 2: freemium & has more -> blended list
@@ -69,58 +115,91 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
 
   return (
     <div className={className}>
-      <div className="rounded-xl border border-default-200 bg-default-50 dark:bg-slate-800/40 p-4 space-y-5">
-        {/* Case 1: No more items from this seller (any tier) */}
-        {!sellerHasMore && (
-          <div className="space-y-4">
-            <p className="font-semibold text-sm">No more items from this seller</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {similar.map((it) => (
-                <ProductMiniCard key={it.id} item={it} />
-              ))}
-              {similar.length === 0 && (
-                <div className="text-sm text-foreground/60">No similar items found.</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Case 2: Freemium & has more (blended, unlabeled) */}
-        {tier === "freemium" && sellerHasMore && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {blended.map((it) => (
-                <ProductMiniCard key={it.id} item={it} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Case 3: Premium & has more (clearly separated) */}
-        {tier === "premium" && sellerHasMore && (
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <p className="font-semibold text-sm">More from {product.user.name}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {sellerItems.map((it) => (
-                  <ProductMiniCard key={it.id} item={it} />
-                ))}
-              </div>
-            </div>
-            <div className="space-y-3">
-              <p className="font-semibold text-sm">Similar items from other sellers</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {/* Case 1 (Premium only): No more items from this seller */}
+      {tier === "premium" && !sellerHasMore && (
+        <div className="mb-6">
+          <CardContainer>
+            <p className="font-semibold text-base">No more items from {product.user.name}</p>
+            {similar.length > 0 ? (
+              <HorizontalScroller>
                 {similar.map((it) => (
-                  <ProductMiniCard key={it.id} item={it} />
+                  <div key={it.id} className="snap-start shrink-0 w-56">
+                    <ProductMiniCard item={it} />
+                  </div>
                 ))}
-                {similar.length === 0 && (
-                  <div className="text-sm text-foreground/60">No similar items found.</div>
-                )}
+              </HorizontalScroller>
+            ) : (
+              <IconMessage message="No similar items found." />
+            )}
+          </CardContainer>
+        </div>
+      )}
+
+      {/* Freemium & no more items: show only similar items list (no blue container) */}
+      {tier === "freemium" && !sellerHasMore && (
+        <div className="mb-6">
+          <CardContainer>
+            {similar.length > 0 ? (
+              <>
+                <p className="font-semibold text-base">You may also like</p>
+                <HorizontalScroller>
+                  {similar.map((it) => (
+                    <div key={it.id} className="snap-start shrink-0 w-56">
+                      <ProductMiniCard item={it} />
+                    </div>
+                  ))}
+                </HorizontalScroller>
+              </>
+            ) : (
+              <IconMessage message="No similar items found." />
+            )}
+          </CardContainer>
+        </div>
+      )}
+
+      {/* Case 2: Freemium & has more (blended, unlabeled) */}
+      {tier === "freemium" && sellerHasMore && (
+        <CardContainer>
+          <p className="font-semibold text-base">You may also like</p>
+          <HorizontalScroller>
+            {blended.map((it) => (
+              <div key={it.id} className="snap-start shrink-0 w-56">
+                <ProductMiniCard item={it} />
               </div>
-            </div>
-          </div>
-        )}
-      </div>
+            ))}
+          </HorizontalScroller>
+        </CardContainer>
+      )}
+
+      {/* Case 3: Premium & has more (separate containers, seller emphasized) */}
+      {tier === "premium" && sellerHasMore && (
+        <div className="flex flex-col gap-6">
+          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
+            <p className="font-semibold text-base">More from {product.user.name}</p>
+            <HorizontalScroller className="gap-4">
+              {sellerItems.map((it) => (
+                <div key={it.id} className="snap-start shrink-0 w-56">
+                  <ProductMiniCard item={it} />
+                </div>
+              ))}
+            </HorizontalScroller>
+          </CardContainer>
+          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
+            <p className="font-semibold text-sm">Similar items from other sellers</p>
+            {similar.length > 0 ? (
+              <HorizontalScroller>
+                {similar.map((it) => (
+                  <div key={it.id} className="snap-start shrink-0 w-56">
+                    <ProductMiniCard item={it} />
+                  </div>
+                ))}
+              </HorizontalScroller>
+            ) : (
+              <IconMessage message="No similar items found." />
+            )}
+          </CardContainer>
+        </div>
+      )}
     </div>
   );
 }
