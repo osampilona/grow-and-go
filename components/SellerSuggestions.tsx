@@ -2,9 +2,11 @@
 
 import type { FeedItem } from "@/data/mock/feed";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@heroui/react";
 
 import ProductMiniCard from "./ProductMiniCard";
+import Card from "./Card";
 import { CardContainer } from "./CardContainer";
 import { HorizontalScroller } from "./HorizontalScroller";
 import { IconMessage } from "./IconMessage";
@@ -100,11 +102,20 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
 
   // New logic (uniform cases)
   const sellerItems = useMemo(
-    () => getSellerItemsIndexed(product.user.userId, product.id, 6),
+    () => getSellerItemsIndexed(product.user.userId, product.id, Number.MAX_SAFE_INTEGER),
     [product.user.userId, product.id, activeItems]
   );
   const similar = useMemo(() => getSimilarItemsIndexed(product, 6), [product, activeItems]);
   const sellerHasMore = sellerItems.length > 0;
+
+  // Show more/less for seller listings (premium case)
+  const INITIAL_SELLER_LISTINGS = 4;
+  const [showAllListings, setShowAllListings] = useState(false);
+
+  useEffect(() => setShowAllListings(false), [product.user.userId]);
+  const visibleSellerItems = showAllListings
+    ? sellerItems
+    : sellerItems.slice(0, INITIAL_SELLER_LISTINGS);
 
   // Case 2: freemium & has more -> blended list
   const blended = useMemo(() => {
@@ -173,32 +184,60 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
 
       {/* Case 3: Premium & has more (separate containers, seller emphasized) */}
       {tier === "premium" && sellerHasMore && (
-        <div className="flex flex-col gap-6">
-          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
-            <p className="font-semibold text-base">More from {product.user.name}</p>
-            <HorizontalScroller className="gap-4">
-              {sellerItems.map((it) => (
-                <div key={it.id} className="snap-start shrink-0 w-56">
-                  <ProductMiniCard item={it} />
-                </div>
+        <>
+          <h2 className="font-semibold">More from {product.user.name}</h2>
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
+              {visibleSellerItems.map((it) => (
+                <Card
+                  key={it.id}
+                  item={{
+                    id: it.id,
+                    title: it.title,
+                    price: it.price,
+                    rating: it.sellerRating,
+                    condition: it.condition,
+                    images: it.images.slice(0, 4),
+                    user: {
+                      userId: it.user.userId,
+                      name: it.user.name,
+                      avatar: it.user.avatar,
+                    },
+                  }}
+                />
               ))}
-            </HorizontalScroller>
-          </CardContainer>
-          <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
-            <p className="font-semibold text-sm">Similar items from other sellers</p>
-            {similar.length > 0 ? (
-              <HorizontalScroller>
-                {similar.map((it) => (
-                  <div key={it.id} className="snap-start shrink-0 w-56">
-                    <ProductMiniCard item={it} />
-                  </div>
-                ))}
-              </HorizontalScroller>
-            ) : (
-              <IconMessage message="No similar items found." />
+            </div>
+            {sellerItems.length > INITIAL_SELLER_LISTINGS && (
+              <div className="-mt-2 flex flex-col items-center gap-2">
+                <span className="text-sm text-foreground/60">
+                  Showing {visibleSellerItems.length} of {sellerItems.length}
+                </span>
+                <Button
+                  radius="full"
+                  size="sm"
+                  variant="bordered"
+                  onPress={() => setShowAllListings((v) => !v)}
+                >
+                  {showAllListings ? "Show less listings" : "Show more listings"}
+                </Button>
+              </div>
             )}
-          </CardContainer>
-        </div>
+            <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
+              <p className="font-semibold text-sm">Similar items from other sellers</p>
+              {similar.length > 0 ? (
+                <HorizontalScroller>
+                  {similar.map((it) => (
+                    <div key={it.id} className="snap-start shrink-0 w-56">
+                      <ProductMiniCard item={it} />
+                    </div>
+                  ))}
+                </HorizontalScroller>
+              ) : (
+                <IconMessage message="No similar items found." />
+              )}
+            </CardContainer>
+          </div>
+        </>
       )}
     </div>
   );
