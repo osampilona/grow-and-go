@@ -31,7 +31,30 @@ export interface SellerStylePreferences {
 export interface SellerProfile {
   sellerId: string;
   preferences: SellerStylePreferences;
+  // Optional reviews data for UI
+  reviews?: Review[];
+  reviewStats?: ReviewStats;
 }
 
 // Shape stored in state: Record<sellerId, SellerProfile>
 export type SellerProfilesMap = Record<string, SellerProfile>;
+
+// Review and aggregate stats are placed with the seller profile
+export type Review = {
+  id: string;
+  reviewer: {
+    userId: string;
+    name: string;
+    avatar: string;
+  };
+  rating: number; // 1..5
+  comment: string;
+  createdAt: string; // ISO date
+  itemId?: string; // optional: the item this review refers to
+};
+
+export type ReviewStats = {
+  count: number;
+  average: number; // average rating 1..5
+  breakdown: { [stars: number]: number }; // e.g. {5: 10, 4: 2, 3: 0, 2: 0, 1: 0}
+};

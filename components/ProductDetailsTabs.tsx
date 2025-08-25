@@ -15,9 +15,9 @@ type Props = {
 
 // Hoisted tab config so the array identity stays stable across renders
 const PRODUCT_TABS: { key: string; label: string }[] = [
+  { key: "seller", label: "Seller" },
   { key: "description", label: "Description" },
   { key: "shipping", label: "Shipping" },
-  { key: "seller", label: "Seller" },
 ];
 
 export default function ProductDetailsTabs({ product, className }: Props) {
@@ -69,7 +69,7 @@ export default function ProductDetailsTabs({ product, className }: Props) {
           if (!needs) setDescExpanded(false);
         }
         // Only measure seller description when the tab is active to avoid layout thrash
-        if (selectedTab === 2) {
+        if (selectedTab === 0) {
           measureSellerDesc();
         }
       });
@@ -80,7 +80,7 @@ export default function ProductDetailsTabs({ product, className }: Props) {
 
     if (descRef.current) ro.observe(descRef.current);
 
-    if (selectedTab === 2 && sellerDescRef.current) ro.observe(sellerDescRef.current);
+    if (selectedTab === 0 && sellerDescRef.current) ro.observe(sellerDescRef.current);
 
     // Initial + delayed measure (delayed handles async content like images/fonts)
     measureAll();
@@ -143,70 +143,7 @@ export default function ProductDetailsTabs({ product, className }: Props) {
           ))}
         </Tab.List>
         <Tab.Panels className="mt-4">
-          <Tab.Panel>
-            <div>
-              <p
-                ref={descRef}
-                className="text-gray-600 text-lg dark:text-white"
-                style={
-                  !descExpanded && descTruncatable && descClampPx
-                    ? { maxHeight: `${descClampPx}px`, overflow: "hidden" }
-                    : undefined
-                }
-              >
-                {product.description}
-              </p>
-              {descTruncatable && (
-                <button
-                  className="mt-1 text-sm font-medium text-primary hover:underline"
-                  onClick={() => setDescExpanded((v) => !v)}
-                >
-                  {descExpanded ? "Read less" : "Read more"}
-                </button>
-              )}
-            </div>
-          </Tab.Panel>
-          <Tab.Panel>
-            <div className="flex flex-col gap-4">
-              <ul className="space-y-2">
-                {product.shippingMethods.map((method) => {
-                  const label =
-                    method === "pickup"
-                      ? "Pickup"
-                      : method === "local-delivery"
-                        ? "Local delivery"
-                        : "Shipping";
-                  const info =
-                    method === "pickup"
-                      ? "Pick up at seller’s location"
-                      : method === "local-delivery"
-                        ? "Delivered locally by the seller"
-                        : "Ships via courier or postal service";
-
-                  return (
-                    <li
-                      key={method}
-                      className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
-                    >
-                      <span className="font-medium">{label}</span>
-                      <span className="text-foreground/70 text-sm">{info}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              {(product.shippingMethods.includes("pickup") ||
-                product.shippingMethods.includes("local-delivery")) && (
-                <a
-                  className="self-start text-sm font-semibold text-primary hover:underline"
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  See on map
-                </a>
-              )}
-            </div>
-          </Tab.Panel>
+          {/* Seller (now first) */}
           <Tab.Panel>
             <div className="flex flex-col gap-4">
               <Link
@@ -296,6 +233,72 @@ export default function ProductDetailsTabs({ product, className }: Props) {
                   </span>
                 )}
               </div>
+            </div>
+          </Tab.Panel>
+          {/* Description (second) */}
+          <Tab.Panel>
+            <div>
+              <p
+                ref={descRef}
+                className="text-gray-600 text-lg dark:text-white"
+                style={
+                  !descExpanded && descTruncatable && descClampPx
+                    ? { maxHeight: `${descClampPx}px`, overflow: "hidden" }
+                    : undefined
+                }
+              >
+                {product.description}
+              </p>
+              {descTruncatable && (
+                <button
+                  className="mt-1 text-sm font-medium text-primary hover:underline"
+                  onClick={() => setDescExpanded((v) => !v)}
+                >
+                  {descExpanded ? "Read less" : "Read more"}
+                </button>
+              )}
+            </div>
+          </Tab.Panel>
+          {/* Shipping (third) */}
+          <Tab.Panel>
+            <div className="flex flex-col gap-4">
+              <ul className="space-y-2">
+                {product.shippingMethods.map((method) => {
+                  const label =
+                    method === "pickup"
+                      ? "Pickup"
+                      : method === "local-delivery"
+                        ? "Local delivery"
+                        : "Shipping";
+                  const info =
+                    method === "pickup"
+                      ? "Pick up at seller’s location"
+                      : method === "local-delivery"
+                        ? "Delivered locally by the seller"
+                        : "Ships via courier or postal service";
+
+                  return (
+                    <li
+                      key={method}
+                      className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                    >
+                      <span className="font-medium">{label}</span>
+                      <span className="text-foreground/70 text-sm">{info}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              {(product.shippingMethods.includes("pickup") ||
+                product.shippingMethods.includes("local-delivery")) && (
+                <a
+                  className="self-start text-sm font-semibold text-primary hover:underline"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  See on map
+                </a>
+              )}
             </div>
           </Tab.Panel>
         </Tab.Panels>

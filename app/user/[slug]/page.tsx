@@ -1,14 +1,18 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 
+import ReviewCard from "../../../components/ReviewCard";
+
 import ProductMedia from "@/components/ProductMedia";
 import Card from "@/components/Card";
+import BundleDeal from "@/components/BundleDeal";
 import { mockFeed } from "@/data/mock/feed";
 import { IconMessage } from "@/components/IconMessage";
+import { mockSellerProfiles } from "@/data/mock/sellers";
 
 export default function UserPage() {
   const params = useParams();
@@ -35,6 +39,21 @@ export default function UserPage() {
 
     return { flags, shipping };
   }, [items]);
+
+  const sellerProfile = useMemo(() => mockSellerProfiles[slug], [slug]);
+  const reviews = sellerProfile?.reviews ?? [];
+  const stats = sellerProfile?.reviewStats;
+  const INITIAL_REVIEW_COUNT = 3;
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, INITIAL_REVIEW_COUNT);
+
+  // Reset view when seller or review count changes
+  useEffect(() => {
+    setShowAllReviews(false);
+  }, [slug, reviews.length]);
+
+  // Find bundle items for this user (for conditional rendering of SellerBundleDeal)
+  const bundleItems = useMemo(() => items.filter((i) => i.bundleDeal), [items]);
 
   return (
     <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
@@ -82,20 +101,9 @@ export default function UserPage() {
                 {user?.description ||
                   "Seller bio coming soon. This user hasn’t added a description yet."}
               </p>
-              <div className="flex flex-wrap gap-2 text-sm text-foreground/60">
-                <span className="rounded-full bg-default-100 px-3 py-1 dark:bg-slate-800/60">
-                  Value Focus
-                </span>
-                <span className="rounded-full bg-default-100 px-3 py-1 dark:bg-slate-800/60">
-                  Design-Oriented
-                </span>
-                <span className="rounded-full bg-default-100 px-3 py-1 dark:bg-slate-800/60">
-                  Sustainable
-                </span>
-              </div>
             </section>
             <section className="space-y-3">
-              <h2 className="text-xl font-semibold">Badges</h2>
+              <h2 className="text-xl font-semibold">Highlights</h2>
               <div className="flex flex-wrap gap-2">
                 {aggregated?.flags.bundleDeal && (
                   <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
@@ -132,6 +140,40 @@ export default function UserPage() {
                 {!aggregated && <span className="text-sm text-foreground/50">No badges yet.</span>}
               </div>
             </section>
+            {/* Shipping options (aggregated from seller's listings) */}
+            <section className="space-y-3">
+              <h2 className="text-xl font-semibold">Shipping options</h2>
+              {aggregated?.shipping.length ? (
+                <ul className="space-y-2">
+                  {aggregated.shipping.map((method) => {
+                    const label =
+                      method === "pickup"
+                        ? "Pickup"
+                        : method === "local-delivery"
+                          ? "Local delivery"
+                          : "Shipping";
+                    const info =
+                      method === "pickup"
+                        ? "Pick up at seller’s location"
+                        : method === "local-delivery"
+                          ? "Delivered locally by the seller"
+                          : "Ships via courier or postal service";
+
+                    return (
+                      <li
+                        key={method}
+                        className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                      >
+                        <span className="font-medium">{label}</span>
+                        <span className="text-foreground/70 text-sm">{info}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <span className="text-sm text-foreground/50">No shipping info yet.</span>
+              )}
+            </section>
             <div className="flex gap-3">
               <Button className="cta-outline font-semibold" radius="full" size="sm">
                 Message
@@ -147,15 +189,21 @@ export default function UserPage() {
         </div>
       </div>
 
+      {/* Bundle Section (if any) */}
+      {bundleItems.length > 0 && <BundleDeal product={bundleItems[0]} />}
+
       {/* Listings Section */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Listings</h2>
-          {items.length > 0 && (
-            <div className="text-sm text-foreground/60">
-              {items.length} item{items.length > 1 ? "s" : ""}
-            </div>
-          )}
+          <h2 className="text-xl font-semibold">
+            {user?.name
+              ? items.length === 0
+                ? `${user.name} has no listings yet`
+                : `${user.name} has ${items.length} ${items.length === 1 ? "listing" : "listings"}`
+              : items.length > 0
+                ? `${items.length} ${items.length === 1 ? "listing" : "listings"}`
+                : "Listings"}
+          </h2>
         </div>
         {items.length === 0 && (
           <IconMessage
@@ -165,7 +213,7 @@ export default function UserPage() {
           />
         )}
         {items.length > 0 && (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
             {items.map((it) => (
               <Card
                 key={it.id}
@@ -181,6 +229,54 @@ export default function UserPage() {
               />
             ))}
           </div>
+        )}
+      </section>
+
+      {/* Reviews Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold">Reviews</h2>
+          {stats && (
+            <div className="flex items-center gap-2 text-sm text-foreground/70">
+              <span className="font-semibold text-yellow-500">{stats.average.toFixed(1)}</span>
+              <svg className="h-4 w-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+              </svg>
+              <span>
+                · {stats.count} {stats.count === 1 ? "review" : "reviews"}
+              </span>
+            </div>
+          )}
+        </div>
+        {reviews.length === 0 ? (
+          <IconMessage
+            className="text-foreground/70"
+            iconSrc="/reading.svg"
+            message="No reviews yet."
+          />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {visibleReviews.map((r) => (
+                <ReviewCard key={r.id} review={r} />
+              ))}
+            </div>
+            {reviews.length > INITIAL_REVIEW_COUNT && (
+              <div className="mt-2 flex flex-col items-center gap-2">
+                <span className="text-sm text-foreground/60">
+                  Showing {visibleReviews.length} of {reviews.length}
+                </span>
+                <Button
+                  radius="full"
+                  size="sm"
+                  variant="bordered"
+                  onPress={() => setShowAllReviews((v) => !v)}
+                >
+                  {showAllReviews ? "Show less reviews" : "Show more reviews"}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
       {/* Explore other sellers CTA */}

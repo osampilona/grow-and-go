@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import ProductDetailsTabs from "@/components/ProductDetailsTabs";
+import BundleDeal from "@/components/BundleDeal";
 import ProductMedia from "@/components/ProductMedia";
 import SellerSuggestions from "@/components/SellerSuggestions";
 import SwiperCarousel from "@/components/SwiperCarousel";
@@ -98,7 +99,8 @@ export default function ProductPage() {
           </div>
 
           {/* Full-width seller suggestions (spans both columns on lg) */}
-          <div className="order-3 lg:col-span-2 rounded-3xl w-full">
+          <div className="flex flex-col gap-4 order-3 lg:col-span-2 rounded-3xl w-full">
+            <BundleDeal product={product} />
             <SellerSuggestions product={product} />
           </div>
         </div>
