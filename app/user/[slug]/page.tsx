@@ -2,7 +2,6 @@
 
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Tab } from "@headlessui/react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 
@@ -11,6 +10,7 @@ import ReviewCard from "../../../components/ReviewCard";
 import ProductMedia from "@/components/ProductMedia";
 import Card from "@/components/Card";
 import BundleDeal from "@/components/BundleDeal";
+import InfoTabs, { InfoTabItem } from "@/components/InfoTabs";
 import { mockFeed } from "@/data/mock/feed";
 import { IconMessage } from "@/components/IconMessage";
 import { mockSellerProfiles } from "@/data/mock/sellers";
@@ -101,6 +101,162 @@ export default function UserPage() {
     };
   }, [measureAbout, user?.description]);
 
+  // Build tab items for InfoTabs so pages can pick and choose
+  const tabItems: InfoTabItem[] = useMemo(() => {
+    const items: InfoTabItem[] = [];
+    // About
+
+    items.push({
+      key: "about",
+      label: "About",
+      content: (
+        <div className="space-y-3">
+          <p
+            ref={aboutRef}
+            className="text-foreground/80 text-base leading-relaxed"
+            style={
+              !aboutExpanded && aboutTruncatable && aboutClampPx
+                ? {
+                    maxHeight: `${aboutClampPx}px`,
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical" as any,
+                  }
+                : undefined
+            }
+          >
+            {user?.description ||
+              "Seller bio coming soon. This user hasn’t added a description yet."}
+          </p>
+          {aboutTruncatable && (
+            <button
+              className="text-sm font-medium text-primary hover:underline self-start"
+              onClick={() => setAboutExpanded((v) => !v)}
+            >
+              {aboutExpanded ? "Read less" : "Read more"}
+            </button>
+          )}
+          <div className="flex gap-3">
+            <Button className="cta-outline font-semibold" radius="full" size="sm">
+              Message
+            </Button>
+            <Button className="font-semibold" radius="full" size="sm" variant="light">
+              Share
+            </Button>
+            <Button className="font-semibold" radius="full" size="sm" variant="light">
+              Report
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+
+    // Highlights
+    items.push({
+      key: "highlights",
+      label: "Highlights",
+      content: (
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {aggregated?.flags.bundleDeal && (
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                Bundle Deal
+              </span>
+            )}
+            {aggregated?.flags.petFree && (
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                Pet-Free
+              </span>
+            )}
+            {aggregated?.flags.smokeFree && (
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                Smoke-Free
+              </span>
+            )}
+            {aggregated?.flags.perfumeFree && (
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                Perfume-Free
+              </span>
+            )}
+            {aggregated?.shipping.map((m) => (
+              <span
+                key={m}
+                className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
+              >
+                {m === "pickup" ? "Pickup" : m === "local-delivery" ? "Local Delivery" : "Shipping"}
+              </span>
+            ))}
+            {!aggregated && <span className="text-sm text-foreground/50">No badges yet.</span>}
+          </div>
+        </div>
+      ),
+    });
+
+    // Shipping
+    items.push({
+      key: "shipping",
+      label: "Shipping",
+      content: (
+        <div className="space-y-3">
+          {aggregated?.shipping.length ? (
+            <ul className="space-y-2">
+              {aggregated.shipping.map((method) => {
+                const label =
+                  method === "pickup"
+                    ? "Pickup"
+                    : method === "local-delivery"
+                      ? "Local delivery"
+                      : "Shipping";
+                const info =
+                  method === "pickup"
+                    ? "Pick up at seller’s location"
+                    : method === "local-delivery"
+                      ? "Delivered locally by the seller"
+                      : "Ships via courier or postal service";
+
+                return (
+                  <li
+                    key={method}
+                    className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                  >
+                    <span className="font-medium">{label}</span>
+                    <span className="text-foreground/70 text-sm">{info}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <span className="text-sm text-foreground/50">No shipping info yet.</span>
+          )}
+          {(aggregated?.shipping.includes("pickup") ||
+            aggregated?.shipping.includes("local-delivery")) && (
+            <a
+              className="self-start text-sm font-semibold text-primary hover:underline"
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              See on map
+            </a>
+          )}
+        </div>
+      ),
+    });
+
+    return items;
+  }, [
+    aggregated?.flags.bundleDeal,
+    aggregated?.flags.petFree,
+    aggregated?.flags.smokeFree,
+    aggregated?.flags.perfumeFree,
+    aggregated?.shipping,
+    aboutClampPx,
+    aboutExpanded,
+    aboutTruncatable,
+    user?.description,
+  ]);
+
   return (
     <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
       {/* Responsive profile header using product page grid template */}
@@ -140,153 +296,7 @@ export default function UserPage() {
               )}
             </div>
 
-            <Tab.Group>
-              <Tab.List className="flex gap-8 border-b border-default-200 dark:border-slate-700">
-                {[
-                  { key: "about", label: "About" },
-                  { key: "highlights", label: "Highlights" },
-                  { key: "shipping", label: "Shipping" },
-                ].map((t) => (
-                  <Tab
-                    key={t.key}
-                    className={({ selected }) =>
-                      `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 cursor-pointer select-none ${selected ? "border-foreground text-foreground" : "border-transparent text-foreground/60 hover:text-foreground"}`
-                    }
-                  >
-                    {t.label}
-                  </Tab>
-                ))}
-              </Tab.List>
-              <Tab.Panels className="mt-4">
-                <Tab.Panel>
-                  <div className="space-y-3">
-                    <p
-                      ref={aboutRef}
-                      className="text-foreground/80 text-base leading-relaxed"
-                      style={
-                        !aboutExpanded && aboutTruncatable && aboutClampPx
-                          ? {
-                              maxHeight: `${aboutClampPx}px`,
-                              overflow: "hidden",
-                              display: "-webkit-box",
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: "vertical" as any,
-                            }
-                          : undefined
-                      }
-                    >
-                      {user?.description ||
-                        "Seller bio coming soon. This user hasn’t added a description yet."}
-                    </p>
-                    {aboutTruncatable && (
-                      <button
-                        className="text-sm font-medium text-primary hover:underline self-start"
-                        onClick={() => setAboutExpanded((v) => !v)}
-                      >
-                        {aboutExpanded ? "Read less" : "Read more"}
-                      </button>
-                    )}
-                    <div className="flex gap-3">
-                      <Button className="cta-outline font-semibold" radius="full" size="sm">
-                        Message
-                      </Button>
-                      <Button className="font-semibold" radius="full" size="sm" variant="light">
-                        Share
-                      </Button>
-                      <Button className="font-semibold" radius="full" size="sm" variant="light">
-                        Report
-                      </Button>
-                    </div>
-                  </div>
-                </Tab.Panel>
-                <Tab.Panel>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      {aggregated?.flags.bundleDeal && (
-                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                          Bundle Deal
-                        </span>
-                      )}
-                      {aggregated?.flags.petFree && (
-                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                          Pet-Free
-                        </span>
-                      )}
-                      {aggregated?.flags.smokeFree && (
-                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                          Smoke-Free
-                        </span>
-                      )}
-                      {aggregated?.flags.perfumeFree && (
-                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                          Perfume-Free
-                        </span>
-                      )}
-                      {aggregated?.shipping.map((m) => (
-                        <span
-                          key={m}
-                          className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
-                        >
-                          {m === "pickup"
-                            ? "Pickup"
-                            : m === "local-delivery"
-                              ? "Local Delivery"
-                              : "Shipping"}
-                        </span>
-                      ))}
-                      {!aggregated && (
-                        <span className="text-sm text-foreground/50">No badges yet.</span>
-                      )}
-                    </div>
-                  </div>
-                </Tab.Panel>
-                <Tab.Panel>
-                  <div className="space-y-3">
-                    {aggregated?.shipping.length ? (
-                      <ul className="space-y-2">
-                        {aggregated.shipping.map((method) => {
-                          const label =
-                            method === "pickup"
-                              ? "Pickup"
-                              : method === "local-delivery"
-                                ? "Local delivery"
-                                : "Shipping";
-                          const info =
-                            method === "pickup"
-                              ? "Pick up at seller’s location"
-                              : method === "local-delivery"
-                                ? "Delivered locally by the seller"
-                                : "Ships via courier or postal service";
-
-                          return (
-                            <li
-                              key={method}
-                              className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
-                            >
-                              <span className="font-medium">{label}</span>
-                              <span className="text-foreground/70 text-sm">{info}</span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    ) : (
-                      <span className="text-sm text-foreground/50">No shipping info yet.</span>
-                    )}
-                    {(aggregated?.shipping.includes("pickup") ||
-                      aggregated?.shipping.includes("local-delivery")) && (
-                      <a
-                        className="self-start text-sm font-semibold text-primary hover:underline"
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        See on map
-                      </a>
-                    )}
-                  </div>
-                </Tab.Panel>
-              </Tab.Panels>
-            </Tab.Group>
+            {user && <InfoTabs items={tabItems} />}
           </div>
         </div>
       </div>
