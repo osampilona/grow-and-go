@@ -5,14 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 
-import ReviewCard from "../../../components/ReviewCard";
-
 import ProductMedia from "@/components/ProductMedia";
 import Card from "@/components/Card";
 import BundleDeal from "@/components/BundleDeal";
 import InfoTabs, { InfoTabItem } from "@/components/InfoTabs";
-import { mockFeed } from "@/data/mock/feed";
+import ReviewCard, { ReviewCardSkeleton } from "@/components/ReviewCard";
+import Pagination from "@/components/Pagination";
 import { IconMessage } from "@/components/IconMessage";
+import { mockFeed } from "@/data/mock/feed";
 import { mockSellerProfiles } from "@/data/mock/sellers";
 
 export default function UserPage() {
@@ -26,6 +26,18 @@ export default function UserPage() {
 
     return { items, user };
   }, [slug]);
+
+  // Listings pagination (10-by-10 show more, collapse to default on less)
+  const INITIAL_USER_LISTINGS = 8;
+  const [visibleListingCount, setVisibleListingCount] = useState(INITIAL_USER_LISTINGS);
+  const visibleItems = useMemo(
+    () => items.slice(0, visibleListingCount),
+    [items, visibleListingCount]
+  );
+
+  useEffect(() => {
+    setVisibleListingCount(INITIAL_USER_LISTINGS);
+  }, [slug, items.length]);
 
   const aggregated = useMemo(() => {
     if (!items.length) return null;
@@ -45,12 +57,18 @@ export default function UserPage() {
   const reviews = sellerProfile?.reviews ?? [];
   const stats = sellerProfile?.reviewStats;
   const INITIAL_REVIEW_COUNT = 3;
-  const [showAllReviews, setShowAllReviews] = useState(false);
-  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, INITIAL_REVIEW_COUNT);
+  const [visibleReviewCount, setVisibleReviewCount] = useState(INITIAL_REVIEW_COUNT);
+  const visibleReviews = reviews.slice(0, visibleReviewCount);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   // Reset view when seller or review count changes
   useEffect(() => {
-    setShowAllReviews(false);
+    setVisibleReviewCount(INITIAL_REVIEW_COUNT);
+    // Show a brief skeleton while switching users or review count changes
+    setReviewsLoading(true);
+    const t = setTimeout(() => setReviewsLoading(false), 400);
+
+    return () => clearTimeout(t);
   }, [slug, reviews.length]);
 
   // Find bundle items for this user (for conditional rendering of SellerBundleDeal)
@@ -325,22 +343,34 @@ export default function UserPage() {
           />
         )}
         {items.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
-            {items.map((it) => (
-              <Card
-                key={it.id}
-                item={{
-                  id: it.id,
-                  title: it.title,
-                  price: it.price,
-                  rating: it.sellerRating,
-                  condition: it.condition,
-                  images: it.images.slice(0, 4),
-                  user: { userId: it.user.userId, name: it.user.name, avatar: it.user.avatar },
-                }}
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 my-6 mx-0">
+              {visibleItems.map((it) => (
+                <Card
+                  key={it.id}
+                  item={{
+                    id: it.id,
+                    title: it.title,
+                    price: it.price,
+                    rating: it.sellerRating,
+                    condition: it.condition,
+                    images: it.images.slice(0, 4),
+                    user: { userId: it.user.userId, name: it.user.name, avatar: it.user.avatar },
+                  }}
+                />
+              ))}
+            </div>
+            {items.length > INITIAL_USER_LISTINGS && (
+              <Pagination
+                initial={INITIAL_USER_LISTINGS}
+                label="listings"
+                setVisible={setVisibleListingCount}
+                step={10}
+                total={items.length}
+                visible={visibleItems.length}
               />
-            ))}
-          </div>
+            )}
+          </>
         )}
       </section>
 
@@ -360,7 +390,13 @@ export default function UserPage() {
             </div>
           )}
         </div>
-        {reviews.length === 0 ? (
+        {reviewsLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <ReviewCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : reviews.length === 0 ? (
           <IconMessage
             className="text-foreground/70"
             iconSrc="/reading.svg"
@@ -374,19 +410,14 @@ export default function UserPage() {
               ))}
             </div>
             {reviews.length > INITIAL_REVIEW_COUNT && (
-              <div className="mt-2 flex flex-col items-center gap-2">
-                <span className="text-sm text-foreground/60">
-                  Showing {visibleReviews.length} of {reviews.length}
-                </span>
-                <Button
-                  radius="full"
-                  size="sm"
-                  variant="bordered"
-                  onPress={() => setShowAllReviews((v) => !v)}
-                >
-                  {showAllReviews ? "Show less reviews" : "Show more reviews"}
-                </Button>
-              </div>
+              <Pagination
+                initial={INITIAL_REVIEW_COUNT}
+                label="reviews"
+                setVisible={setVisibleReviewCount}
+                step={10}
+                total={reviews.length}
+                visible={visibleReviews.length}
+              />
             )}
           </>
         )}

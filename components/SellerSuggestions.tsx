@@ -3,14 +3,16 @@
 import type { FeedItem } from "@/data/mock/feed";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@heroui/react";
 
+// Local components
+import Pagination from "./Pagination";
 import ProductMiniCard from "./ProductMiniCard";
 import Card from "./Card";
 import { CardContainer } from "./CardContainer";
 import { HorizontalScroller } from "./HorizontalScroller";
 import { IconMessage } from "./IconMessage";
 
+// Internal modules
 import { mockFeed } from "@/data/mock/feed";
 import { useFeedStore } from "@/stores/feedStore";
 import { useSessionStore } from "@/stores/userStore";
@@ -110,12 +112,10 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
 
   // Show more/less for seller listings (premium case)
   const INITIAL_SELLER_LISTINGS = 4;
-  const [showAllListings, setShowAllListings] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_SELLER_LISTINGS);
 
-  useEffect(() => setShowAllListings(false), [product.user.userId]);
-  const visibleSellerItems = showAllListings
-    ? sellerItems
-    : sellerItems.slice(0, INITIAL_SELLER_LISTINGS);
+  useEffect(() => setVisibleCount(INITIAL_SELLER_LISTINGS), [product.user.userId]);
+  const visibleSellerItems = sellerItems.slice(0, visibleCount);
 
   // Case 2: freemium & has more -> blended list
   const blended = useMemo(() => {
@@ -208,19 +208,14 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
               ))}
             </div>
             {sellerItems.length > INITIAL_SELLER_LISTINGS && (
-              <div className="-mt-2 flex flex-col items-center gap-2">
-                <span className="text-sm text-foreground/60">
-                  Showing {visibleSellerItems.length} of {sellerItems.length}
-                </span>
-                <Button
-                  radius="full"
-                  size="sm"
-                  variant="bordered"
-                  onPress={() => setShowAllListings((v) => !v)}
-                >
-                  {showAllListings ? "Show less listings" : "Show more listings"}
-                </Button>
-              </div>
+              <Pagination
+                initial={INITIAL_SELLER_LISTINGS}
+                label="listings"
+                setVisible={setVisibleCount}
+                step={10}
+                total={sellerItems.length}
+                visible={visibleSellerItems.length}
+              />
             )}
             <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
               <p className="font-semibold text-sm">Similar items from other sellers</p>

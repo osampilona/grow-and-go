@@ -3,7 +3,7 @@
 import type { Review } from "@/types/seller";
 
 import Link from "next/link";
-import { Avatar } from "@heroui/react";
+import { Avatar, Skeleton } from "@heroui/react";
 
 type Props = {
   review: Review;
@@ -56,6 +56,33 @@ export default function ReviewCard({ review }: Props) {
           </Link>
         </div>
       )}
+    </article>
+  );
+}
+
+// Lightweight placeholder matching ReviewCard layout
+export function ReviewCardSkeleton() {
+  return (
+    <article className="rounded-2xl border border-default-200/60 bg-content1 p-4 flex flex-col gap-3">
+      <div className="flex items-start gap-3">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <Skeleton className="h-4 w-28 rounded" />
+            <Skeleton className="h-3 w-16 rounded" />
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <Skeleton className="h-3 w-24 rounded" />
+            <Skeleton className="h-3 w-8 rounded" />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-full rounded" />
+        <Skeleton className="h-3 w-5/6 rounded" />
+        <Skeleton className="h-3 w-3/5 rounded" />
+      </div>
+      <Skeleton className="h-3 w-20 rounded" />
     </article>
   );
 }
