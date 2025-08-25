@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Tab } from "@headlessui/react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 
@@ -55,6 +56,51 @@ export default function UserPage() {
   // Find bundle items for this user (for conditional rendering of SellerBundleDeal)
   const bundleItems = useMemo(() => items.filter((i) => i.bundleDeal), [items]);
 
+  // Derived counts for tabs (removed from labels per request)
+
+  // Clamp About text to 3 lines with Read more/less
+  const aboutRef = useRef<HTMLParagraphElement | null>(null);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [aboutTruncatable, setAboutTruncatable] = useState(false);
+  const [aboutClampPx, setAboutClampPx] = useState<number | undefined>(undefined);
+
+  const measureAbout = useCallback(() => {
+    const el = aboutRef.current;
+
+    if (!el) return;
+
+    const cs = window.getComputedStyle(el);
+    const lineH = parseFloat(cs.lineHeight || "0");
+    const lh = isNaN(lineH) || lineH === 0 ? parseFloat(cs.fontSize || "16") * 1.4 : lineH;
+    const needsClamp = Math.round(el.scrollHeight / lh) > 3;
+
+    setAboutTruncatable(needsClamp);
+    setAboutClampPx(needsClamp ? lh * 3 : undefined);
+    if (!needsClamp) setAboutExpanded(false);
+  }, []);
+
+  useEffect(() => {
+    let frame: number | null = null;
+    const onMeasure = () => {
+      frame && cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measureAbout);
+    };
+    const ro = new ResizeObserver(onMeasure);
+
+    if (aboutRef.current) ro.observe(aboutRef.current);
+    onMeasure();
+    const delayed = setTimeout(onMeasure, 160);
+
+    window.addEventListener("resize", onMeasure);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      clearTimeout(delayed);
+      ro.disconnect();
+      window.removeEventListener("resize", onMeasure);
+    };
+  }, [measureAbout, user?.description]);
+
   return (
     <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
       {/* Responsive profile header using product page grid template */}
@@ -80,111 +126,167 @@ export default function UserPage() {
 
         {/* Right column wrapper */}
         <div className="contents lg:flex lg:flex-col lg:gap-8">
-          {/* 2) Details / about / badges / actions */}
+          {/* 2) Details with product-like tabs */}
           <div className="order-2 lg:order-none flex flex-col gap-6 flex-1">
-            <section className="space-y-3">
-              <div className="flex align-items-center gap-3">
-                <h1 className="text-3xl font-bold tracking-tight">
-                  {user?.name || `User ${slug}`}
-                </h1>
-                {user && (
-                  <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
-                    {user.rating.toFixed(1)}
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <h2 className="text-xl font-semibold">About</h2>
-              <p className="text-foreground/80 text-base leading-relaxed">
-                {user?.description ||
-                  "Seller bio coming soon. This user hasn’t added a description yet."}
-              </p>
-            </section>
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold">Highlights</h2>
-              <div className="flex flex-wrap gap-2">
-                {aggregated?.flags.bundleDeal && (
-                  <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                    Bundle Deal
-                  </span>
-                )}
-                {aggregated?.flags.petFree && (
-                  <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                    Pet-Free
-                  </span>
-                )}
-                {aggregated?.flags.smokeFree && (
-                  <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                    Smoke-Free
-                  </span>
-                )}
-                {aggregated?.flags.perfumeFree && (
-                  <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
-                    Perfume-Free
-                  </span>
-                )}
-                {aggregated?.shipping.map((m) => (
-                  <span
-                    key={m}
-                    className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
-                  >
-                    {m === "pickup"
-                      ? "Pickup"
-                      : m === "local-delivery"
-                        ? "Local Delivery"
-                        : "Shipping"}
-                  </span>
-                ))}
-                {!aggregated && <span className="text-sm text-foreground/50">No badges yet.</span>}
-              </div>
-            </section>
-            {/* Shipping options (aggregated from seller's listings) */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold">Shipping options</h2>
-              {aggregated?.shipping.length ? (
-                <ul className="space-y-2">
-                  {aggregated.shipping.map((method) => {
-                    const label =
-                      method === "pickup"
-                        ? "Pickup"
-                        : method === "local-delivery"
-                          ? "Local delivery"
-                          : "Shipping";
-                    const info =
-                      method === "pickup"
-                        ? "Pick up at seller’s location"
-                        : method === "local-delivery"
-                          ? "Delivered locally by the seller"
-                          : "Ships via courier or postal service";
-
-                    return (
-                      <li
-                        key={method}
-                        className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
-                      >
-                        <span className="font-medium">{label}</span>
-                        <span className="text-foreground/70 text-sm">{info}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <span className="text-sm text-foreground/50">No shipping info yet.</span>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">{user?.name || `User ${slug}`}</h1>
+              {user && (
+                <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
+                  {user.rating.toFixed(1)}
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+                  </svg>
+                </div>
               )}
-            </section>
-            <div className="flex gap-3">
-              <Button className="cta-outline font-semibold" radius="full" size="sm">
-                Message
-              </Button>
-              <Button className="font-semibold" radius="full" size="sm" variant="light">
-                Share
-              </Button>
-              <Button className="font-semibold" radius="full" size="sm" variant="light">
-                Report
-              </Button>
             </div>
+
+            <Tab.Group>
+              <Tab.List className="flex gap-8 border-b border-default-200 dark:border-slate-700">
+                {[
+                  { key: "about", label: "About" },
+                  { key: "highlights", label: "Highlights" },
+                  { key: "shipping", label: "Shipping" },
+                ].map((t) => (
+                  <Tab
+                    key={t.key}
+                    className={({ selected }) =>
+                      `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 cursor-pointer select-none ${selected ? "border-foreground text-foreground" : "border-transparent text-foreground/60 hover:text-foreground"}`
+                    }
+                  >
+                    {t.label}
+                  </Tab>
+                ))}
+              </Tab.List>
+              <Tab.Panels className="mt-4">
+                <Tab.Panel>
+                  <div className="space-y-3">
+                    <p
+                      ref={aboutRef}
+                      className="text-foreground/80 text-base leading-relaxed"
+                      style={
+                        !aboutExpanded && aboutTruncatable && aboutClampPx
+                          ? {
+                              maxHeight: `${aboutClampPx}px`,
+                              overflow: "hidden",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical" as any,
+                            }
+                          : undefined
+                      }
+                    >
+                      {user?.description ||
+                        "Seller bio coming soon. This user hasn’t added a description yet."}
+                    </p>
+                    {aboutTruncatable && (
+                      <button
+                        className="text-sm font-medium text-primary hover:underline self-start"
+                        onClick={() => setAboutExpanded((v) => !v)}
+                      >
+                        {aboutExpanded ? "Read less" : "Read more"}
+                      </button>
+                    )}
+                    <div className="flex gap-3">
+                      <Button className="cta-outline font-semibold" radius="full" size="sm">
+                        Message
+                      </Button>
+                      <Button className="font-semibold" radius="full" size="sm" variant="light">
+                        Share
+                      </Button>
+                      <Button className="font-semibold" radius="full" size="sm" variant="light">
+                        Report
+                      </Button>
+                    </div>
+                  </div>
+                </Tab.Panel>
+                <Tab.Panel>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {aggregated?.flags.bundleDeal && (
+                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                          Bundle Deal
+                        </span>
+                      )}
+                      {aggregated?.flags.petFree && (
+                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                          Pet-Free
+                        </span>
+                      )}
+                      {aggregated?.flags.smokeFree && (
+                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                          Smoke-Free
+                        </span>
+                      )}
+                      {aggregated?.flags.perfumeFree && (
+                        <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+                          Perfume-Free
+                        </span>
+                      )}
+                      {aggregated?.shipping.map((m) => (
+                        <span
+                          key={m}
+                          className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
+                        >
+                          {m === "pickup"
+                            ? "Pickup"
+                            : m === "local-delivery"
+                              ? "Local Delivery"
+                              : "Shipping"}
+                        </span>
+                      ))}
+                      {!aggregated && (
+                        <span className="text-sm text-foreground/50">No badges yet.</span>
+                      )}
+                    </div>
+                  </div>
+                </Tab.Panel>
+                <Tab.Panel>
+                  <div className="space-y-3">
+                    {aggregated?.shipping.length ? (
+                      <ul className="space-y-2">
+                        {aggregated.shipping.map((method) => {
+                          const label =
+                            method === "pickup"
+                              ? "Pickup"
+                              : method === "local-delivery"
+                                ? "Local delivery"
+                                : "Shipping";
+                          const info =
+                            method === "pickup"
+                              ? "Pick up at seller’s location"
+                              : method === "local-delivery"
+                                ? "Delivered locally by the seller"
+                                : "Ships via courier or postal service";
+
+                          return (
+                            <li
+                              key={method}
+                              className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                            >
+                              <span className="font-medium">{label}</span>
+                              <span className="text-foreground/70 text-sm">{info}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <span className="text-sm text-foreground/50">No shipping info yet.</span>
+                    )}
+                    {(aggregated?.shipping.includes("pickup") ||
+                      aggregated?.shipping.includes("local-delivery")) && (
+                      <a
+                        className="self-start text-sm font-semibold text-primary hover:underline"
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        See on map
+                      </a>
+                    )}
+                  </div>
+                </Tab.Panel>
+              </Tab.Panels>
+            </Tab.Group>
           </div>
         </div>
       </div>
