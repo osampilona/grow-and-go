@@ -73,7 +73,7 @@ function InfoTabs({
   // Map styling props to HeroUI Tabs classNames where possible
   const classNames = useMemo(
     () => ({
-      tabList: listClassName ?? "flex gap-3 dark:bg-[#2A1A3C] rounded-2xl p-1",
+      tabList: listClassName ?? "flex gap-3 dark:bg-[#2A1A3C] rounded-2xl p-2",
       panel: panelsClassName,
     }),
     [listClassName, panelsClassName]
