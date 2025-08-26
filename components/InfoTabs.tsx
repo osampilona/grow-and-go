@@ -66,15 +66,19 @@ function InfoTabs({
 
   const baseTabClass = useCallback(
     (selected: boolean) =>
-      `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-2xl transition-colors ${selected ? "bg-default-100 text-foreground shadow-sm dark:bg-[#2A1A3C]" : "text-foreground/60 hover:text-foreground"}`,
+      `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors ${
+        selected
+          ? "bg-gray-50 text-foreground dark:bg-[#2A1A3C]"
+          : "text-foreground/60 hover:text-foreground"
+      }`,
     []
   );
 
   // Map styling props to HeroUI Tabs classNames where possible
   const classNames = useMemo(
     () => ({
-      tabList: listClassName ?? "flex gap-3 dark:bg-[#2A1A3C] rounded-2xl p-2",
-      panel: panelsClassName,
+      tabList: listClassName ?? "flex gap-3 bg-gray-50 dark:bg-[#2A1A3C] rounded-3xl p-2",
+      panel: panelsClassName ?? "bg-gray-50 dark:bg-[#2A1A3C] rounded-3xl p-4 ",
     }),
     [listClassName, panelsClassName]
   );
@@ -85,8 +89,8 @@ function InfoTabs({
       className={className}
       classNames={classNames as any}
       defaultSelectedKey={defaultSelectedKey}
+      radius="full"
       selectedKey={selectedKey}
-      // HeroUI unmounts panels by default; we emulate previous API by toggling the internal state only
       onSelectionChange={handleSelectionChange}
     >
       {items.map((t, i) => (
