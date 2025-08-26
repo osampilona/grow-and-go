@@ -29,12 +29,14 @@ const ProductMidiCard = memo(function ProductMidiCard({
   className = "",
 }: ProductMidiCardProps) {
   return (
-    <div className={`relative rounded-3xl p-2 ${className}`}>
+    <div className={`relative rounded-3xl ${className}`}>
       {/* Entire card navigates to product */}
       <Link
         aria-label={`Open ${item.title}`}
-        className={`group relative block w-72 shrink-0 rounded-3xl overflow-hidden shadow-sm transition-all focus:outline-none ${
-          selected ? "ring-2 ring-warning shadow-md" : "ring-1 ring-default-200"
+        className={`group relative block w-full lg:w-72 lg:shrink-0 rounded-3xl overflow-hidden shadow-sm transition-all focus:outline-none ${
+          selected
+            ? "ring-2 ring-[#208a80] dark:ring-[#ffe599] shadow-md"
+            : "ring-1 ring-default-200"
         }`}
         href={`/products/${item.id}`}
       >
@@ -58,7 +60,7 @@ const ProductMidiCard = memo(function ProductMidiCard({
                 aria-pressed={selected}
                 className={`absolute right-3 top-3 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold shadow-sm ${
                   selected
-                    ? "bg-foreground text-background border-foreground"
+                    ? "cta-solid border-transparent"
                     : "bg-background/90 text-foreground/70 border-default-300"
                 }`}
                 type="button"
@@ -68,7 +70,7 @@ const ProductMidiCard = memo(function ProductMidiCard({
                   onToggle?.();
                 }}
               >
-                {selected ? <IoCheckmark /> : ""}
+                {selected ? <IoCheckmark size={16} /> : ""}
               </button>
             )}
           </div>
@@ -76,7 +78,7 @@ const ProductMidiCard = memo(function ProductMidiCard({
           {/* Text content */}
           <div className="px-3 pb-4 pt-2">
             <div className="truncate text-base font-medium text-foreground">{item.title}</div>
-            <div className="text-xl font-bold text-warning">{item.price}</div>
+            <div className="text-xl font-bold text-[#208a80] dark:text-[#ffe599]">{item.price}</div>
           </div>
         </div>
       </Link>

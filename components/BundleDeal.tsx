@@ -14,12 +14,18 @@ import { parsePrice } from "@/utils/pricing";
 type BundleDealProps = {
   product: FeedItem;
   className?: string;
+  /** Visual color theme for the container. Defaults to 'yellow' */
+  variant?: "yellow" | "blue" | "green";
 };
 
 // Simple bundle logic: if current item has bundleDeal=true, try to find
 // up to 2 more items from the same seller that also have bundleDeal=true.
 // If none, don't render.
-export default function BundleDeal({ product, className = "" }: BundleDealProps) {
+export default function BundleDeal({
+  product,
+  className = "",
+  variant = "yellow",
+}: BundleDealProps) {
   const feedLoaded = useFeedStore((s) => s.items.length > 0);
   const feedItems = useFeedStore((s) => s.items);
 
@@ -81,27 +87,36 @@ export default function BundleDeal({ product, className = "" }: BundleDealProps)
 
   if (!showUI) return null;
 
+  // Map variant to Tailwind classes
+  const variantClasses =
+    variant === "blue"
+      ? "border-blue-200 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/40"
+      : variant === "green"
+        ? "border-green-200 bg-green-50 dark:border-green-500 dark:bg-green-900/40"
+        : "border-yellow-200 bg-yellow-50 dark:border-yellow-500 dark:bg-yellow-900/40";
+
   return (
     <>
       <h3 className="text-base font-semibold">Bundle deal available</h3>
-      <div
-        className={`rounded-2xl border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 p-4 sm:p-5 ${className}`}
-      >
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-center">
-            {/* Items row */}
-            <div className="flex items-stretch gap-4 overflow-x-auto p-1">
+      <div className={`rounded-2xl border ${variantClasses} p-3 ${className}`}>
+        <div className="flex flex-col gap-3 lg:gap-4">
+          <div className="grid grid-cols-1 gap-3 lg:gap-4 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_19rem] md:items-start">
+            {/* Items row: column on small screens, horizontal scroll on lg+ */}
+            <div className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row items-stretch gap-3 lg:gap-4 p-1 overflow-x-hidden md:overflow-visible lg:overflow-x-auto max-w-full">
               {allItems.map((it, idx) => (
-                <div key={it.id} className="flex items-center gap-3">
+                <div
+                  key={it.id}
+                  className="flex w-full flex-col lg:flex-row items-center gap-2 lg:gap-3"
+                >
                   <ProductMidiCard
-                    className="min-w-[18rem]"
+                    className="w-full lg:min-w-[18rem]"
                     item={it}
                     selected={selectedIds.includes(it.id)}
                     onToggle={() => toggle(it.id)}
                   />
                   {/* Plus sign between, except after last */}
                   {idx < allItems.length - 1 && (
-                    <span className="hidden sm:inline-block select-none text-2xl font-bold text-foreground/40">
+                    <span className="block md:hidden w-full text-center my-0 lg:w-auto lg:inline-block select-none text-2xl font-bold text-foreground/40">
                       +
                     </span>
                   )}
@@ -110,25 +125,29 @@ export default function BundleDeal({ product, className = "" }: BundleDealProps)
             </div>
 
             {/* Summary column */}
-            <div className="flex flex-col items-stretch gap-2 md:items-end">
-              <div className="text-right text-sm">
-                <div className="text-foreground/70">Subtotal: {formatDKK(subtotal)}</div>
-                <div className="text-success font-medium">
+            <div className="flex flex-col items-stretch gap-2 md:items-end md:justify-end h-full">
+              <div className="flex flex-col gap-2 text-right text-sm rounded-xl bg-white/50 dark:bg-slate-900/30 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm p-3">
+                <div className="text-foreground/70 text-base md:text-md">
+                  Subtotal: {formatDKK(subtotal)}
+                </div>
+                <div className="text-cta font-semibold text-base md:text-">
                   Discount (15%): -{formatDKK(discountAmount)}
                 </div>
-                <div className="text-lg font-semibold">Total price: {formatDKK(total)}</div>
+                <div className="text-xl font-bold">Total price: {formatDKK(total)}</div>
               </div>
               <Button
-                className="self-end"
-                color="warning"
+                disableAnimation
+                disableRipple
+                className="self-end font-bold px-8 uppercase cta-solid"
+                color="default"
                 radius="full"
-                size="sm"
+                size="lg"
                 onPress={() => {
                   // Minimal stub action; replace with real cart integration later.
                   alert(`Added ${selectedCount} item(s) to cart for ${formatDKK(total)}`);
                 }}
               >
-                Add selected to Cart
+                ADD SELECTED TO CART
               </Button>
             </div>
           </div>

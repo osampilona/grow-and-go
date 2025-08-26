@@ -69,3 +69,11 @@
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+/* Text color utility to match CTA brand color (light/dark) */
+.text-cta {
+  color: #208a80;
+}
+.dark .text-cta {
+  color: #ffe599;
+}
