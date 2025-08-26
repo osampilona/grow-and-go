@@ -2,6 +2,7 @@
 
 import { Tabs, Tab as HeroTab } from "@heroui/react";
 import { memo, ReactNode, useCallback, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export type InfoTabItem = {
   key: string;
@@ -15,6 +16,10 @@ type InfoTabsProps = {
   listClassName?: string;
   panelsClassName?: string;
   tabClassName?: string | ((selected: boolean) => string);
+  // Page-themed name by palette: use "blue" or "yellow" and we'll map to Tabs colors.
+  themeKey?: "blue" | "yellow";
+  // Optional Tabs variant; defaults to "solid" for pill-style colored tab.
+  variant?: "solid" | "bordered" | "light" | "underlined" | "secondary" | "flat" | "ghost";
   /**
    * When true (default), inactive panels are unmounted to avoid extra work.
    * Set to false if you need state preserved across tabs.
@@ -31,14 +36,32 @@ function InfoTabs({
   listClassName,
   panelsClassName,
   tabClassName,
+  themeKey,
+  variant = "solid",
   unmountInactivePanels: _unmountInactivePanels = true,
   defaultIndex = 0,
   selectedIndex,
   onChange,
 }: InfoTabsProps) {
+  const pathname = usePathname();
   const [internalIndex, setInternalIndex] = useState(defaultIndex);
 
   const idx = typeof selectedIndex === "number" ? selectedIndex : internalIndex;
+
+  // Auto color by route when not provided
+  const autoColor = useMemo(() => {
+    if (!pathname) return undefined;
+    if (pathname.startsWith("/user/")) return "warning" as const;
+    if (pathname.startsWith("/products/")) return "primary" as const;
+
+    return undefined;
+  }, [pathname]);
+  const THEME_TO_COLOR: Record<"yellow" | "blue", "warning" | "primary"> = {
+    yellow: "warning",
+    blue: "primary",
+  };
+  const themeMapped = themeKey ? THEME_TO_COLOR[themeKey] : undefined;
+  const tabsColor = themeMapped ?? autoColor ?? "default";
 
   // Keys mapping helpers
   const keys = useMemo(() => items.map((t) => t.key), [items]);
@@ -67,9 +90,7 @@ function InfoTabs({
   const baseTabClass = useCallback(
     (selected: boolean) =>
       `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors ${
-        selected
-          ? "bg-gray-50 text-foreground dark:bg-[#2A1A3C]"
-          : "text-foreground/60 hover:text-foreground"
+        selected ? "" : "text-foreground/60 hover:text-foreground"
       }`,
     []
   );
@@ -88,9 +109,11 @@ function InfoTabs({
       aria-label="Information Tabs"
       className={className}
       classNames={classNames as any}
+      color={tabsColor as any}
       defaultSelectedKey={defaultSelectedKey}
       radius="full"
       selectedKey={selectedKey}
+      variant={variant as any}
       onSelectionChange={handleSelectionChange}
     >
       {items.map((t, i) => (
