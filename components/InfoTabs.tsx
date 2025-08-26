@@ -1,6 +1,6 @@
 "use client";
 
-import { Tab } from "@headlessui/react";
+import { Tabs, Tab as HeroTab } from "@heroui/react";
 import { memo, ReactNode, useCallback, useMemo, useState } from "react";
 
 export type InfoTabItem = {
@@ -31,7 +31,7 @@ function InfoTabs({
   listClassName,
   panelsClassName,
   tabClassName,
-  unmountInactivePanels = true,
+  unmountInactivePanels: _unmountInactivePanels = true,
   defaultIndex = 0,
   selectedIndex,
   onChange,
@@ -39,51 +39,74 @@ function InfoTabs({
   const [internalIndex, setInternalIndex] = useState(defaultIndex);
 
   const idx = typeof selectedIndex === "number" ? selectedIndex : internalIndex;
-  const handleChange = useCallback(
-    (i: number) => {
+
+  // Keys mapping helpers
+  const keys = useMemo(() => items.map((t) => t.key), [items]);
+  const indexToKey = useCallback(
+    (i: number | undefined) => (i != null ? keys[i] : undefined),
+    [keys]
+  );
+  const keyToIndex = useCallback(
+    (k: React.Key | null | undefined) => (k != null ? Math.max(0, keys.indexOf(String(k))) : 0),
+    [keys]
+  );
+
+  const selectedKey = indexToKey(idx);
+  const defaultSelectedKey = indexToKey(defaultIndex);
+
+  const handleSelectionChange = useCallback(
+    (key: React.Key) => {
+      const i = keyToIndex(key);
+
       onChange?.(i);
       if (typeof selectedIndex !== "number") setInternalIndex(i);
     },
-    [onChange, selectedIndex]
+    [keyToIndex, onChange, selectedIndex]
   );
 
   const baseTabClass = useCallback(
     (selected: boolean) =>
-      `-mb-px py-2 text-sm font-semibold uppercase outline-none border-b-2 cursor-pointer select-none ${selected ? "border-foreground text-foreground" : "border-transparent text-foreground/60 hover:text-foreground"}`,
+      `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-2xl transition-colors ${
+        selected
+          ? "bg-default-100 text-foreground shadow-sm dark:bg-slate-800/60"
+          : "text-foreground/60 hover:text-foreground"
+      }`,
     []
   );
 
-  const computedListClass = useMemo(
-    () => listClassName ?? "flex gap-8 border-b border-default-200 dark:border-slate-700",
-    [listClassName]
+  // Map styling props to HeroUI Tabs classNames where possible
+  const classNames = useMemo(
+    () => ({
+      tabList: listClassName ?? "flex gap-3",
+      panel: panelsClassName,
+    }),
+    [listClassName, panelsClassName]
   );
 
   return (
-    <div className={className}>
-      <Tab.Group selectedIndex={idx} onChange={handleChange}>
-        <Tab.List className={computedListClass}>
-          {items.map((t) => (
-            <Tab
-              key={t.key}
-              className={({ selected }) =>
-                typeof tabClassName === "function"
-                  ? tabClassName(selected)
-                  : tabClassName || baseTabClass(selected)
-              }
-            >
-              {t.label}
-            </Tab>
-          ))}
-        </Tab.List>
-        <Tab.Panels className={panelsClassName ?? "mt-4"}>
-          {items.map((t) => (
-            <Tab.Panel key={t.key} unmount={!!unmountInactivePanels}>
-              {t.content}
-            </Tab.Panel>
-          ))}
-        </Tab.Panels>
-      </Tab.Group>
-    </div>
+    <Tabs
+      aria-label="Information Tabs"
+      className={className}
+      classNames={classNames as any}
+      defaultSelectedKey={defaultSelectedKey}
+      selectedKey={selectedKey}
+      // HeroUI unmounts panels by default; we emulate previous API by toggling the internal state only
+      onSelectionChange={handleSelectionChange}
+    >
+      {items.map((t, i) => (
+        <HeroTab
+          key={t.key}
+          className={
+            typeof tabClassName === "function"
+              ? tabClassName(i === idx)
+              : tabClassName || baseTabClass(i === idx)
+          }
+          title={t.label}
+        >
+          <div className="normal-case font-normal">{t.content}</div>
+        </HeroTab>
+      ))}
+    </Tabs>
   );
 }
 

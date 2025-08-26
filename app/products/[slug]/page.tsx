@@ -132,6 +132,7 @@ export default function ProductPage() {
                         display: "-webkit-box",
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: "vertical" as any,
+                        fontWeight: 400,
                       }
                     : undefined
                 }
@@ -160,28 +161,6 @@ export default function ProductPage() {
                   Chat with {product.user.name}
                 </span>
               </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {product.smokeFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Smoke-free home
-                </span>
-              )}
-              {product.petFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Pet-free home
-                </span>
-              )}
-              {product.perfumeFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Perfume-free
-                </span>
-              )}
-              {product.bundleDeal && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Bundle deal available
-                </span>
-              )}
             </div>
           </div>
         ),
@@ -236,7 +215,7 @@ export default function ProductPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-slate-800/60"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>
@@ -247,7 +226,7 @@ export default function ProductPage() {
             {(product.shippingMethods.includes("pickup") ||
               product.shippingMethods.includes("local-delivery")) && (
               <a
-                className="self-start text-sm font-semibold text-primary hover:underline"
+                className="self-start text-sm font-semibold text-primary hover:underline px-2"
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -328,7 +307,7 @@ export default function ProductPage() {
       <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
         {/* On small screens: order = image, right-upper, left-bottom, right-bottom.
             On lg+: two columns, each stacking independently. */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
           {/* Left column wrapper: contents on small so children can reorder, flex column on lg+ */}
           <div className="contents lg:flex lg:flex-col lg:gap-8">
             {/* 1) Image block */}
@@ -351,7 +330,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex flex-col gap-3">
                   <h4 className="text-2xl font-bold">{product.price}</h4>
-                  <div className="flex items-center gap-4 mt-2 mb-4">
+                  <div className="flex items-center gap-4 mt-2">
                     <Button
                       disableAnimation
                       disableRipple

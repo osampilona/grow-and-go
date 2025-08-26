@@ -128,7 +128,7 @@ export default function UserPage() {
       key: "about",
       label: "About",
       content: (
-        <div className="space-y-3">
+        <div className="space-y-3 p-2">
           <p
             ref={aboutRef}
             className="text-foreground/80 text-base leading-relaxed"
@@ -236,7 +236,7 @@ export default function UserPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-slate-800/60"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>
@@ -250,7 +250,7 @@ export default function UserPage() {
           {(aggregated?.shipping.includes("pickup") ||
             aggregated?.shipping.includes("local-delivery")) && (
             <a
-              className="self-start text-sm font-semibold text-primary hover:underline"
+              className="self-start text-sm font-semibold text-primary hover:underline px-2"
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
               rel="noopener noreferrer"
               target="_blank"
@@ -279,7 +279,7 @@ export default function UserPage() {
     <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
       {/* Responsive profile header using product page grid template */}
       {/* On small screens: order = avatar block (1), details (2). On lg+: two columns. */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         {/* Left column wrapper */}
         <div className="contents lg:flex lg:flex-col lg:gap-8">
           {/* 1) Avatar / identity block */}
@@ -301,7 +301,7 @@ export default function UserPage() {
         {/* Right column wrapper */}
         <div className="contents lg:flex lg:flex-col lg:gap-8">
           {/* 2) Details with product-like tabs */}
-          <div className="order-2 lg:order-none flex flex-col gap-6 flex-1">
+          <div className="order-2 lg:order-none flex flex-col gap-4 flex-1">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight">{user?.name || `User ${slug}`}</h1>
               {user && (
