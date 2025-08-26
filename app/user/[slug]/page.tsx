@@ -178,29 +178,29 @@ export default function UserPage() {
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             {aggregated?.flags.bundleDeal && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Bundle Deal
               </span>
             )}
             {aggregated?.flags.petFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Pet-Free
               </span>
             )}
             {aggregated?.flags.smokeFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Smoke-Free
               </span>
             )}
             {aggregated?.flags.perfumeFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Perfume-Free
               </span>
             )}
             {aggregated?.shipping.map((m) => (
               <span
                 key={m}
-                className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
+                className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]"
               >
                 {m === "pickup" ? "Pickup" : m === "local-delivery" ? "Local Delivery" : "Shipping"}
               </span>
@@ -236,7 +236,7 @@ export default function UserPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-[#2A1A3C]"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>

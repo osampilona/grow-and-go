@@ -215,7 +215,7 @@ export default function ProductPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-[#2A1A3C]"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>

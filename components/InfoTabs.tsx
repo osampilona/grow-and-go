@@ -66,18 +66,14 @@ function InfoTabs({
 
   const baseTabClass = useCallback(
     (selected: boolean) =>
-      `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-2xl transition-colors ${
-        selected
-          ? "bg-default-100 text-foreground shadow-sm dark:bg-slate-800/60"
-          : "text-foreground/60 hover:text-foreground"
-      }`,
+      `p-2 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-2xl transition-colors ${selected ? "bg-default-100 text-foreground shadow-sm dark:bg-[#2A1A3C]" : "text-foreground/60 hover:text-foreground"}`,
     []
   );
 
   // Map styling props to HeroUI Tabs classNames where possible
   const classNames = useMemo(
     () => ({
-      tabList: listClassName ?? "flex gap-3",
+      tabList: listClassName ?? "flex gap-3 dark:bg-[#2A1A3C] rounded-2xl p-1",
       panel: panelsClassName,
     }),
     [listClassName, panelsClassName]
