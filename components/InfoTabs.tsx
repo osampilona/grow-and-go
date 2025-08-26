@@ -19,7 +19,7 @@ type InfoTabsProps = {
   // Page-themed name by palette: use "blue" or "yellow" and we'll map to Tabs colors.
   themeKey?: "blue" | "yellow";
   // Optional Tabs variant; defaults to "solid" for pill-style colored tab.
-  variant?: "solid" | "bordered" | "light" | "underlined" | "secondary" | "flat" | "ghost";
+  variant?: "solid" | "bordered" | "light" | "underlined";
   /**
    * When true (default), inactive panels are unmounted to avoid extra work.
    * Set to false if you need state preserved across tabs.
@@ -113,7 +113,7 @@ function InfoTabs({
       defaultSelectedKey={defaultSelectedKey}
       radius="full"
       selectedKey={selectedKey}
-      variant={variant as any}
+      variant={variant}
       onSelectionChange={handleSelectionChange}
     >
       {items.map((t, i) => (
