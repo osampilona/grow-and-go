@@ -90,19 +90,19 @@ export default function BundleDeal({
   // Map variant to Tailwind classes
   const variantClasses =
     variant === "blue"
-      ? "border-blue-200 bg-blue-50 dark:bg-blue-900/20"
+      ? "border-blue-200 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/40"
       : variant === "green"
-        ? "border-green-200 bg-green-50 dark:bg-green-900/20"
-        : "border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20";
+        ? "border-green-200 bg-green-50 dark:border-green-500 dark:bg-green-900/40"
+        : "border-yellow-200 bg-yellow-50 dark:border-yellow-500 dark:bg-yellow-900/40";
 
   return (
     <>
       <h3 className="text-base font-semibold">Bundle deal available</h3>
-      <div className={`rounded-2xl border ${variantClasses} p-3 sm:p-4 lg:p-5 ${className}`}>
+      <div className={`rounded-2xl border ${variantClasses} p-3 ${className}`}>
         <div className="flex flex-col gap-3 lg:gap-4">
-          <div className="grid grid-cols-1 gap-3 lg:gap-4 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_19rem] md:items-center">
+          <div className="grid grid-cols-1 gap-3 lg:gap-4 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_19rem] md:items-start">
             {/* Items row: column on small screens, horizontal scroll on lg+ */}
-            <div className="flex flex-col lg:flex-row items-stretch gap-3 lg:gap-4 p-1 overflow-x-hidden lg:overflow-x-auto max-w-full">
+            <div className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row items-stretch gap-3 lg:gap-4 p-1 overflow-x-hidden md:overflow-visible lg:overflow-x-auto max-w-full">
               {allItems.map((it, idx) => (
                 <div
                   key={it.id}
@@ -116,7 +116,7 @@ export default function BundleDeal({
                   />
                   {/* Plus sign between, except after last */}
                   {idx < allItems.length - 1 && (
-                    <span className="block w-full text-center my-0 lg:w-auto lg:inline-block select-none text-2xl font-bold text-foreground/40">
+                    <span className="block md:hidden w-full text-center my-0 lg:w-auto lg:inline-block select-none text-2xl font-bold text-foreground/40">
                       +
                     </span>
                   )}
@@ -125,13 +125,15 @@ export default function BundleDeal({
             </div>
 
             {/* Summary column */}
-            <div className="flex flex-col items-stretch gap-2 md:items-end">
-              <div className="text-right text-sm">
-                <div className="text-foreground/70">Subtotal: {formatDKK(subtotal)}</div>
-                <div className="text-success font-medium">
+            <div className="flex flex-col items-stretch gap-2 md:items-end md:justify-end h-full">
+              <div className="flex flex-col gap-2 text-right text-sm rounded-xl bg-white/50 dark:bg-slate-900/30 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm p-3">
+                <div className="text-foreground/70 text-base md:text-md">
+                  Subtotal: {formatDKK(subtotal)}
+                </div>
+                <div className="text-cta font-semibold text-base md:text-">
                   Discount (15%): -{formatDKK(discountAmount)}
                 </div>
-                <div className="text-lg font-semibold">Total price: {formatDKK(total)}</div>
+                <div className="text-xl font-bold">Total price: {formatDKK(total)}</div>
               </div>
               <Button
                 disableAnimation
