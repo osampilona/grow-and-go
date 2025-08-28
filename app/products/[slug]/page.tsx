@@ -96,30 +96,45 @@ export default function ProductPage() {
         label: "Seller",
         content: (
           <div className="flex flex-col gap-4">
-            <Link
-              prefetch
-              aria-label={`See ${product.user.name}’s profile`}
-              className="group flex items-center gap-4 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              href={`/user/${product.user.userId}`}
-            >
-              <Avatar
-                alt={product.user.name}
-                className="group-hover:opacity-90 transition-opacity"
-                size="lg"
-                src={product.user.avatar}
-              />
-              <div>
-                <div className="font-semibold text-lg group-hover:underline underline-offset-2">
-                  {product.user.name}
+            {/* Header row: avatar+name on the left, chat action on the right */}
+            <div className="flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+              <Link
+                prefetch
+                aria-label={`See ${product.user.name}’s profile`}
+                className="group flex items-center gap-4 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                href={`/user/${product.user.userId}`}
+              >
+                <Avatar
+                  alt={product.user.name}
+                  className="group-hover:opacity-90 transition-opacity"
+                  size="lg"
+                  src={product.user.avatar}
+                />
+                <div>
+                  <div className="font-semibold text-lg group-hover:underline underline-offset-2">
+                    {product.user.name}
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold text-yellow-500">
+                    {product.user.rating?.toFixed(1)}
+                    <svg className="inline-block h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 font-semibold text-yellow-500">
-                  {product.user.rating?.toFixed(1)}
-                  <svg className="inline-block h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+              </Link>
+              <Button
+                className="font-semibold"
+                color="secondary"
+                radius="sm"
+                size="sm"
+                variant="light"
+              >
+                <span className="flex items-center gap-2">
+                  <IoChatboxOutline className="w-5 h-5" />
+                  Chat with {product.user.name}
+                </span>
+              </Button>
+            </div>
             <div className="flex flex-col">
               <p
                 ref={sellerDescRef}
@@ -148,20 +163,7 @@ export default function ProductPage() {
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-4">
-              <Button
-                className="font-semibold"
-                color="secondary"
-                radius="sm"
-                size="sm"
-                variant="light"
-              >
-                <span className="flex items-center gap-2">
-                  <IoChatboxOutline className="w-5 h-5" />
-                  Chat with {product.user.name}
-                </span>
-              </Button>
-            </div>
+            {/* Chat action moved to header row above */}
           </div>
         ),
       },
@@ -354,7 +356,12 @@ export default function ProductPage() {
                   </div>
                 </div>
               </div>
-              <InfoTabs items={tabItems} selectedIndex={selectedTab} onChange={setSelectedTab} />
+              <InfoTabs
+                items={tabItems}
+                selectedIndex={selectedTab}
+                theme="blue"
+                onChange={setSelectedTab}
+              />
             </div>
           </div>
 

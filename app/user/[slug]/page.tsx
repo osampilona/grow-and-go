@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
+import { IoChatboxOutline } from "react-icons/io5";
 
 import ProductMedia from "@/components/ProductMedia";
 import Card from "@/components/Card";
@@ -156,9 +157,6 @@ export default function UserPage() {
             </button>
           )}
           <div className="flex gap-3">
-            <Button className="cta-outline font-semibold" radius="full" size="sm">
-              Message
-            </Button>
             <Button className="font-semibold" radius="full" size="sm" variant="light">
               Share
             </Button>
@@ -302,19 +300,37 @@ export default function UserPage() {
         <div className="contents lg:flex lg:flex-col lg:gap-8">
           {/* 2) Details with product-like tabs */}
           <div className="order-2 lg:order-none flex flex-col gap-4 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{user?.name || `User ${slug}`}</h1>
+            <div className="flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {user?.name || `User ${slug}`}
+                </h1>
+                {user && (
+                  <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
+                    {user.rating.toFixed(1)}
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               {user && (
-                <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
-                  {user.rating.toFixed(1)}
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                  </svg>
-                </div>
+                <Button
+                  className="font-semibold"
+                  color="secondary"
+                  radius="sm"
+                  size="sm"
+                  variant="light"
+                >
+                  <span className="flex items-center gap-2">
+                    <IoChatboxOutline className="w-5 h-5" />
+                    Chat with {user.name}
+                  </span>
+                </Button>
               )}
             </div>
 
-            {user && <InfoTabs items={tabItems} />}
+            {user && <InfoTabs items={tabItems} theme="yellow" />}
           </div>
         </div>
       </div>
