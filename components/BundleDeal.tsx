@@ -97,7 +97,7 @@ export default function BundleDeal({
 
   return (
     <>
-      <h3 className="text-base font-semibold">Bundle deal available</h3>
+      <h3 className="text-2xl font-semibold">Bundle deal available</h3>
       <div className={`rounded-2xl border ${variantClasses} p-3 ${className}`}>
         <div className="flex flex-col gap-3 lg:gap-4">
           <div className="grid grid-cols-1 gap-3 lg:gap-4 md:grid-cols-[1fr_auto] lg:grid-cols-[1fr_19rem] md:items-start">

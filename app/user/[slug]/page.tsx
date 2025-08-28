@@ -393,7 +393,7 @@ export default function UserPage() {
       {/* Reviews Section */}
       <section className="space-y-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-semibold">Reviews</h2>
+          <h2 className="text-2xl font-semibold">Reviews</h2>
           {stats && (
             <div className="flex items-center gap-2 text-sm text-foreground/70">
               <span className="font-semibold text-yellow-500">{stats.average.toFixed(1)}</span>

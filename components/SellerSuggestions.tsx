@@ -218,7 +218,7 @@ export default function SellerSuggestions({ product, className }: SellerSuggesti
               />
             )}
             <CardContainer className="md:flex-1 bg-default-50 dark:bg-slate-800/40">
-              <p className="font-semibold text-sm">Similar items from other sellers</p>
+              <p className="font-semibold text-xl">Similar items from other sellers</p>
               {similar.length > 0 ? (
                 <HorizontalScroller>
                   {similar.map((it) => (
