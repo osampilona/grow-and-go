@@ -367,7 +367,7 @@ export default function ProductPage() {
 
           {/* Full-width seller suggestions (spans both columns on lg) */}
           <div className="flex flex-col gap-4 order-3 lg:col-span-2 rounded-3xl w-full">
-            <BundleDeal product={product} />
+            <BundleDeal product={product} variant="blue" />
             <SellerSuggestions product={product} />
           </div>
         </div>
