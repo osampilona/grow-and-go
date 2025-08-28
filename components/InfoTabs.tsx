@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, memo, useMemo } from "react";
 import { Tab } from "@headlessui/react";
 
 export type InfoTabItem = {
@@ -25,7 +25,7 @@ export type InfoTabsProps = {
   onChange?: (index: number) => void;
 };
 
-export default function InfoTabs({
+function InfoTabs({
   items,
   className,
   listClassName,
@@ -38,8 +38,13 @@ export default function InfoTabs({
   onChange,
 }: InfoTabsProps) {
   // If controlled, use selectedIndex; otherwise, let Tab.Group manage state
-  const controlledProps =
-    typeof selectedIndex === "number" ? { selectedIndex, onChange } : { defaultIndex, onChange };
+  const controlledProps = useMemo(() => {
+    if (typeof selectedIndex === "number") {
+      return { selectedIndex, onChange };
+    }
+
+    return { defaultIndex, onChange };
+  }, [selectedIndex, defaultIndex, onChange]);
 
   // Default styling
   const defaultTabListCls =
@@ -49,13 +54,27 @@ export default function InfoTabs({
   const defaultPanelCls = "bg-gray-50 dark:bg-[#2A1A3C] rounded-3xl p-4";
   const panelCls = panelsClassName ?? defaultPanelCls;
 
-  // Function to generate tab className
-  const getTabClassName = (selected: boolean) => {
-    return [
-      "relative z-10 py-2 px-4 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors whitespace-nowrap",
-      selected ? "shadow" : "text-foreground/60 hover:text-foreground",
-    ].join(" ");
-  };
+  // Pre-computed class segments
+  const baseTabCls =
+    "relative z-10 py-2 px-4 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors whitespace-nowrap";
+  const selectedTabCls = "shadow";
+  const unselectedTabCls = "text-foreground/60 hover:text-foreground";
+  const getTabClassName = (selected: boolean) =>
+    [baseTabCls, selected ? selectedTabCls : unselectedTabCls].join(" ");
+
+  // Memoize style object to avoid recreating per render
+  const getSelectedStyle = useMemo(() => {
+    if (!(tabColor || tabTextColor)) return undefined;
+
+    return (selected: boolean): React.CSSProperties | undefined =>
+      selected
+        ? {
+            ...(tabColor ? { backgroundColor: tabColor } : {}),
+            ...(tabTextColor ? { color: tabTextColor } : { color: "#fff" }),
+            transition: "background-color 320ms, color 320ms",
+          }
+        : undefined;
+  }, [tabColor, tabTextColor]);
 
   return (
     <div className={className}>
@@ -66,15 +85,7 @@ export default function InfoTabs({
               {({ selected }) => (
                 <button
                   className={getTabClassName(selected)}
-                  style={
-                    selected && (tabColor || tabTextColor)
-                      ? {
-                          ...(tabColor ? { backgroundColor: tabColor } : {}),
-                          ...(tabTextColor ? { color: tabTextColor } : { color: "#fff" }),
-                          transition: "background-color 320ms, color 320ms",
-                        }
-                      : undefined
-                  }
+                  style={getSelectedStyle?.(selected)}
                   type="button"
                 >
                   {t.label}
@@ -96,3 +107,5 @@ export default function InfoTabs({
     </div>
   );
 }
+
+export default memo(InfoTabs);

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Button } from "@heroui/react";
 import Link from "next/link";
-import { IoChatboxOutline } from "react-icons/io5";
+import { IoChatboxOutline, IoCheckmark } from "react-icons/io5";
 
 import BundleDeal from "@/components/BundleDeal";
 import ProductMedia from "@/components/ProductMedia";
@@ -263,8 +263,9 @@ export default function ProductPage() {
               return (
                 <ul className="list-none pl-0 space-y-2">
                   {tips.map((t, i) => (
-                    <li key={i} className="text-foreground/90">
-                      {t}
+                    <li key={i} className="text-foreground/90 flex items-start gap-2">
+                      <IoCheckmark aria-hidden className="mt-0.5 h-5 w-5" />
+                      <span>{t}</span>
                     </li>
                   ))}
                 </ul>
@@ -393,8 +394,8 @@ export default function ProductPage() {
               <InfoTabs
                 items={tabItems}
                 selectedIndex={selectedTab}
-                tabColor="#2B7FFF"
-                tabTextColor="#fff"
+                tabColor="#EEF6FF"
+                tabTextColor="#111827"
                 onChange={setSelectedTab}
               />
             </div>
