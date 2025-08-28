@@ -330,7 +330,7 @@ export default function UserPage() {
               )}
             </div>
 
-            {user && <InfoTabs items={tabItems} theme="yellow" />}
+            {user && <InfoTabs items={tabItems} tabColor="#FEFCE8" tabTextColor="#111827" />}
           </div>
         </div>
       </div>

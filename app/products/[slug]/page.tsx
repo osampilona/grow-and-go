@@ -5,14 +5,16 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Button } from "@heroui/react";
 import Link from "next/link";
-import { IoChatboxOutline } from "react-icons/io5";
+import { IoChatboxOutline, IoCheckmark } from "react-icons/io5";
 
 import BundleDeal from "@/components/BundleDeal";
 import ProductMedia from "@/components/ProductMedia";
 import SellerSuggestions from "@/components/SellerSuggestions";
 import SwiperCarousel from "@/components/SwiperCarousel";
 import InfoTabs, { InfoTabItem } from "@/components/InfoTabs";
+import { IconMessage } from "@/components/IconMessage";
 import { FeedItem, mockFeed } from "@/data/mock/feed";
+import { mockTips } from "@/data/mock/tips";
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -239,6 +241,39 @@ export default function ProductPage() {
           </div>
         ),
       },
+      {
+        key: "tricks-tips",
+        label: "Tricks and Tips",
+        content: (
+          <div className="flex flex-col gap-3">
+            {(() => {
+              const uid = product.user.userId;
+              const tips = mockTips[uid] ?? [];
+
+              if (!tips.length) {
+                return (
+                  <IconMessage
+                    className="bg-default-100 dark:bg-[#2A1A3C] rounded-2xl p-4"
+                    iconSrc="/empty-box.svg"
+                    message="No tricks or tips yet. Check back later."
+                  />
+                );
+              }
+
+              return (
+                <ul className="list-none pl-0 space-y-2">
+                  {tips.map((t, i) => (
+                    <li key={i} className="text-foreground/90 flex items-start gap-2">
+                      <IoCheckmark aria-hidden className="mt-0.5 h-5 w-5" />
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </div>
+        ),
+      },
     ];
   }, [
     product,
@@ -359,7 +394,8 @@ export default function ProductPage() {
               <InfoTabs
                 items={tabItems}
                 selectedIndex={selectedTab}
-                theme="blue"
+                tabColor="#EEF6FF"
+                tabTextColor="#111827"
                 onChange={setSelectedTab}
               />
             </div>
