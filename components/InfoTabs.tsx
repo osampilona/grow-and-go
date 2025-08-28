@@ -57,10 +57,9 @@ function InfoTabs({
   // Pre-computed class segments
   const baseTabCls =
     "relative z-10 py-2 px-4 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors whitespace-nowrap";
-  const selectedTabCls = "shadow";
   const unselectedTabCls = "text-foreground/60 hover:text-foreground";
   const getTabClassName = (selected: boolean) =>
-    [baseTabCls, selected ? selectedTabCls : unselectedTabCls].join(" ");
+    selected ? baseTabCls : [baseTabCls, unselectedTabCls].join(" ");
 
   // Memoize style object to avoid recreating per render
   const getSelectedStyle = useMemo(() => {
