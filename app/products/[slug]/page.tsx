@@ -96,30 +96,45 @@ export default function ProductPage() {
         label: "Seller",
         content: (
           <div className="flex flex-col gap-4">
-            <Link
-              prefetch
-              aria-label={`See ${product.user.name}’s profile`}
-              className="group flex items-center gap-4 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              href={`/user/${product.user.userId}`}
-            >
-              <Avatar
-                alt={product.user.name}
-                className="group-hover:opacity-90 transition-opacity"
-                size="lg"
-                src={product.user.avatar}
-              />
-              <div>
-                <div className="font-semibold text-lg group-hover:underline underline-offset-2">
-                  {product.user.name}
+            {/* Header row: avatar+name on the left, chat action on the right */}
+            <div className="flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+              <Link
+                prefetch
+                aria-label={`See ${product.user.name}’s profile`}
+                className="group flex items-center gap-4 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                href={`/user/${product.user.userId}`}
+              >
+                <Avatar
+                  alt={product.user.name}
+                  className="group-hover:opacity-90 transition-opacity"
+                  size="lg"
+                  src={product.user.avatar}
+                />
+                <div>
+                  <div className="font-semibold text-lg group-hover:underline underline-offset-2">
+                    {product.user.name}
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold text-yellow-500">
+                    {product.user.rating?.toFixed(1)}
+                    <svg className="inline-block h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 font-semibold text-yellow-500">
-                  {product.user.rating?.toFixed(1)}
-                  <svg className="inline-block h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+              </Link>
+              <Button
+                className="font-semibold"
+                color="secondary"
+                radius="sm"
+                size="sm"
+                variant="light"
+              >
+                <span className="flex items-center gap-2">
+                  <IoChatboxOutline className="w-5 h-5" />
+                  Chat with {product.user.name}
+                </span>
+              </Button>
+            </div>
             <div className="flex flex-col">
               <p
                 ref={sellerDescRef}
@@ -132,6 +147,7 @@ export default function ProductPage() {
                         display: "-webkit-box",
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: "vertical" as any,
+                        fontWeight: 400,
                       }
                     : undefined
                 }
@@ -147,42 +163,7 @@ export default function ProductPage() {
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-4">
-              <Button
-                className="font-semibold"
-                color="secondary"
-                radius="sm"
-                size="sm"
-                variant="light"
-              >
-                <span className="flex items-center gap-2">
-                  <IoChatboxOutline className="w-5 h-5" />
-                  Chat with {product.user.name}
-                </span>
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {product.smokeFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Smoke-free home
-                </span>
-              )}
-              {product.petFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Pet-free home
-                </span>
-              )}
-              {product.perfumeFree && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Perfume-free
-                </span>
-              )}
-              {product.bundleDeal && (
-                <span className="rounded-full text-sm px-3 py-1 bg-default-100 dark:bg-slate-800/60">
-                  Bundle deal available
-                </span>
-              )}
-            </div>
+            {/* Chat action moved to header row above */}
           </div>
         ),
       },
@@ -236,7 +217,7 @@ export default function ProductPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-[#2A1A3C]"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>
@@ -247,7 +228,7 @@ export default function ProductPage() {
             {(product.shippingMethods.includes("pickup") ||
               product.shippingMethods.includes("local-delivery")) && (
               <a
-                className="self-start text-sm font-semibold text-primary hover:underline"
+                className="self-start text-sm font-semibold text-primary hover:underline px-2"
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -328,7 +309,7 @@ export default function ProductPage() {
       <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
         {/* On small screens: order = image, right-upper, left-bottom, right-bottom.
             On lg+: two columns, each stacking independently. */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
           {/* Left column wrapper: contents on small so children can reorder, flex column on lg+ */}
           <div className="contents lg:flex lg:flex-col lg:gap-8">
             {/* 1) Image block */}
@@ -351,7 +332,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex flex-col gap-3">
                   <h4 className="text-2xl font-bold">{product.price}</h4>
-                  <div className="flex items-center gap-4 mt-2 mb-4">
+                  <div className="flex items-center gap-4 mt-2">
                     <Button
                       disableAnimation
                       disableRipple
@@ -375,7 +356,12 @@ export default function ProductPage() {
                   </div>
                 </div>
               </div>
-              <InfoTabs items={tabItems} selectedIndex={selectedTab} onChange={setSelectedTab} />
+              <InfoTabs
+                items={tabItems}
+                selectedIndex={selectedTab}
+                theme="blue"
+                onChange={setSelectedTab}
+              />
             </div>
           </div>
 

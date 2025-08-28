@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
+import { IoChatboxOutline } from "react-icons/io5";
 
 import ProductMedia from "@/components/ProductMedia";
 import Card from "@/components/Card";
@@ -128,7 +129,7 @@ export default function UserPage() {
       key: "about",
       label: "About",
       content: (
-        <div className="space-y-3">
+        <div className="space-y-3 p-2">
           <p
             ref={aboutRef}
             className="text-foreground/80 text-base leading-relaxed"
@@ -156,9 +157,6 @@ export default function UserPage() {
             </button>
           )}
           <div className="flex gap-3">
-            <Button className="cta-outline font-semibold" radius="full" size="sm">
-              Message
-            </Button>
             <Button className="font-semibold" radius="full" size="sm" variant="light">
               Share
             </Button>
@@ -178,29 +176,29 @@ export default function UserPage() {
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             {aggregated?.flags.bundleDeal && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Bundle Deal
               </span>
             )}
             {aggregated?.flags.petFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Pet-Free
               </span>
             )}
             {aggregated?.flags.smokeFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Smoke-Free
               </span>
             )}
             {aggregated?.flags.perfumeFree && (
-              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60">
+              <span className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]">
                 Perfume-Free
               </span>
             )}
             {aggregated?.shipping.map((m) => (
               <span
                 key={m}
-                className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-slate-800/60"
+                className="rounded-full bg-default-100 px-3 py-1 text-sm dark:bg-[#2A1A3C]"
               >
                 {m === "pickup" ? "Pickup" : m === "local-delivery" ? "Local Delivery" : "Shipping"}
               </span>
@@ -236,7 +234,7 @@ export default function UserPage() {
                 return (
                   <li
                     key={method}
-                    className="flex items-center justify-between rounded-full px-4 py-2 bg-default-100 dark:bg-slate-800/60"
+                    className="flex items-center justify-between rounded-full p-2 bg-default-100 dark:bg-[#2A1A3C]"
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-foreground/70 text-sm">{info}</span>
@@ -250,7 +248,7 @@ export default function UserPage() {
           {(aggregated?.shipping.includes("pickup") ||
             aggregated?.shipping.includes("local-delivery")) && (
             <a
-              className="self-start text-sm font-semibold text-primary hover:underline"
+              className="self-start text-sm font-semibold text-primary hover:underline px-2"
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Hannemanns Alle 4A")}`}
               rel="noopener noreferrer"
               target="_blank"
@@ -279,7 +277,7 @@ export default function UserPage() {
     <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
       {/* Responsive profile header using product page grid template */}
       {/* On small screens: order = avatar block (1), details (2). On lg+: two columns. */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         {/* Left column wrapper */}
         <div className="contents lg:flex lg:flex-col lg:gap-8">
           {/* 1) Avatar / identity block */}
@@ -301,20 +299,38 @@ export default function UserPage() {
         {/* Right column wrapper */}
         <div className="contents lg:flex lg:flex-col lg:gap-8">
           {/* 2) Details with product-like tabs */}
-          <div className="order-2 lg:order-none flex flex-col gap-6 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{user?.name || `User ${slug}`}</h1>
+          <div className="order-2 lg:order-none flex flex-col gap-4 flex-1">
+            <div className="flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {user?.name || `User ${slug}`}
+                </h1>
+                {user && (
+                  <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
+                    {user.rating.toFixed(1)}
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               {user && (
-                <div className="mt-1 flex items-center gap-1 font-semibold text-yellow-500">
-                  {user.rating.toFixed(1)}
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                  </svg>
-                </div>
+                <Button
+                  className="font-semibold"
+                  color="secondary"
+                  radius="sm"
+                  size="sm"
+                  variant="light"
+                >
+                  <span className="flex items-center gap-2">
+                    <IoChatboxOutline className="w-5 h-5" />
+                    Chat with {user.name}
+                  </span>
+                </Button>
               )}
             </div>
 
-            {user && <InfoTabs items={tabItems} />}
+            {user && <InfoTabs items={tabItems} theme="yellow" />}
           </div>
         </div>
       </div>

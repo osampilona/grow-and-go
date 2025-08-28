@@ -29,7 +29,7 @@ export default function ReviewCard({ review }: Props) {
     : date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
   return (
-    <article className="rounded-2xl border border-default-200/60 bg-content1 p-4 flex flex-col gap-3">
+    <article className="rounded-2xl border border-default-200/60 bg-content1 dark:bg-[#2A1A3C] p-4 flex flex-col gap-3">
       <div className="flex items-start gap-3">
         <Avatar alt={review.reviewer.name} size="sm" src={review.reviewer.avatar} />
         <div className="flex-1">
@@ -63,7 +63,7 @@ export default function ReviewCard({ review }: Props) {
 // Lightweight placeholder matching ReviewCard layout
 export function ReviewCardSkeleton() {
   return (
-    <article className="rounded-2xl border border-default-200/60 bg-content1 p-4 flex flex-col gap-3">
+    <article className="rounded-2xl border border-default-200/60 bg-content1 dark:bg-[#2A1A3C] p-4 flex flex-col gap-3">
       <div className="flex items-start gap-3">
         <Skeleton className="h-8 w-8 rounded-full" />
         <div className="flex-1">
