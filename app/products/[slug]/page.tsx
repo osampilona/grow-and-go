@@ -359,7 +359,7 @@ export default function ProductPage() {
               <InfoTabs
                 items={tabItems}
                 selectedIndex={selectedTab}
-                theme="blue"
+                tabColor="#2B7FFF"
                 onChange={setSelectedTab}
               />
             </div>
