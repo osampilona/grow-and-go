@@ -14,9 +14,10 @@ export type InfoTabsProps = {
   className?: string;
   listClassName?: string;
   panelsClassName?: string;
-  tabClassName?: string | ((selected: boolean) => string);
   /** Background color for the active tab (any valid CSS color, e.g. "#2B7FFF") */
   tabColor?: string;
+  /** Text color for the active tab (any valid CSS color, e.g. "#111827"). Defaults to white when tabColor is set and this is not provided. */
+  tabTextColor?: string;
   /** When true (default), inactive panels are unmounted to avoid extra work. */
   unmountInactivePanels?: boolean;
   defaultIndex?: number;
@@ -29,8 +30,8 @@ export default function InfoTabs({
   className,
   listClassName,
   panelsClassName,
-  tabClassName,
   tabColor,
+  tabTextColor,
   unmountInactivePanels: _unmountInactivePanels = true,
   defaultIndex = 0,
   selectedIndex,
@@ -50,9 +51,6 @@ export default function InfoTabs({
 
   // Function to generate tab className
   const getTabClassName = (selected: boolean) => {
-    if (typeof tabClassName === "function") return tabClassName(selected);
-    if (typeof tabClassName === "string") return tabClassName;
-
     return [
       "relative z-10 py-2 px-4 text-sm font-semibold uppercase outline-none cursor-pointer select-none rounded-3xl transition-colors whitespace-nowrap",
       selected ? "shadow" : "text-foreground/60 hover:text-foreground",
@@ -63,16 +61,16 @@ export default function InfoTabs({
     <div className={className}>
       <Tab.Group {...controlledProps}>
         <Tab.List className={tabListCls}>
-          {items.map((t, i) => (
+          {items.map((t) => (
             <Tab key={t.key} as={Fragment}>
               {({ selected }) => (
                 <button
                   className={getTabClassName(selected)}
                   style={
-                    selected && tabColor
+                    selected && (tabColor || tabTextColor)
                       ? {
-                          backgroundColor: tabColor,
-                          color: "#fff",
+                          ...(tabColor ? { backgroundColor: tabColor } : {}),
+                          ...(tabTextColor ? { color: tabTextColor } : { color: "#fff" }),
                           transition: "background-color 320ms, color 320ms",
                         }
                       : undefined
