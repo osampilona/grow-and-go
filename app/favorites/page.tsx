@@ -23,8 +23,8 @@ export default function FavoritesPage() {
   const likedItems = mockFeed.filter((it) => !!likedMap[it.id]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full bg-transparent rounded-3xl flex flex-col gap-4 justify-between py-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Favorites</h1>
         <span className="text-sm text-foreground/60">
           {likedItems.length} item{likedItems.length === 1 ? "" : "s"}
@@ -57,7 +57,7 @@ export default function FavoritesPage() {
           </NextLink>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {likedItems.map((f) => (
             <Card key={f.id} item={toCardItem(f)} />
           ))}
