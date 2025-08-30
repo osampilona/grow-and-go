@@ -193,6 +193,18 @@ export default function ProductPage() {
                 {descExpanded ? "Read less" : "Read more"}
               </button>
             )}
+            <div className="mt-3 text-sm text-foreground/60">
+              {(() => {
+                const d = new Date(product.listedAt);
+                const formatted = d.toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                });
+
+                return <>Published: {formatted}</>;
+              })()}
+            </div>
           </div>
         ),
       },

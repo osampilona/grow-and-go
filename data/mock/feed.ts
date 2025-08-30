@@ -29,9 +29,12 @@ export type FeedItem = {
   perfumeFree: boolean;
   bundleDeal: boolean; // qualifies for bundle
   sellerRating: number; // duplicated for quick filter access (could differ from user.rating later)
+  // ISO timestamp when the listing was set for sale
+  listedAt: string;
 };
 
-export const mockFeed: FeedItem[] = [
+// Base dataset without computed listedAt
+const mockFeedBase = [
   {
     id: "1",
     title: "Baby clothes (0-24 months)",
@@ -1670,6 +1673,20 @@ export const mockFeed: FeedItem[] = [
     sellerRating: 4.9,
   },
 ];
+
+// Export dataset with a deterministic listedAt for each item (2–22 days ago based on id)
+export const mockFeed: FeedItem[] = (mockFeedBase as Array<Omit<FeedItem, "listedAt">>).map(
+  (it) => {
+    const idNum = Number(it.id);
+    const d = new Date();
+
+    if (!Number.isNaN(idNum)) {
+      d.setDate(d.getDate() - ((idNum % 21) + 2));
+    }
+
+    return { ...it, listedAt: d.toISOString() };
+  }
+);
 
 export function fetchFeed(): Promise<FeedItem[]> {
   return new Promise((resolve) => {
