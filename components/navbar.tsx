@@ -1,12 +1,20 @@
 "use client";
 
 import { Navbar as HeroUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@heroui/navbar";
-import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import { Button } from "@heroui/button";
 import { Badge } from "@heroui/badge";
 import { memo, useCallback, useEffect, useState, useMemo, useRef } from "react";
+import {
+  IoSettingsOutline,
+  IoPersonOutline,
+  IoCartOutline,
+  IoHeartOutline,
+  IoReceiptOutline,
+  IoChatbubbleOutline,
+} from "react-icons/io5";
 import NextLink from "next/link";
 import Image from "next/image";
 
@@ -14,32 +22,27 @@ import { useCategoryStore } from "../stores/categoryStore";
 import { useFilterStore } from "../stores/filterStore";
 
 import FiltersList from "./FiltersList";
-import { FilterSection } from "./FilterSection";
 import { FiltersHeader } from "./FiltersHeader";
 import CategoriesList from "./CategoriesList";
-import { CloseIcon } from "./icons";
+//
 import SubcategoryChipsBar from "./SubcategoryChipsBar";
 
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useLikeStore } from "@/stores/likeStore";
 
 export const Navbar = memo(function Navbar() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const {
-    isOpen: isMenuOpen,
-    onOpen: onMenuOpen,
-    onOpenChange: onMenuOpenChange,
-  } = useDisclosure();
+  const { onOpen } = useDisclosure();
+  const { isOpen: isMenuOpen, onOpenChange: onMenuOpenChange } = useDisclosure();
   const { isOpen: isFiltersModalOpen, onOpenChange: onFiltersModalOpenChange } = useDisclosure();
 
   // Optimized category store subscriptions (individual but grouped)
   // const _selectedCategoriesCount = useCategoryStore((state) => state.getSelectedCount());
   const tempSelectedCategoriesCount = useCategoryStore((state) => state.getTempSelectedCount());
-  const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
+  // const isEverythingSelected = useCategoryStore((state) => state.isSelected("everything"));
   const resetToDefault = useCategoryStore((state) => state.resetToDefault);
   const initializeTemp = useCategoryStore((state) => state.initializeTemp);
-  const applyTemp = useCategoryStore((state) => state.applyTemp);
-  const cancelTemp = useCategoryStore((state) => state.cancelTemp);
+  // const applyTemp = useCategoryStore((state) => state.applyTemp);
+  // const cancelTemp = useCategoryStore((state) => state.cancelTemp);
   // const toggleTempCategory = useCategoryStore((state) => state.toggleTempCategory);
 
   // Get filter state and actions from store
@@ -67,31 +70,27 @@ export const Navbar = memo(function Navbar() {
   const resetFilters = useFilterStore((state) => state.resetFilters);
 
   // State to track screen size
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  // Track if large screen (reserved)
+  // const [isLargeScreen, setIsLargeScreen] = useState(false);
 
   // Effect to handle screen size detection
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint is 1024px
-    };
-
-    // Check on mount
-    checkScreenSize();
-
-    // Listen for resize events
-    window.addEventListener("resize", checkScreenSize);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkScreenSize);
+    // Reserved for future responsive logic
+    // const checkScreenSize = () => {
+    //   setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint is 1024px
+    // };
+    // checkScreenSize();
+    // window.addEventListener("resize", checkScreenSize);
+    // return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   // Memoized close handlers to prevent unnecessary re-renders
-  const onClose = useCallback(() => {
-    // Reset temp state when drawer closes without applying
-    cancelTemp();
-    cancelFilters();
-    onOpenChange();
-  }, [onOpenChange, cancelTemp, cancelFilters]);
+  // const onClose = useCallback(() => {
+  //   // Reset temp state when drawer closes without applying
+  //   cancelTemp();
+  //   cancelFilters();
+  //   onOpenChange();
+  // }, [onOpenChange, cancelTemp, cancelFilters]);
 
   const onMenuClose = useCallback(() => {
     onMenuOpenChange();
@@ -105,9 +104,9 @@ export const Navbar = memo(function Navbar() {
     onOpen();
   }, [onOpen, initializeTemp, initializeTempFilters]);
 
-  const handleMenuOpen = useCallback(() => {
-    onMenuOpen();
-  }, [onMenuOpen]);
+  // const handleMenuOpen = useCallback(() => {
+  //   onMenuOpen();
+  // }, [onMenuOpen]);
 
   // Favorites count
   const favoritesCount = useLikeStore((s) => Object.keys(s.likedIds).length);
@@ -123,10 +122,10 @@ export const Navbar = memo(function Navbar() {
   }, [onFiltersModalOpenChange, setFiltersSelected, cancelFilters]);
 
   // Handler for applying filters (save temp state to main state)
-  const handleApplyAll = useCallback(() => {
-    applyTemp();
-    applyFilters();
-  }, [applyTemp, applyFilters]);
+  // const handleApplyAll = useCallback(() => {
+  //   applyTemp();
+  //   applyFilters();
+  // }, [applyTemp, applyFilters]);
 
   // Handler for applying filters (save temp state to main state)
   const handleApplyFilters = useCallback(() => {
@@ -138,10 +137,10 @@ export const Navbar = memo(function Navbar() {
     cancelFilters();
   }, [cancelFilters]);
 
-  const handleCancelAll = useCallback(() => {
-    cancelTemp();
-    cancelFilters();
-  }, [cancelTemp, cancelFilters]);
+  // const handleCancelAll = useCallback(() => {
+  //   cancelTemp();
+  //   cancelFilters();
+  // }, [cancelTemp, cancelFilters]);
 
   // Handler for clearing individual filters (works on temp state in modal)
   const handleClearGender = useCallback(
@@ -189,10 +188,10 @@ export const Navbar = memo(function Navbar() {
     clearTempLocationRange();
   }, [clearTempLocationRange]);
 
-  const handleClearCategory = useCallback((_category: string) => {
-    // In single-select mode clearing a category returns to 'everything'
-    useCategoryStore.setState({ tempSelected: ["everything"] });
-  }, []);
+  // const handleClearCategory = useCallback((_category: string) => {
+  //   // In single-select mode clearing a category returns to 'everything'
+  //   useCategoryStore.setState({ tempSelected: ["everything"] });
+  // }, []);
 
   // const handleClearAllFilters = useCallback(() => {
   //   clearAllTempFilters();
@@ -216,9 +215,9 @@ export const Navbar = memo(function Navbar() {
   );
 
   // Handler for resetting categories only (only affects temp state)
-  const handleResetCategories = useCallback(() => {
-    resetHandlers.resetCategories();
-  }, [resetHandlers]);
+  // const handleResetCategories = useCallback(() => {
+  //   resetHandlers.resetCategories();
+  // }, [resetHandlers]);
 
   // Handler for resetting filters only (only affects temp state)
   const handleResetFilters = useCallback(() => {
@@ -226,9 +225,9 @@ export const Navbar = memo(function Navbar() {
   }, [resetHandlers]);
 
   // Handler for resetting everything (only affects temp state)
-  const handleResetAll = useCallback(() => {
-    resetHandlers.resetAll();
-  }, [resetHandlers]);
+  // const handleResetAll = useCallback(() => {
+  //   resetHandlers.resetAll();
+  // }, [resetHandlers]);
 
   // Calculate category count (exclude "everything" from count)
   const categoryCount = tempSelectedCategoriesCount;
@@ -343,156 +342,109 @@ export const Navbar = memo(function Navbar() {
 
         <NavbarContent className="basis-1/5 sm:basis-full" justify="end">
           <NavbarItem>
-            <button className="flex items-center cursor-pointer" onClick={handleMenuOpen}>
-              <Image
-                alt="Menu"
-                className="w-8 h-8 object-contain"
-                height={32}
-                src="/baby-toy.svg"
-                width={32}
-              />
-            </button>
+            <Popover
+              backdrop="opaque"
+              isOpen={isMenuOpen}
+              placement="bottom-end"
+              radius="lg"
+              size="lg"
+              onOpenChange={onMenuOpenChange}
+            >
+              <PopoverTrigger>
+                <button className="flex items-center cursor-pointer">
+                  <Image
+                    alt="Menu"
+                    className="w-8 h-8 object-contain"
+                    height={32}
+                    src="/baby-toy.svg"
+                    width={32}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="bg-white dark:bg-[#24032c] p-4 w-80">
+                <div className="flex flex-col gap-4 w-full">
+                  <div className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-default-100 transition-colors">
+                    <ThemeSwitch />
+                    <span className="text-sm font-medium">Theme</span>
+                  </div>
+                  {/* Login / Register */}
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/auth"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoPersonOutline className="w-5 h-5" />
+                      Login / Register
+                    </span>
+                  </NextLink>
+                  {/* Cart / Checkout */}
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/checkout"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoCartOutline className="w-5 h-5" />
+                      Cart
+                    </span>
+                  </NextLink>
+                  {/* Orders */}
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/orders"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoReceiptOutline className="w-5 h-5" />
+                      Orders History
+                    </span>
+                  </NextLink>
+                  {/* Chat */}
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/chat"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoChatbubbleOutline className="w-5 h-5" />
+                      Messages
+                    </span>
+                  </NextLink>
+                  {/* Settings */}
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/settings"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoSettingsOutline className="w-5 h-5" />
+                      Settings
+                    </span>
+                  </NextLink>
+                  <NextLink
+                    className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
+                    href="/favorites"
+                    onClick={onMenuClose}
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <IoHeartOutline className="w-5 h-5" />
+                      Favorites
+                    </span>
+                    {favoritesCount > 0 && (
+                      <span className="text-xs font-semibold bg-rose-200 text-rose-800 rounded-full px-2 py-0.5">
+                        {favoritesCount}
+                      </span>
+                    )}
+                  </NextLink>
+                </div>
+              </PopoverContent>
+            </Popover>
           </NavbarItem>
         </NavbarContent>
       </HeroUINavbar>
       {/* Subcategory chips bar (hidden on small screens, visible lg+) */}
       <SubcategoryChipsBar className="hidden lg:block" stickyOffset={navHeight} />
-
-      {/* Top Drawer for Categories */}
-      <Drawer
-        backdrop="opaque"
-        isDismissable={true}
-        isOpen={isOpen}
-        placement="top"
-        size="xl"
-        onOpenChange={(open) => {
-          if (!open) {
-            // Reset temp state when drawer closes
-            cancelTemp();
-            cancelFilters();
-          }
-          onOpenChange();
-        }}
-      >
-        <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
-          <DrawerHeader className="flex flex-col gap-3">
-            <FiltersHeader
-              showCategoryChips={true}
-              showResetAll={
-                (categoryCount > 0 || !isEverythingSelected) &&
-                (filterCount > 0 || hasTempActiveFilters())
-              }
-              title="Categories & Filters"
-              onClearAgeRange={handleClearAgeRange}
-              onClearCategory={handleClearCategory}
-              onClearGender={handleClearGender}
-              onClearInStock={handleClearInStock}
-              onClearItemCondition={handleClearItemCondition}
-              onClearLocationRange={handleClearLocationRange}
-              onClearOnSale={handleClearOnSale}
-              onClearPriceRange={handleClearPriceRange}
-              onClearSellerRating={handleClearSellerRating}
-              onClearSortBy={handleClearSortBy}
-              onClose={onClose}
-              onResetAll={handleResetAll}
-            />
-          </DrawerHeader>
-          <DrawerBody className="pb-6">
-            <FilterSection
-              onResetCategories={handleResetCategories}
-              onResetFilters={handleResetFilters}
-            />
-          </DrawerBody>
-          <DrawerFooter>
-            <Button
-              color="danger"
-              variant="light"
-              onPress={() => {
-                handleCancelAll();
-                onClose();
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              color="primary"
-              onPress={() => {
-                handleApplyAll();
-                onClose();
-              }}
-            >
-              Apply
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Right Drawer for Menu */}
-      <Drawer
-        backdrop="opaque"
-        isDismissable={true}
-        isOpen={isMenuOpen}
-        placement="right"
-        size={isLargeScreen ? "sm" : "xs"}
-        onOpenChange={onMenuOpenChange}
-      >
-        <DrawerContent className="bg-white dark:bg-[#24032c] hide-close-button">
-          <DrawerHeader className="flex items-center justify-between px-4 py-3">
-            <h2 className="text-lg font-semibold">Menu</h2>
-            <Button
-              isIconOnly
-              className="text-foreground-500"
-              radius="full"
-              variant="light"
-              onPress={onMenuClose}
-            >
-              <CloseIcon />
-            </Button>
-          </DrawerHeader>
-          <DrawerBody className="pb-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Theme</span>
-                <ThemeSwitch />
-              </div>
-              <NextLink
-                className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-default-100 transition-colors cursor-pointer"
-                href="/favorites"
-                onClick={onMenuClose}
-              >
-                <span className="text-sm font-medium flex items-center gap-2">
-                  {/* Heart icon */}
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16.5 3.75a5.25 5.25 0 00-4.5 2.472A5.25 5.25 0 007.5 3.75 5.25 5.25 0 003 9c0 7.25 9 11.25 9 11.25s9-4 9-11.25a5.25 5.25 0 00-5.25-5.25z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Favorites
-                </span>
-                {favoritesCount > 0 && (
-                  <span className="text-xs font-semibold bg-rose-200 text-rose-800 rounded-full px-2 py-0.5">
-                    {favoritesCount}
-                  </span>
-                )}
-              </NextLink>
-            </div>
-          </DrawerBody>
-          <DrawerFooter>
-            <Button color="primary" onPress={onMenuClose}>
-              Close
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
 
       {/* Filters Modal */}
       <Modal
